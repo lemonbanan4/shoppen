@@ -1,8 +1,0 @@
-node_modules
-.medusa
-.env
-.env.*
-!.env.template
-*.log
-.git
-.DS_Store

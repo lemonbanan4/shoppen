@@ -1,8 +1,0 @@
-node_modules
-.next
-.env
-.env.*
-!.env.template
-*.log
-.git
-.DS_Store
