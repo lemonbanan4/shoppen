@@ -386,9 +386,11 @@ export default async function rebuildProductsWithOptions({
   // ——— Recreate standalone (filterable) options from scratch ———
   const { data: existingOptions } = await query.graph({
     entity: "product_option",
-    fields: ["id", "title", "product_id"],
+    fields: ["id", "title", "products.id"],
   });
-  const standaloneOptions = existingOptions.filter((o) => !o.product_id);
+  const standaloneOptions = existingOptions.filter(
+    (o) => !o.products?.length
+  );
   if (standaloneOptions.length) {
     logger.info(
       `Deleting ${standaloneOptions.length} standalone options (${standaloneOptions
