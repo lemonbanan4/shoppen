@@ -46,6 +46,11 @@ yarn-error.log*
 # TypeScript incremental build cache
 *.tsbuildinfo
 
+# next-sitemap output (generated at build time)
+apps/storefront/public/robots.txt
+apps/storefront/public/sitemap.xml
+apps/storefront/public/sitemap-*.xml
+
 # vercel
 .vercel
 
