@@ -17,7 +17,64 @@ import { PrintifyClient, PrintifyProduct } from "../lib/printify-client";
  *
  * Safe to re-run: previously synced products are replaced with the latest
  * Printify data. Requires PRINTIFY_API_TOKEN in apps/backend/.env.
+ *
+ * Prices set in Printify ("Edit price") are assumed to be in
+ * PRINTIFY_PRICE_CURRENCY (defaults to "usd" — Printify's default shop
+ * currency). That price is used as-is for that currency, and converted at
+ * the current market rate for every other currency the store sells in
+ * (only "eur" today), rather than copying the raw number across currencies.
  */
+
+const STORE_CURRENCIES = ["usd", "eur"];
+
+/**
+ * Live mid-market rates from Frankfurter (ECB reference rates, no API key).
+ * Falls back to an approximate hardcoded rate if the request fails, so a
+ * network hiccup doesn't block the whole sync — but always logs which mode
+ * was used.
+ */
+const fetchExchangeRates = async (
+  base: string,
+  targets: string[],
+  logger: { warn: (msg: string) => void; info: (msg: string) => void }
+): Promise<Record<string, number>> => {
+  const rates: Record<string, number> = { [base]: 1 };
+  const others = targets.filter((c) => c !== base);
+  if (!others.length) return rates;
+
+  const FALLBACK_RATES: Record<string, Record<string, number>> = {
+    usd: { eur: 0.87 },
+    eur: { usd: 1.15 },
+  };
+
+  try {
+    const symbols = others.map((c) => c.toUpperCase()).join(",");
+    const res = await fetch(
+      `https://api.frankfurter.dev/v1/latest?base=${base.toUpperCase()}&symbols=${symbols}`
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as { rates: Record<string, number> };
+    for (const target of others) {
+      const rate = data.rates[target.toUpperCase()];
+      if (!rate) throw new Error(`No rate returned for ${target}`);
+      rates[target] = rate;
+    }
+    logger.info(
+      `Live FX rates from ${base.toUpperCase()}: ${others
+        .map((c) => `${c.toUpperCase()}=${rates[c]}`)
+        .join(", ")}`
+    );
+  } catch (e: any) {
+    logger.warn(
+      `Could not fetch live exchange rates (${e.message}) — using approximate fallback rates. Re-run the sync later to pick up live rates.`
+    );
+    for (const target of others) {
+      rates[target] = FALLBACK_RATES[base]?.[target] ?? 1;
+    }
+  }
+
+  return rates;
+};
 
 const stripHtml = (html: string) =>
   (html || "")
@@ -40,6 +97,7 @@ const toMedusaProduct = (
     salesChannelId: string;
     shippingProfileId: string;
     shopId: number;
+    exchangeRates: Record<string, number>;
   }
 ) => {
   const valueTitle = new Map<number, { option: string; title: string }>();
@@ -89,19 +147,20 @@ const toMedusaProduct = (
           optionValues[entry.option] = entry.title;
         }
       }
-      const retail = v.price / 100;
+      const sourceAmount = v.price / 100;
       return {
         title: v.title,
         sku: v.sku || undefined,
         options: optionValues,
         manage_inventory: false,
         metadata: { printify_variant_id: v.id },
-        prices: [
-          { amount: retail, currency_code: "usd" },
-          // 1:1 EUR pricing by default — adjust in the admin if you want
-          // proper FX or region-specific margins.
-          { amount: retail, currency_code: "eur" },
-        ],
+        prices: STORE_CURRENCIES.map((currency_code) => ({
+          currency_code,
+          amount:
+            Math.round(
+              sourceAmount * ctx.exchangeRates[currency_code] * 100
+            ) / 100,
+        })),
       };
     }),
     sales_channels: [{ id: ctx.salesChannelId }],
@@ -144,6 +203,15 @@ export default async function syncPrintifyProducts({
     );
     return;
   }
+
+  const sourceCurrency = (
+    process.env.PRINTIFY_PRICE_CURRENCY || "usd"
+  ).toLowerCase();
+  const exchangeRates = await fetchExchangeRates(
+    sourceCurrency,
+    STORE_CURRENCIES,
+    logger
+  );
 
   // ——— Infra lookups ———
   const { data: salesChannels } = await query.graph({
@@ -196,6 +264,7 @@ export default async function syncPrintifyProducts({
     salesChannelId: salesChannels[0].id,
     shippingProfileId: shippingProfiles[0].id,
     shopId,
+    exchangeRates,
   };
 
   let created = 0;
