@@ -23,6 +23,11 @@ import { PrintifyClient, PrintifyProduct } from "../lib/printify-client";
  * currency). That price is used as-is for that currency, and converted at
  * the current market rate for every other currency the store sells in
  * (only "eur" today), rather than copying the raw number across currencies.
+ *
+ * Converted prices are then rounded to the nearest psychological ("charm")
+ * price ending in .99 — e.g. a converted €36.997 becomes €36.99, not some
+ * odd FX-driven fraction. Set PRINTIFY_PSYCHOLOGICAL_ROUNDING=false to keep
+ * exact converted amounts instead.
  */
 
 const STORE_CURRENCIES = ["usd", "eur"];
@@ -76,6 +81,17 @@ const fetchExchangeRates = async (
   return rates;
 };
 
+/**
+ * Rounds to the nearest charm price ending in .99 (e.g. 42.31 -> 41.99,
+ * 37.00 -> 36.99). Uses integer-cents arithmetic to avoid floating-point
+ * artifacts from subtracting 0.01 directly.
+ */
+const toPsychologicalPrice = (amount: number): number => {
+  if (amount < 1) return Math.round(amount * 100) / 100;
+  const nearestWholeCents = Math.round(amount) * 100;
+  return (nearestWholeCents - 1) / 100;
+};
+
 const stripHtml = (html: string) =>
   (html || "")
     .replace(/<br\s*\/?>/gi, "\n")
@@ -98,6 +114,7 @@ const toMedusaProduct = (
     shippingProfileId: string;
     shopId: number;
     exchangeRates: Record<string, number>;
+    psychologicalRounding: boolean;
   }
 ) => {
   const valueTitle = new Map<number, { option: string; title: string }>();
@@ -154,13 +171,15 @@ const toMedusaProduct = (
         options: optionValues,
         manage_inventory: false,
         metadata: { printify_variant_id: v.id },
-        prices: STORE_CURRENCIES.map((currency_code) => ({
-          currency_code,
-          amount:
-            Math.round(
-              sourceAmount * ctx.exchangeRates[currency_code] * 100
-            ) / 100,
-        })),
+        prices: STORE_CURRENCIES.map((currency_code) => {
+          const converted = sourceAmount * ctx.exchangeRates[currency_code];
+          return {
+            currency_code,
+            amount: ctx.psychologicalRounding
+              ? toPsychologicalPrice(converted)
+              : Math.round(converted * 100) / 100,
+          };
+        }),
       };
     }),
     sales_channels: [{ id: ctx.salesChannelId }],
@@ -211,6 +230,11 @@ export default async function syncPrintifyProducts({
     sourceCurrency,
     STORE_CURRENCIES,
     logger
+  );
+  const psychologicalRounding =
+    process.env.PRINTIFY_PSYCHOLOGICAL_ROUNDING !== "false";
+  logger.info(
+    `Psychological (.99) rounding: ${psychologicalRounding ? "on" : "off"}`
   );
 
   // ——— Infra lookups ———
@@ -265,6 +289,7 @@ export default async function syncPrintifyProducts({
     shippingProfileId: shippingProfiles[0].id,
     shopId,
     exchangeRates,
+    psychologicalRounding,
   };
 
   let created = 0;
