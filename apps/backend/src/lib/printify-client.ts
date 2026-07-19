@@ -83,7 +83,7 @@ export class PrintifyClient {
 
   private async request<T>(
     path: string,
-    method: "GET" | "POST" = "GET",
+    method: "GET" | "POST" | "PUT" = "GET",
     body?: unknown
   ): Promise<T> {
     const res = await fetch(`${BASE_URL}${path}`, {
@@ -128,6 +128,30 @@ export class PrintifyClient {
     limit = 50
   ): Promise<{ data: PrintifyProduct[]; last_page: number }> {
     return this.request(`/shops/${shopId}/products.json?page=${page}&limit=${limit}`);
+  }
+
+  async getProduct(shopId: number, productId: string): Promise<PrintifyProduct> {
+    return this.request(`/shops/${shopId}/products/${productId}.json`);
+  }
+
+  /**
+   * Sets the same retail price (in cents, Printify's shop currency) on every
+   * variant of a product. Sends the full variant list on every call since
+   * Printify's update endpoint expects each variant you want preserved.
+   */
+  async setUniformVariantPrice(
+    shopId: number,
+    productId: string,
+    priceCents: number
+  ): Promise<PrintifyProduct> {
+    const product = await this.getProduct(shopId, productId);
+    return this.request(`/shops/${shopId}/products/${productId}.json`, "PUT", {
+      variants: product.variants.map((v) => ({
+        id: v.id,
+        price: priceCents,
+        is_enabled: v.is_enabled,
+      })),
+    });
   }
 
   async createOrder(
