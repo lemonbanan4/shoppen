@@ -134,6 +134,16 @@ export class PrintifyClient {
     return this.request(`/shops/${shopId}/products/${productId}.json`);
   }
 
+  async updateProductTitle(
+    shopId: number,
+    productId: string,
+    title: string
+  ): Promise<PrintifyProduct> {
+    return this.request(`/shops/${shopId}/products/${productId}.json`, "PUT", {
+      title,
+    });
+  }
+
   /**
    * Sets the same retail price (in cents, Printify's shop currency) on every
    * variant of a product. Sends the full variant list on every call since
