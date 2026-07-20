@@ -52,7 +52,53 @@ What you get:
   on the Medusa order for support lookups.
 - Re-run the sync script any time you add/change products in Printify.
 
-## 2. Stripe (the "all payment methods" answer)
+## 2. Printful (print-on-demand — embroidery pieces)
+
+Runs alongside Printify as a second, independent print-on-demand supplier.
+Use this for products Printify doesn't do well (embroidery), keep Printify
+for everything else — both suppliers' products live in the same **Print on
+Demand** category and check out identically; only the backend fulfillment
+routing differs (tracked via each product's `fulfillment` metadata).
+
+**In Printful:**
+
+1. Create your synced products (Printful → Stores → your store → Products) —
+   the sync script only pulls products that are already synced in Printful,
+   it does not create them there.
+2. Go to **Stores → your store → API** and generate a private token.
+
+**In this repo:**
+
+```bash
+# apps/backend/.env
+PRINTFUL_API_TOKEN=...
+PRINTFUL_STORE_ID=            # optional, only for multi-store tokens
+PRINTFUL_AUTO_PRODUCTION=false
+```
+
+Then pull your Printful catalog into the store:
+
+```bash
+cd apps/backend
+npx medusa exec ./src/scripts/sync-printful-products.ts
+```
+
+What you get:
+
+- Every synced Printful product appears under **Print on Demand** — title,
+  mockup images, size/color (and other) variant options, and your Printful
+  retail price. Each variant already quotes its own currency in Printful, so
+  the sync converts from that currency into every other store currency at
+  the live market rate and rounds to a `.99` charm price
+  (`PRINTFUL_PSYCHOLOGICAL_ROUNDING=false` to keep exact converted amounts
+  instead).
+- **Paid orders containing Printful items are submitted to Printful
+  automatically** (as drafts, mirroring Printify). Set
+  `PRINTFUL_AUTO_PRODUCTION=true` to confirm straight to production instead.
+  The Printful order ID is saved on the Medusa order for support lookups.
+- Re-run the sync script any time you add/change synced products in Printful.
+
+## 3. Stripe (the "all payment methods" answer)
 
 Shopify bundles payments because Shopify Payments *is* a payment processor.
 The equivalent here is Stripe: one integration gives you cards, Apple Pay,
@@ -86,7 +132,7 @@ npx medusa exec ./src/scripts/enable-stripe.ts
 
 The manual "test payment" provider stays available for development.
 
-## 3. Resend (transactional email)
+## 4. Resend (transactional email)
 
 Already live in dev mode: emails render to `apps/backend/.medusa/emails/`.
 To actually send:
@@ -100,7 +146,7 @@ STOREFRONT_URL=https://yourdomain.com                  # used in email links
 
 Covered: order confirmation, account welcome, order-transfer requests.
 
-## 4. PostHog (analytics + session replay)
+## 5. PostHog (analytics + session replay)
 
 Cookieless, so it doesn't legally require a cookie-consent banner. Free tier
 covers 1M events/month — a new store won't come close for a long time.
@@ -120,7 +166,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com   # or eu.i.posthog.com
    `sdk.capture()` calls can be added later for custom events (e.g.
    "add_to_cart") if you want funnel-level detail beyond pageviews.
 
-## 5. Sentry (error monitoring)
+## 6. Sentry (error monitoring)
 
 Both apps report crashes/exceptions the moment a DSN is set — nothing else
 to configure for basic error capture.
@@ -142,7 +188,7 @@ NEXT_PUBLIC_SENTRY_DSN=https://...@o0.ingest.sentry.io/...   # same value, brows
    `SENTRY_AUTH_TOKEN` on the storefront enable source-map upload during
    build, giving you readable stack traces instead of minified ones.
 
-## 6. Product reviews — on hold
+## 7. Product reviews — on hold
 
 Deferred until the catalog has more than a couple of products and Stripe is
 live (no point collecting reviews before there's anything to review or a way
@@ -168,6 +214,7 @@ against a real account.
 
 1. Backend logs show no errors on boot (`✔ Server is ready on port: 9000`).
 2. Place a test order end-to-end on `localhost:8000`.
-3. Printify: the order appears in Printify → Orders (as draft unless
-   auto-production). Email: check your inbox (or `.medusa/emails/` without a
-   key). Stripe: payment appears in the Stripe dashboard (test mode first!).
+3. Printify/Printful: the order appears in the respective dashboard's Orders
+   (as draft unless auto-production). Email: check your inbox (or
+   `.medusa/emails/` without a key). Stripe: payment appears in the Stripe
+   dashboard (test mode first!).

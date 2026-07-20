@@ -29,6 +29,7 @@ export default async function orderPlacedPrintifyHandler({
           "id",
           "display_id",
           "email",
+          "metadata",
           "items.*",
           "shipping_address.*",
         ],
@@ -55,7 +56,12 @@ export default async function orderPlacedPrintifyHandler({
         const printifyVariantId = variant?.metadata?.printify_variant_id;
         const printifyProductId = variant?.product?.metadata
           ?.printify_product_id as string | undefined;
-        if (!printifyVariantId || !printifyProductId) {
+        const fulfillment = variant?.product?.metadata?.fulfillment;
+        if (
+          !printifyVariantId ||
+          !printifyProductId ||
+          fulfillment !== "printify"
+        ) {
           return null;
         }
         return {
@@ -114,13 +120,18 @@ export default async function orderPlacedPrintifyHandler({
       );
     }
 
-    // Keep a pointer on the Medusa order for support lookups.
+    // Keep a pointer on the Medusa order for support lookups. Order-level
+    // metadata updates are not merged by the order module (only line-item
+    // metadata is), so an order containing both Printify and Printful items
+    // would have one subscriber's write clobber the other's unless we merge
+    // the existing metadata ourselves before writing.
     try {
       const orderModuleService = container.resolve(Modules.ORDER);
       await orderModuleService.updateOrders([
         {
           id: order.id,
           metadata: {
+            ...(order.metadata || {}),
             printify_order_id: printifyOrderId,
             printify_shop_id: shopId,
           },

@@ -9,6 +9,11 @@ import {
   deleteProductsWorkflow,
 } from "@medusajs/medusa/core-flows";
 import { PrintifyClient, PrintifyProduct } from "../lib/printify-client";
+import {
+  STORE_CURRENCIES,
+  convertToStorePrices,
+  fetchExchangeRates,
+} from "../lib/pricing";
 
 /**
  * Syncs the Printify catalog into this store.
@@ -29,68 +34,6 @@ import { PrintifyClient, PrintifyProduct } from "../lib/printify-client";
  * odd FX-driven fraction. Set PRINTIFY_PSYCHOLOGICAL_ROUNDING=false to keep
  * exact converted amounts instead.
  */
-
-const STORE_CURRENCIES = ["usd", "eur"];
-
-/**
- * Live mid-market rates from Frankfurter (ECB reference rates, no API key).
- * Falls back to an approximate hardcoded rate if the request fails, so a
- * network hiccup doesn't block the whole sync — but always logs which mode
- * was used.
- */
-const fetchExchangeRates = async (
-  base: string,
-  targets: string[],
-  logger: { warn: (msg: string) => void; info: (msg: string) => void }
-): Promise<Record<string, number>> => {
-  const rates: Record<string, number> = { [base]: 1 };
-  const others = targets.filter((c) => c !== base);
-  if (!others.length) return rates;
-
-  const FALLBACK_RATES: Record<string, Record<string, number>> = {
-    usd: { eur: 0.87 },
-    eur: { usd: 1.15 },
-  };
-
-  try {
-    const symbols = others.map((c) => c.toUpperCase()).join(",");
-    const res = await fetch(
-      `https://api.frankfurter.dev/v1/latest?base=${base.toUpperCase()}&symbols=${symbols}`
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = (await res.json()) as { rates: Record<string, number> };
-    for (const target of others) {
-      const rate = data.rates[target.toUpperCase()];
-      if (!rate) throw new Error(`No rate returned for ${target}`);
-      rates[target] = rate;
-    }
-    logger.info(
-      `Live FX rates from ${base.toUpperCase()}: ${others
-        .map((c) => `${c.toUpperCase()}=${rates[c]}`)
-        .join(", ")}`
-    );
-  } catch (e: any) {
-    logger.warn(
-      `Could not fetch live exchange rates (${e.message}) — using approximate fallback rates. Re-run the sync later to pick up live rates.`
-    );
-    for (const target of others) {
-      rates[target] = FALLBACK_RATES[base]?.[target] ?? 1;
-    }
-  }
-
-  return rates;
-};
-
-/**
- * Rounds to the nearest charm price ending in .99 (e.g. 42.31 -> 41.99,
- * 37.00 -> 36.99). Uses integer-cents arithmetic to avoid floating-point
- * artifacts from subtracting 0.01 directly.
- */
-const toPsychologicalPrice = (amount: number): number => {
-  if (amount < 1) return Math.round(amount * 100) / 100;
-  const nearestWholeCents = Math.round(amount) * 100;
-  return (nearestWholeCents - 1) / 100;
-};
 
 const stripHtml = (html: string) =>
   (html || "")
@@ -171,15 +114,11 @@ const toMedusaProduct = (
         options: optionValues,
         manage_inventory: false,
         metadata: { printify_variant_id: v.id },
-        prices: STORE_CURRENCIES.map((currency_code) => {
-          const converted = sourceAmount * ctx.exchangeRates[currency_code];
-          return {
-            currency_code,
-            amount: ctx.psychologicalRounding
-              ? toPsychologicalPrice(converted)
-              : Math.round(converted * 100) / 100,
-          };
-        }),
+        prices: convertToStorePrices(
+          sourceAmount,
+          ctx.exchangeRates,
+          ctx.psychologicalRounding
+        ),
       };
     }),
     sales_channels: [{ id: ctx.salesChannelId }],
