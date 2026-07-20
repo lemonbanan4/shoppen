@@ -142,26 +142,25 @@ NEXT_PUBLIC_SENTRY_DSN=https://...@o0.ingest.sentry.io/...   # same value, brows
    `SENTRY_AUTH_TOKEN` on the storefront enable source-map upload during
    build, giving you readable stack traces instead of minified ones.
 
-## 6. Judge.me (product reviews)
+## 6. Product reviews — on hold
 
-1. Sign up at [judge.me](https://judge.me), then in the admin go to
-   **Settings → Advanced → Enable platform-independent widgets** and copy
-   the generated script URL.
-2. Configure:
+Deferred until the catalog has more than a couple of products and Stripe is
+live (no point collecting reviews before there's anything to review or a way
+to actually buy).
 
-```bash
-# apps/storefront/.env.local
-NEXT_PUBLIC_JUDGEME_WIDGET_SCRIPT_URL=https://...
-```
+**Judge.me was the original plan but is no longer viable**: they sunset
+support for every non-Shopify platform (WooCommerce, BigCommerce, custom/
+headless — everything) in January 2026. Their signup flow now redirects
+straight into Shopify's app install, with no path for a Medusa store.
 
-3. Restart the storefront — the review widget renders on every product page.
-   **Important**: Judge.me matches reviews to products by ID in *their*
-   system, so products still need to exist there before reviews show up.
-   Since this store isn't on Shopify/WooCommerce, that means creating them
-   via Judge.me's API or a CSV import — this integration only renders the
-   widget, it doesn't sync products. Ask to have this automated (mirroring
-   the Printify sync pattern) once you have a Judge.me account to test
-   against.
+**[REVIEWS.io](https://www.reviews.io)** is the replacement pick when we
+revisit — genuinely platform-agnostic with a real API for custom/headless
+backends (unlike e.g. Junip, whose "headless" support specifically means
+Shopify Hydrogen and still requires a Shopify backend underneath). Essentials
+tier is $20/mo (300 reviews) with a 14-day free trial. Whenever ready: sign
+up, get an API key, and the integration — plus the product-sync step
+reviews platforms need (mirroring the Printify sync pattern) — gets built
+against a real account.
 
 ---
 

@@ -4,7 +4,6 @@ import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductJsonLd from "@modules/products/components/product-jsonld"
 import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
-import ProductReviews from "@modules/products/components/product-reviews"
 import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
@@ -47,9 +46,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <ProductOnboardingCta />
           <ProductActions product={product} region={region} />
         </div>
-      </div>
-      <div className="content-container">
-        <ProductReviews product={product} />
       </div>
       <div
         className="content-container my-16 small:my-32"
