@@ -38,8 +38,14 @@ What you get:
 
 - Every Printify product appears in the store under the **Print on Demand**
   category — title, description, mockup images, size/color options, and your
-  Printify retail prices (USD, mirrored 1:1 to EUR — adjust in the admin at
-  `localhost:9000/app` if you want different EU pricing).
+  Printify retail price. Set `PRINTIFY_PRICE_CURRENCY` to whatever currency
+  you enter in Printify's "Edit price" (default `usd`) — the sync converts to
+  every other store currency at the live market rate and rounds to a `.99`
+  charm price (`PRINTIFY_PSYCHOLOGICAL_ROUNDING=false` to keep exact
+  converted amounts instead). To set a product's price by a specific target
+  in a specific currency (e.g. "make this show €37"), use
+  `PRINTIFY_PRODUCT_ID=... PRINTIFY_TARGET_PRICE=37 PRINTIFY_TARGET_CURRENCY=eur npx medusa exec ./src/scripts/set-printify-price.ts`
+  instead of hand-converting.
 - **Paid orders containing Printify items are submitted to Printify
   automatically** (as review drafts). Set `PRINTIFY_AUTO_PRODUCTION=true` to
   skip review and send straight to production. The Printify order ID is saved
@@ -93,6 +99,69 @@ STOREFRONT_URL=https://yourdomain.com                  # used in email links
 ```
 
 Covered: order confirmation, account welcome, order-transfer requests.
+
+## 4. PostHog (analytics + session replay)
+
+Cookieless, so it doesn't legally require a cookie-consent banner. Free tier
+covers 1M events/month — a new store won't come close for a long time.
+
+1. Sign up at [posthog.com](https://posthog.com), create a project, copy the
+   **Project API Key** (Project Settings → Project API Key).
+2. Configure:
+
+```bash
+# apps/storefront/.env.local
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com   # or eu.i.posthog.com
+```
+
+3. Restart the storefront. Pageviews, session replay and funnels start
+   showing up in the PostHog dashboard immediately — no further code needed.
+   `sdk.capture()` calls can be added later for custom events (e.g.
+   "add_to_cart") if you want funnel-level detail beyond pageviews.
+
+## 5. Sentry (error monitoring)
+
+Both apps report crashes/exceptions the moment a DSN is set — nothing else
+to configure for basic error capture.
+
+1. Sign up at [sentry.io](https://sentry.io), create **two** projects (one
+   Next.js, one Node) so backend/frontend errors don't mix. Copy each DSN.
+2. Configure:
+
+```bash
+# apps/backend/.env
+SENTRY_DSN=https://...@o0.ingest.sentry.io/...
+
+# apps/storefront/.env.local
+SENTRY_DSN=https://...@o0.ingest.sentry.io/...
+NEXT_PUBLIC_SENTRY_DSN=https://...@o0.ingest.sentry.io/...   # same value, browser-exposed copy
+```
+
+3. Restart both apps. Optional: `SENTRY_ORG` / `SENTRY_PROJECT` /
+   `SENTRY_AUTH_TOKEN` on the storefront enable source-map upload during
+   build, giving you readable stack traces instead of minified ones.
+
+## 6. Judge.me (product reviews)
+
+1. Sign up at [judge.me](https://judge.me), then in the admin go to
+   **Settings → Advanced → Enable platform-independent widgets** and copy
+   the generated script URL.
+2. Configure:
+
+```bash
+# apps/storefront/.env.local
+NEXT_PUBLIC_JUDGEME_WIDGET_SCRIPT_URL=https://...
+```
+
+3. Restart the storefront — the review widget renders on every product page.
+   **Important**: Judge.me matches reviews to products by ID in *their*
+   system, so products still need to exist there before reviews show up.
+   Since this store isn't on Shopify/WooCommerce, that means creating them
+   via Judge.me's API or a CSV import — this integration only renders the
+   widget, it doesn't sync products. Ask to have this automated (mirroring
+   the Printify sync pattern) once you have a Judge.me account to test
+   against.
 
 ---
 

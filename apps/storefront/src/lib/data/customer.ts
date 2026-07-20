@@ -84,6 +84,64 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
   return updateRes
 }
 
+// Changes a logged-in customer's password. The old password is re-verified
+// via a login call (which also yields a token authorized to update the auth
+// identity) rather than trusting the client-submitted value.
+export async function updateCustomerPassword(
+  email: string,
+  oldPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  let verifiedToken: string
+
+  try {
+    const result = await sdk.auth.login("customer", "emailpass", {
+      email,
+      password: oldPassword,
+    })
+    if (typeof result !== "string") {
+      return {
+        success: false,
+        error: "Additional authentication steps aren't supported here.",
+      }
+    }
+    verifiedToken = result
+  } catch {
+    return { success: false, error: "Your current password is incorrect." }
+  }
+
+  try {
+    await sdk.auth.updateProvider(
+      "customer",
+      "emailpass",
+      { password: newPassword },
+      verifiedToken
+    )
+  } catch {
+    return {
+      success: false,
+      error: "Couldn't update your password. Please try again.",
+    }
+  }
+
+  // Re-authenticate with the new password so the stored session cookie stays
+  // valid. A failure here doesn't undo the password change — the customer
+  // would just need to log in again with the new password.
+  try {
+    const freshToken = await sdk.auth.login("customer", "emailpass", {
+      email,
+      password: newPassword,
+    })
+    if (typeof freshToken === "string") {
+      await setAuthToken(freshToken)
+    }
+  } catch {
+    // Ignore — see comment above.
+  }
+
+  return { success: true }
+}
+
 export async function signup(
   _currentState: unknown,
   formData: FormData

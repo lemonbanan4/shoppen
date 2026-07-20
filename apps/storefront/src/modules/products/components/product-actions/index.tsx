@@ -9,6 +9,7 @@ import OptionSelect from "@modules/products/components/product-actions/option-se
 import { isEqual } from "lodash"
 import { useParams, usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { toast } from "sonner"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
@@ -126,13 +127,22 @@ export default function ProductActions({
 
     setIsAdding(true)
 
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity: 1,
-      countryCode,
-    })
-
-    setIsAdding(false)
+    try {
+      await addToCart({
+        variantId: selectedVariant.id,
+        quantity: 1,
+        countryCode,
+      })
+      toast.success(`${product.title} added to cart`, {
+        description: selectedVariant.title,
+      })
+    } catch (err: any) {
+      toast.error("Couldn't add this to your cart", {
+        description: err?.message || "Please try again.",
+      })
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   return (

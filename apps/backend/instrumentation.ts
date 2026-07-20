@@ -1,24 +1,18 @@
-// Uncomment this file to enable instrumentation and observability using OpenTelemetry
-// Refer to the docs for installation instructions: https://docs.medusajs.com/learn/debugging-and-testing/instrumentation
+// Medusa calls register() once at boot, before the server starts — the
+// right place to initialize error monitoring. No-ops entirely if SENTRY_DSN
+// isn't set, so this is safe to leave in place before signing up for Sentry.
+//
+// For deeper request/workflow tracing via OpenTelemetry instead of (or in
+// addition to) Sentry, see:
+// https://docs.medusajs.com/learn/debugging-and-testing/instrumentation
 
-// import { registerOtel } from "@medusajs/medusa"
-// // If using an exporter other than Zipkin, require it here.
-// import { ZipkinExporter } from "@opentelemetry/exporter-zipkin"
+export function register() {
+  if (!process.env.SENTRY_DSN) return
 
-// // If using an exporter other than Zipkin, initialize it here.
-// const exporter = new ZipkinExporter({
-//   serviceName: 'my-medusa-project',
-// })
-
-// export function register() {
-//   registerOtel({
-//     serviceName: 'medusajs',
-//     // pass exporter
-//     exporter,
-//     instrument: {
-//       http: true,
-//       workflows: true,
-//       query: true
-//     },
-//   })
-// }
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const Sentry = require("@sentry/node")
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+  })
+}

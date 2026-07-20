@@ -1,4 +1,5 @@
 const checkEnvVariables = require("./check-env-variables")
+const { withSentryConfig } = require("@sentry/nextjs")
 
 checkEnvVariables()
 
@@ -24,8 +25,35 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://us-assets.i.posthog.com",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https:",
+              "font-src 'self' data:",
+              "connect-src 'self' https: wss:",
+              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+            ].join("; "),
+          },
+        ],
+      },
+    ]
+  },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "http",
@@ -68,4 +96,15 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+// Only wraps the config (and enables Sentry's build-time source-map upload
+// plugin) when SENTRY_DSN is set, so this is a no-op before signing up.
+module.exports = process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      silent: true,
+      disableLogger: true,
+      // Source map upload also needs a SENTRY_AUTH_TOKEN — skipped
+      // gracefully by the plugin itself if it's not set.
+    })
+  : nextConfig

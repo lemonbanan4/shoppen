@@ -1,5 +1,7 @@
 import { getBaseURL } from "@lib/util/env"
-import { Metadata } from "next"
+import { Metadata, Viewport } from "next"
+import { Toaster } from "sonner"
+import PostHogProvider from "@modules/common/components/analytics/posthog-provider"
 import "styles/globals.css"
 
 export const metadata: Metadata = {
@@ -10,13 +12,21 @@ export const metadata: Metadata = {
   },
   description:
     "Shoppen is a curated shop of apparel, accessories and home goods. Built to last, designed to be lived in.",
+  manifest: "/manifest.json",
+}
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light" style={{ colorScheme: "light" }}>
       <body className="bg-white text-neutral-950">
-        <main className="relative">{props.children}</main>
+        <PostHogProvider>
+          <main className="relative">{props.children}</main>
+          <Toaster position="bottom-right" richColors closeButton />
+        </PostHogProvider>
       </body>
     </html>
   )
