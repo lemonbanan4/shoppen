@@ -2,6 +2,7 @@ import { listCategories } from "@lib/data/categories";
 import { listCollections } from "@lib/data/collections";
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
+import NewsletterForm from "./newsletter-form";
 
 export default async function Footer() {
   const { collections } = await listCollections({
@@ -24,6 +25,9 @@ export default async function Footer() {
               Considered goods for everyday life. Apparel, accessories and home
               goods — built to last, designed to be lived in.
             </p>
+            <div className="mt-8">
+              <NewsletterForm />
+            </div>
           </div>
           <div className="text-sm gap-10 md:gap-x-20 grid grid-cols-2 sm:grid-cols-3">
             {productCategories && productCategories.length > 0 && (

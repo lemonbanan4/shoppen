@@ -72,6 +72,27 @@ export type PrintfulOrderPayload = {
   items: { sync_variant_id: number; quantity: number }[];
 };
 
+export type PrintfulShipment = {
+  id: number;
+  carrier: string;
+  service: string;
+  tracking_number: string;
+  tracking_url: string;
+  shipped_at: number;
+};
+
+export type PrintfulOrder = {
+  id: number;
+  external_id: string;
+  status: string;
+  shipments?: PrintfulShipment[];
+};
+
+export type PrintfulWebhookConfig = {
+  url: string;
+  types: string[];
+};
+
 export class PrintfulClient {
   private token: string;
   private storeId?: string;
@@ -144,6 +165,29 @@ export class PrintfulClient {
 
   async confirmOrder(orderId: number): Promise<unknown> {
     const { result } = await this.request(`/orders/${orderId}/confirm`, "POST");
+    return result;
+  }
+
+  async getOrder(orderId: number): Promise<PrintfulOrder> {
+    const { result } = await this.request<PrintfulOrder>(`/orders/${orderId}`);
+    return result;
+  }
+
+  async getWebhookConfig(): Promise<PrintfulWebhookConfig> {
+    const { result } = await this.request<PrintfulWebhookConfig>("/webhooks");
+    return result;
+  }
+
+  /** Replaces the store's entire webhook configuration. */
+  async setWebhookConfig(
+    url: string,
+    types: string[]
+  ): Promise<PrintfulWebhookConfig> {
+    const { result } = await this.request<PrintfulWebhookConfig>(
+      "/webhooks",
+      "POST",
+      { url, types }
+    );
     return result;
   }
 }

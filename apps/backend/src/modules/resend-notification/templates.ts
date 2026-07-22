@@ -171,13 +171,92 @@ const orderTransferRequested = (data: OrderTransferData) => {
   };
 };
 
+export type OrderShippedData = {
+  order: { display_id: number };
+  shipment: {
+    carrier?: string | null;
+    tracking_number?: string | null;
+    tracking_url?: string | null;
+  };
+};
+
+const orderShipped = (data: OrderShippedData) => {
+  const { order, shipment } = data;
+  const carrier = shipment.carrier ? shipment.carrier.toUpperCase() : null;
+  return {
+    subject: `Your order is on its way — #${order.display_id}`,
+    html: layout(`
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Your order has shipped</h1>
+      <p style="margin:0 0 20px;font-size:14px;color:#525252;line-height:1.7;">
+        Good news — order <strong>#${order.display_id}</strong> is on its way to you.
+      </p>
+      ${
+        shipment.tracking_number
+          ? `<p style="margin:0 0 20px;font-size:14px;color:#525252;line-height:1.7;">
+              ${carrier ? `Carrier: <strong style="color:#171717;">${carrier}</strong><br/>` : ""}
+              Tracking number: <strong style="color:#171717;">${shipment.tracking_number}</strong>
+            </p>`
+          : ""
+      }
+      ${
+        shipment.tracking_url
+          ? `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background-color:#0a0a0a;border-radius:9999px;">
+              <a href="${shipment.tracking_url}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:500;color:#ffffff;text-decoration:none;">
+                Track your package
+              </a>
+            </td></tr></table>`
+          : ""
+      }
+    `),
+  };
+};
+
+export type CartRecoveryData = {
+  items: { title: string; quantity: number }[]
+  recovery_url: string
+}
+
+const cartRecovery = (data: CartRecoveryData) => {
+  const rows = data.items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:14px;">
+            ${item.title}
+            <span style="color:#737373;"> × ${item.quantity}</span>
+          </td>
+        </tr>`
+    )
+    .join("");
+
+  return {
+    subject: "You left something behind",
+    html: layout(`
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Still thinking it over?</h1>
+      <p style="margin:0 0 24px;font-size:14px;color:#525252;line-height:1.7;">
+        Your cart is saved and ready whenever you are.
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${rows}
+      </table>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:28px;"><tr><td style="background-color:#0a0a0a;border-radius:9999px;">
+        <a href="${data.recovery_url}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:500;color:#ffffff;text-decoration:none;">
+          Return to your cart
+        </a>
+      </td></tr></table>
+    `),
+  };
+};
+
 const TEMPLATES: Record<
   string,
   (data: any) => { subject: string; html: string }
 > = {
   "order-placed": orderPlaced,
+  "order-shipped": orderShipped,
   "customer-welcome": customerWelcome,
   "order-transfer-requested": orderTransferRequested,
+  "cart-recovery": cartRecovery,
 };
 
 export const renderEmailTemplate = (

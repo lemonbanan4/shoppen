@@ -98,6 +98,30 @@ async function getCountryCode(
 }
 
 /**
+ * Validates a `cart_id` carried by a recovery link (e.g. an abandoned-cart
+ * email) against the backend before trusting it — returns the cart id if
+ * it's real and still incomplete, null otherwise.
+ */
+async function resolveRecoveryCartId(cartId: string): Promise<string | null> {
+  if (!BACKEND_URL) {
+    return null
+  }
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/store/carts/${cartId}?fields=id,completed_at`,
+      { headers: { "x-publishable-api-key": PUBLISHABLE_API_KEY! } }
+    )
+    if (!res.ok) {
+      return null
+    }
+    const { cart } = await res.json()
+    return cart && !cart.completed_at ? (cart.id as string) : null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
@@ -117,6 +141,35 @@ export async function middleware(request: NextRequest) {
   const urlHasCountry = firstPathSegment === country.toLowerCase()
 
   if (urlHasCountry) {
+    const recoveryCartId = request.nextUrl.pathname.endsWith("/cart")
+      ? request.nextUrl.searchParams.get("cart_id")
+      : null
+
+    if (recoveryCartId) {
+      const adoptedCartId = await resolveRecoveryCartId(recoveryCartId)
+      const cleanUrl = new URL(request.nextUrl)
+      cleanUrl.searchParams.delete("cart_id")
+      // Redirect (rather than just setting the cookie and rendering) so the
+      // page's own request carries the new cookie — cookies set on this
+      // response's headers wouldn't otherwise be visible until the *next*
+      // request.
+      const response = NextResponse.redirect(cleanUrl, 307)
+      if (adoptedCartId) {
+        response.cookies.set("_medusa_cart_id", adoptedCartId, {
+          maxAge: 60 * 60 * 24 * 7,
+          httpOnly: true,
+          sameSite: "strict",
+          secure: process.env.NODE_ENV === "production",
+        })
+      }
+      if (!cacheIdCookie) {
+        response.cookies.set("_medusa_cache_id", cacheId, {
+          maxAge: 60 * 60 * 24,
+        })
+      }
+      return response
+    }
+
     if (!cacheIdCookie) {
       const response = NextResponse.next()
       response.cookies.set("_medusa_cache_id", cacheId, {

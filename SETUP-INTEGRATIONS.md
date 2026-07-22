@@ -98,7 +98,31 @@ What you get:
   The Printful order ID is saved on the Medusa order for support lookups.
 - Re-run the sync script any time you add/change synced products in Printful.
 
-## 3. Stripe (the "all payment methods" answer)
+## 3. Shipment tracking (Printify + Printful → customer email)
+
+Once an order is submitted to Printify/Printful and they ship it, this
+registers webhooks so the tracking number gets stored on the Medusa order
+and the customer gets a "your order shipped" email automatically.
+
+```bash
+# apps/backend/.env
+BACKEND_PUBLIC_URL=https://your-backend.up.railway.app   # this backend's public URL
+PRINTIFY_WEBHOOK_TOKEN=...   # any random string, e.g. `openssl rand -hex 24`
+PRINTFUL_WEBHOOK_TOKEN=...   # same idea, independent secret
+```
+
+Then register the webhooks (safe to re-run — it's idempotent):
+
+```bash
+cd apps/backend
+npx medusa exec ./src/scripts/setup-fulfillment-webhooks.ts
+```
+
+Only registers a supplier's webhook if that supplier is already configured
+(has an API token) — run it again after adding Printful if you set up
+Printify first, or vice versa.
+
+## 4. Stripe (the "all payment methods" answer)
 
 Shopify bundles payments because Shopify Payments *is* a payment processor.
 The equivalent here is Stripe: one integration gives you cards, Apple Pay,
@@ -132,7 +156,7 @@ npx medusa exec ./src/scripts/enable-stripe.ts
 
 The manual "test payment" provider stays available for development.
 
-## 4. Resend (transactional email)
+## 5. Resend (transactional email)
 
 Already live in dev mode: emails render to `apps/backend/.medusa/emails/`.
 To actually send:
@@ -144,9 +168,21 @@ RESEND_FROM_EMAIL="Shoppen <orders@yourdomain.com>"   # domain verified in Resen
 STOREFRONT_URL=https://yourdomain.com                  # used in email links
 ```
 
-Covered: order confirmation, account welcome, order-transfer requests.
+Covered: order confirmation, account welcome, order-transfer requests,
+shipment notifications (§3), abandoned-cart recovery (§7).
 
-## 5. PostHog (analytics + session replay)
+### Newsletter signup (footer)
+
+Optional, layered on top of Resend. The footer's "Stay in the loop" form
+posts to `/store/newsletter`, which no-ops (form still succeeds, nothing is
+stored) until this is set:
+
+```bash
+# apps/backend/.env
+RESEND_AUDIENCE_ID=...   # Resend → Audiences → create one, copy its ID
+```
+
+## 6. PostHog (analytics + session replay)
 
 Cookieless, so it doesn't legally require a cookie-consent banner. Free tier
 covers 1M events/month — a new store won't come close for a long time.
@@ -166,7 +202,20 @@ NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com   # or eu.i.posthog.com
    `sdk.capture()` calls can be added later for custom events (e.g.
    "add_to_cart") if you want funnel-level detail beyond pageviews.
 
-## 6. Sentry (error monitoring)
+## 7. Abandoned cart recovery
+
+Runs automatically once Resend is configured (§5) — no separate switch.
+Every hour, a scheduled job looks for carts that have items, an email on
+file, and have sat idle for 3+ hours (and aren't older than a week), and
+sends a single "you left something behind" email with a link back to that
+exact cart. Each cart is only ever emailed once
+(tracked via `cart.metadata.abandoned_recovery_sent_at`).
+
+The recovery link (`/{countryCode}/cart?cart_id=...`) re-adopts that cart as
+the visitor's active cart — including for a signed-out visitor on a new
+device — so checkout continues normally from there.
+
+## 8. Sentry (error monitoring)
 
 Both apps report crashes/exceptions the moment a DSN is set — nothing else
 to configure for basic error capture.
@@ -188,7 +237,7 @@ NEXT_PUBLIC_SENTRY_DSN=https://...@o0.ingest.sentry.io/...   # same value, brows
    `SENTRY_AUTH_TOKEN` on the storefront enable source-map upload during
    build, giving you readable stack traces instead of minified ones.
 
-## 7. Product reviews — on hold
+## 9. Product reviews — on hold
 
 Deferred until the catalog has more than a couple of products and Stripe is
 live (no point collecting reviews before there's anything to review or a way

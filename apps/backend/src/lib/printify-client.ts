@@ -60,6 +60,29 @@ export type PrintifyAddress = {
   zip: string;
 };
 
+export type PrintifyShipment = {
+  carrier: string;
+  number: string;
+  url?: string;
+};
+
+export type PrintifyOrder = {
+  id: string;
+  status: string;
+  shipments?: PrintifyShipment[];
+  metadata?: {
+    order_type?: string;
+    shop_order_id?: string | number;
+    shop_order_label?: string;
+  };
+};
+
+export type PrintifyWebhook = {
+  id: string;
+  topic: string;
+  url: string;
+};
+
 export type PrintifyOrderPayload = {
   external_id: string;
   label?: string;
@@ -169,6 +192,25 @@ export class PrintifyClient {
     payload: PrintifyOrderPayload
   ): Promise<{ id: string }> {
     return this.request(`/shops/${shopId}/orders.json`, "POST", payload);
+  }
+
+  async getOrder(shopId: number, orderId: string): Promise<PrintifyOrder> {
+    return this.request(`/shops/${shopId}/orders/${orderId}.json`);
+  }
+
+  async listWebhooks(shopId: number): Promise<PrintifyWebhook[]> {
+    return this.request(`/shops/${shopId}/webhooks.json`);
+  }
+
+  async createWebhook(
+    shopId: number,
+    topic: string,
+    url: string
+  ): Promise<PrintifyWebhook> {
+    return this.request(`/shops/${shopId}/webhooks.json`, "POST", {
+      topic,
+      url,
+    });
   }
 
   async sendToProduction(shopId: number, orderId: string): Promise<unknown> {
