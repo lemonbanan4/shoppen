@@ -1,0 +1,22 @@
+<svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <path id="t11" d="M 200.00 600.00 A 400.00 400.00 0 0 1 1000.00 600.00" fill="none"/>
+  <path id="b11" d="M 200.00 600.00 A 400.00 400.00 0 0 0 1000.00 600.00" fill="none"/>
+</defs>
+<circle cx="600" cy="600" r="480" fill="none" stroke="#0A0A0A" stroke-width="14"/>
+<circle cx="600" cy="600" r="430" fill="none" stroke="#0A0A0A" stroke-width="4"/>
+<text font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="66" fill="#0A0A0A" letter-spacing="6">
+  <textPath href="#t11" startOffset="50%" text-anchor="middle">RETAIL THERAPY CLUB</textPath>
+</text>
+<text font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="46" fill="#9A4B2E" letter-spacing="8">
+  <textPath href="#b11" startOffset="50%" text-anchor="middle">SHOPPEN &#8226; EST. 2026</textPath>
+</text>
+
+    <path d="M 483.0 547.2 L 717.0 547.2 L 735.72 755.2 L 464.28 755.2 Z"
+          fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linejoin="round"/>
+    <path d="M 534.48 547.2 C 534.48 480.64000000000004, 665.52 480.64000000000004, 665.52 547.2"
+          fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linecap="round"/>
+    
+<circle cx="112" cy="600" r="10" fill="#9A4B2E"/>
+<circle cx="1088" cy="600" r="10" fill="#9A4B2E"/>
+</svg>

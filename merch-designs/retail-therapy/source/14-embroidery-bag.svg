@@ -1,0 +1,9 @@
+<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+
+    <path d="M 329.0 373.6 L 671.0 373.6 L 698.36 677.6 L 301.64 677.6 Z"
+          fill="none" stroke="#0A0A0A" stroke-width="30" stroke-linejoin="round"/>
+    <path d="M 404.24 373.6 C 404.24 276.32000000000005, 595.76 276.32000000000005, 595.76 373.6"
+          fill="none" stroke="#0A0A0A" stroke-width="30" stroke-linecap="round"/>
+    
+<text x="500" y="720" text-anchor="middle" font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="58" letter-spacing="6" fill="#9A4B2E">TREAT YOURSELF</text>
+</svg>
