@@ -1,0 +1,20 @@
+<svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <path id="t15" d="M 200.00 600.00 A 400.00 400.00 0 0 1 1000.00 600.00" fill="none"/>
+  <path id="b15" d="M 200.00 600.00 A 400.00 400.00 0 0 0 1000.00 600.00" fill="none"/>
+</defs>
+<circle cx="600" cy="600" r="480" fill="none" stroke="#0A0A0A" stroke-width="14"/>
+<circle cx="600" cy="600" r="430" fill="none" stroke="#0A0A0A" stroke-width="4"/>
+<text font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="62" fill="#0A0A0A" letter-spacing="4">
+  <textPath href="#t15" startOffset="50%" text-anchor="middle">TERMINALLY ONLINE CLUB</textPath>
+</text>
+<text font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="46" fill="#9A4B2E" letter-spacing="8">
+  <textPath href="#b15" startOffset="50%" text-anchor="middle">SHOPPEN &#8226; EST. 2026</textPath>
+</text>
+<path d="M 548.3 611.2 A 55.0 55.0 0 0 1 651.7 611.2" fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linecap="round"/>
+<path d="M 501.8 594.3 A 104.5 104.5 0 0 1 698.2 594.3" fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linecap="round"/>
+<path d="M 455.3 577.3 A 154.0 154.0 0 0 1 744.7 577.3" fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linecap="round"/>
+<circle cx="600" cy="649.8" r="15.400000000000002" fill="#0A0A0A"/>
+<circle cx="112" cy="600" r="10" fill="#9A4B2E"/>
+<circle cx="1088" cy="600" r="10" fill="#9A4B2E"/>
+</svg>
