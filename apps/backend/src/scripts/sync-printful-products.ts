@@ -50,8 +50,14 @@ const toMedusaProduct = (
 ) => {
   const { sync_product: p, sync_variants: variants } = detail;
 
+  // Prefer each variant's generated mockup (the design actually applied to
+  // the garment) over `product.image`, which is just the blank catalog photo.
   const images = variants
-    .map((v) => v.product?.image)
+    .map(
+      (v) =>
+        v.files?.find((f) => f.type === "preview")?.preview_url ||
+        v.product?.image
+    )
     .filter((url): url is string => Boolean(url))
     .filter((url, idx, arr) => arr.indexOf(url) === idx)
     .slice(0, MAX_IMAGES);

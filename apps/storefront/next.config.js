@@ -81,6 +81,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "files.cdn.printful.com",
+      },
+      {
+        protocol: "https",
         hostname: "*.cloudfront.net",
       },
       ...(S3_HOSTNAME && S3_PATHNAME
