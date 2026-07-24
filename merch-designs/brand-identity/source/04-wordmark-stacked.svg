@@ -1,0 +1,7 @@
+<svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(290, 20) scale(0.85)">
+  <path d="M 128 46 C 128 46, 62 42, 62 78 C 62 108, 138 96, 138 130 C 138 158, 92 158, 68 142" fill="none" stroke="#0A0A0A" stroke-width="14" stroke-linecap="round"/>
+</g>
+<text x="350" y="210" text-anchor="middle" font-family="Inter" font-weight="600" font-size="52" letter-spacing="12" fill="#0A0A0A">SHOPPEN</text>
+<text x="350" y="248" text-anchor="middle" font-family="Inter" font-weight="500" font-size="17" letter-spacing="5" fill="#9A4B2E">CONSIDERED GOODS FOR EVERYDAY LIFE</text>
+</svg>

@@ -1,0 +1,6 @@
+<svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(20, 20) scale(0.7)">
+  <path d="M 128 46 C 128 46, 62 42, 62 78 C 62 108, 138 96, 138 130 C 138 158, 92 158, 68 142" fill="none" stroke="#0A0A0A" stroke-width="14" stroke-linecap="round"/>
+</g>
+<text x="180" y="122" font-family="Inter" font-weight="600" font-size="72" letter-spacing="14" fill="#0A0A0A">SHOPPEN</text>
+</svg>
