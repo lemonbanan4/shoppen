@@ -38,6 +38,38 @@ const titleCase = (id: string) =>
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
+/**
+ * Printful only populates `sync_variant.options` for products with real
+ * catalog option metadata (apparel size/color). Simpler products — mugs,
+ * stickers, etc. — report an empty array, which would otherwise leave the
+ * Medusa product with zero options (rejected by createProductsWorkflow, which
+ * requires at least one). Fall back to parsing the variant's own display
+ * name ("{Product} / {Color} / {Size}") in that case.
+ */
+const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> => {
+  const optionValues: Record<string, string> = {};
+  for (const opt of v.options || []) {
+    if (opt.value === undefined || opt.value === null || opt.value === "") {
+      continue;
+    }
+    optionValues[titleCase(opt.id)] = String(opt.value);
+  }
+  if (Object.keys(optionValues).length > 0) {
+    return optionValues;
+  }
+
+  const parts = v.name.split("/").map((s) => s.trim()).slice(1);
+  if (parts.length === 2) {
+    optionValues["Color"] = parts[0];
+    optionValues["Size"] = parts[1];
+  } else if (parts.length === 1) {
+    optionValues["Option"] = parts[0];
+  } else {
+    optionValues["Variant"] = v.name;
+  }
+  return optionValues;
+};
+
 const toMedusaProduct = (
   detail: PrintfulSyncProductDetail,
   ctx: {
@@ -62,15 +94,13 @@ const toMedusaProduct = (
     .filter((url, idx, arr) => arr.indexOf(url) === idx)
     .slice(0, MAX_IMAGES);
 
+  const variantOptions = variants.map((v) => deriveVariantOptions(v));
+
   const optionTitles = new Map<string, Set<string>>();
-  for (const v of variants) {
-    for (const opt of v.options || []) {
-      if (opt.value === undefined || opt.value === null || opt.value === "") {
-        continue;
-      }
-      const title = titleCase(opt.id);
+  for (const optionValues of variantOptions) {
+    for (const [title, value] of Object.entries(optionValues)) {
       if (!optionTitles.has(title)) optionTitles.set(title, new Set());
-      optionTitles.get(title)!.add(String(opt.value));
+      optionTitles.get(title)!.add(value);
     }
   }
   const options = [...optionTitles.entries()].map(([title, values]) => ({
@@ -91,14 +121,8 @@ const toMedusaProduct = (
       printful_product_id: p.id,
       fulfillment: "printful",
     },
-    variants: variants.map((v: PrintfulSyncVariant) => {
-      const optionValues: Record<string, string> = {};
-      for (const opt of v.options || []) {
-        if (opt.value === undefined || opt.value === null || opt.value === "") {
-          continue;
-        }
-        optionValues[titleCase(opt.id)] = String(opt.value);
-      }
+    variants: variants.map((v: PrintfulSyncVariant, i: number) => {
+      const optionValues = variantOptions[i];
 
       const sourceCurrency = (v.currency || "usd").toLowerCase();
       const exchangeRates = ctx.exchangeRatesByCurrency.get(sourceCurrency)!;

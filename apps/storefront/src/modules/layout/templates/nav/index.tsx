@@ -5,6 +5,7 @@ import { getLocale } from "@lib/data/locale-actions"
 import { listRegions } from "@lib/data/regions"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import LogoMark from "@modules/common/icons/logo-mark"
 import CartButton from "@modules/layout/components/cart-button"
 import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
@@ -49,9 +50,10 @@ export default async function Nav() {
             </div>
             <LocalizedClientLink
               href="/"
-              className="text-lg font-semibold tracking-[0.22em] text-neutral-950 uppercase"
+              className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-neutral-950 uppercase"
               data-testid="nav-store-link"
             >
+              <LogoMark size="18" />
               Shoppen
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-6 h-full ml-6">

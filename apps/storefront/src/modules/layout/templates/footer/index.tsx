@@ -2,6 +2,7 @@ import { listCategories } from "@lib/data/categories";
 import { listCollections } from "@lib/data/collections";
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
+import LogoMark from "@modules/common/icons/logo-mark";
 import NewsletterForm from "./newsletter-form";
 
 export default async function Footer() {
@@ -17,8 +18,9 @@ export default async function Footer() {
           <div className="max-w-sm">
             <LocalizedClientLink
               href="/"
-              className="text-lg font-semibold tracking-[0.22em] text-white uppercase"
+              className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-white uppercase"
             >
+              <LogoMark size="18" />
               Shoppen
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-6">
