@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
-  <g transform="translate(9, 5) scale(0.32)">
-    <path d="M 128 46 C 128 46, 62 42, 62 78 C 62 108, 138 96, 138 130 C 138 158, 92 158, 68 142" fill="none" stroke="#ffffff" stroke-width="17" stroke-linecap="round"/>
+  <g transform="translate(-1.6, -2.6) scale(0.336)">
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M 100 31.5 L 106.6 51.4 L 121.9 37.1 L 119.9 58.1 L 140.4 53.4 L 129.8 71.6 L 150.5 75 L 133.9 87.7 L 150.5 100.4 L 129.8 103.8 L 140.4 122 L 119.9 117.3 L 121.9 138.3 L 106.6 124 L 100 143.9 L 93.4 124 L 78.1 138.3 L 80.1 117.3 L 59.6 122 L 70.2 103.8 L 49.5 100.4 L 66.1 87.7 L 49.5 75 L 70.2 71.6 L 59.6 53.4 L 80.1 58.1 L 78.1 37.1 L 93.4 51.4 Z M 100 66.5 A 21.2 21.2 0 1 0 100 108.9 A 21.2 21.2 0 1 0 100 66.5 Z"
+      fill="#ffffff"/>
+    <circle cx="100" cy="87.7" r="12" fill="#ffffff"/>
+    <rect x="62.5" y="132.5" width="75" height="10" fill="#ffffff"/>
+    <rect x="72.5" y="149.5" width="55" height="10" fill="#ffffff"/>
+    <rect x="81.5" y="165.5" width="37" height="9" fill="#ffffff"/>
   </g>
 </svg>

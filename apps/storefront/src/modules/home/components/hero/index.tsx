@@ -5,8 +5,8 @@ const Hero = () => {
   return (
     <section className="relative w-full h-[70vh] small:h-[82vh] overflow-hidden">
       <Image
-        src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=2400&q=80&auto=format"
-        alt="Knitwear hanging on a clothing rack"
+        src="https://images.unsplash.com/photo-1635650804060-bb009bcb2ea5?w=2400&q=80&auto=format"
+        alt="Model in an oversized graphic-print tee standing in an urban lot"
         fill
         priority
         className="object-cover object-center"
@@ -16,14 +16,14 @@ const Hero = () => {
       <div className="absolute inset-0 flex items-end">
         <div className="content-container pb-14 small:pb-20 text-white">
           <p className="text-[11px] small:text-xs tracking-[0.24em] uppercase mb-4 text-white/80">
-            Autumn / Winter — new arrivals
+            New capsule — out now
           </p>
           <h1 className="text-4xl small:text-6xl font-medium leading-[1.05] max-w-2xl text-balance">
-            Considered goods for everyday life
+            Streetwear, considered.
           </h1>
           <p className="mt-4 max-w-md text-sm small:text-base text-white/80">
-            Apparel, accessories and home goods — built to last, designed to be
-            lived in.
+            Graphic tees, hoodies and caps — small batch, printed to order,
+            built to actually wear.
           </p>
           <div className="mt-8 flex gap-3">
             <LocalizedClientLink

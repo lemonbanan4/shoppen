@@ -4,6 +4,7 @@ import {
   ProductStatus,
 } from "@medusajs/framework/utils";
 import {
+  createCollectionsWorkflow,
   createProductCategoriesWorkflow,
   createProductsWorkflow,
   deleteProductsWorkflow,
@@ -31,6 +32,19 @@ import { convertToStorePrices, fetchExchangeRates, STORE_CURRENCIES } from "../l
  */
 
 const MAX_IMAGES = 6;
+
+// Homepage rail placement: the newest two capsules read as "New Arrivals",
+// the first capsule plus the core brand line as "Bestsellers" (a launch-order
+// proxy — this store has no sales history yet to base it on for real).
+const NEW_ARRIVALS_TITLES = new Set([
+  "Terminally Online Tee",
+  "Screen Time Warning Tee",
+  "Terminally Online Hoodie",
+  "Retail Therapy Club Tee",
+  "Warning Impulse Tee",
+  "Treat Yourself Embroidered Tee",
+  "Retail Therapy Cap",
+]);
 
 const titleCase = (id: string) =>
   id
@@ -74,6 +88,8 @@ const toMedusaProduct = (
   detail: PrintfulSyncProductDetail,
   ctx: {
     categoryId: string;
+    newArrivalsCollectionId: string;
+    bestsellersCollectionId: string;
     salesChannelId: string;
     shippingProfileId: string;
     exchangeRatesByCurrency: Map<string, Record<string, number>>;
@@ -114,6 +130,9 @@ const toMedusaProduct = (
     description: "",
     status: ProductStatus.PUBLISHED,
     category_ids: [ctx.categoryId],
+    collection_id: NEW_ARRIVALS_TITLES.has(p.name)
+      ? ctx.newArrivalsCollectionId
+      : ctx.bestsellersCollectionId,
     shipping_profile_id: ctx.shippingProfileId,
     images: images.map((url) => ({ url })),
     options,
@@ -239,6 +258,36 @@ export default async function syncPrintfulProducts({
     categoryId = result[0].id;
   }
 
+  const { data: existingCollections } = await query.graph({
+    entity: "product_collection",
+    fields: ["id", "handle"],
+    filters: { handle: ["new-arrivals", "bestsellers"] },
+  });
+  let newArrivalsCollectionId = existingCollections.find(
+    (c) => c.handle === "new-arrivals"
+  )?.id;
+  let bestsellersCollectionId = existingCollections.find(
+    (c) => c.handle === "bestsellers"
+  )?.id;
+  if (!newArrivalsCollectionId || !bestsellersCollectionId) {
+    const { result } = await createCollectionsWorkflow(container).run({
+      input: {
+        collections: [
+          ...(newArrivalsCollectionId
+            ? []
+            : [{ title: "New Arrivals", handle: "new-arrivals" }]),
+          ...(bestsellersCollectionId
+            ? []
+            : [{ title: "Bestsellers", handle: "bestsellers" }]),
+        ],
+      },
+    });
+    for (const c of result) {
+      if (c.handle === "new-arrivals") newArrivalsCollectionId = c.id;
+      if (c.handle === "bestsellers") bestsellersCollectionId = c.id;
+    }
+  }
+
   // ——— Replace previously synced versions of these products ———
   const handles = details.map((d) => `printful-${d.sync_product.id}`);
   const { data: existing } = await query.graph({
@@ -255,6 +304,8 @@ export default async function syncPrintfulProducts({
 
   const ctx = {
     categoryId,
+    newArrivalsCollectionId: newArrivalsCollectionId!,
+    bestsellersCollectionId: bestsellersCollectionId!,
     salesChannelId: salesChannels[0].id,
     shippingProfileId: shippingProfiles[0].id,
     exchangeRatesByCurrency,
