@@ -45,16 +45,37 @@ export default async function assignPrintifyHomepageCollection({
     return;
   }
 
-  await updateProductsWorkflow(container).run({
-    input: {
-      selector: { id: unassigned.map((p) => p.id) },
-      update: { collection_id: newArrivalsCollectionId },
-    },
-  });
-
   logger.info(
-    `Assigned ${unassigned.length} Printify product(s) to New Arrivals: ${unassigned
-      .map((p) => p.title)
+    `Found ${unassigned.length} unassigned Printify product(s): ${unassigned
+      .map((p) => `${p.title} (${p.id})`)
       .join(", ")}`
   );
+  logger.info(`Target collection (New Arrivals): ${newArrivalsCollectionId}`);
+
+  // Update one at a time (rather than a single bulk selector) so a failure
+  // on one product is visible instead of silently affecting the whole batch.
+  for (const p of unassigned) {
+    try {
+      await updateProductsWorkflow(container).run({
+        input: {
+          selector: { id: p.id },
+          update: { collection_id: newArrivalsCollectionId },
+        },
+      });
+      logger.info(`  updated: ${p.title}`);
+    } catch (e: any) {
+      logger.error(`  FAILED: ${p.title}: ${e.message}`);
+    }
+  }
+
+  // Re-fetch to confirm the writes actually persisted before declaring success.
+  const { data: verify } = await query.graph({
+    entity: "product",
+    fields: ["id", "title", "collection_id"],
+    filters: { id: unassigned.map((p) => p.id) },
+  });
+  for (const p of verify) {
+    const ok = p.collection_id === newArrivalsCollectionId;
+    logger.info(`  verify: ${p.title} -> collection_id=${p.collection_id} ${ok ? "OK" : "!! STILL WRONG"}`);
+  }
 }
