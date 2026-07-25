@@ -1,4 +1,4 @@
-# Shoppen — Integration go-live guide
+# Solkast — Integration go-live guide
 
 Everything below is already wired in code. Each integration switches itself on
 the moment its environment variable exists — no code changes needed.
@@ -164,7 +164,7 @@ To actually send:
 ```bash
 # apps/backend/.env
 RESEND_API_KEY=re_...
-RESEND_FROM_EMAIL="Shoppen <orders@yourdomain.com>"   # domain verified in Resend
+RESEND_FROM_EMAIL="Solkast <orders@yourdomain.com>"   # domain verified in Resend
 STOREFRONT_URL=https://yourdomain.com                  # used in email links
 ```
 

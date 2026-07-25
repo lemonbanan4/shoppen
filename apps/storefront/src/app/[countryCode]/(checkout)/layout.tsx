@@ -31,7 +31,7 @@ export default function CheckoutLayout({
             data-testid="store-link"
           >
             <LogoMark size="16" />
-            Shoppen
+            Solkast
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>

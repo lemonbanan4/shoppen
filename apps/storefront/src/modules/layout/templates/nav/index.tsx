@@ -54,7 +54,7 @@ export default async function Nav() {
               data-testid="nav-store-link"
             >
               <LogoMark size="18" />
-              Shoppen
+              Solkast
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-6 h-full ml-6">
               {NAV_LINKS.map((link) => (

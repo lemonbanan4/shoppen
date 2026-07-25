@@ -114,7 +114,7 @@ export class PrintifyClient {
       headers: {
         Authorization: `Bearer ${this.token}`,
         "Content-Type": "application/json",
-        "User-Agent": "Shoppen-Medusa",
+        "User-Agent": "Solkast-Medusa",
       },
       body: body ? JSON.stringify(body) : undefined,
     });

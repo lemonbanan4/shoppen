@@ -65,7 +65,7 @@ export default class ResendNotificationProviderService extends AbstractNotificat
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: this.options_.from || "Shoppen <onboarding@resend.dev>",
+        from: this.options_.from || "Solkast <onboarding@resend.dev>",
         to: [notification.to],
         subject,
         html,

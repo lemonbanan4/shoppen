@@ -7,11 +7,11 @@ import "styles/globals.css"
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: {
-    default: "Shoppen — Considered goods for everyday life",
-    template: "%s | Shoppen",
+    default: "Solkast — Considered goods for everyday life",
+    template: "%s | Solkast",
   },
   description:
-    "Shoppen is a curated shop of apparel, accessories and home goods. Built to last, designed to be lived in.",
+    "Solkast is a curated shop of apparel, accessories and home goods. Built to last, designed to be lived in.",
   manifest: "/manifest.json",
 }
 

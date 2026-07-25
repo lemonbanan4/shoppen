@@ -9,7 +9,7 @@ import Hero from "@modules/home/components/hero"
 import UspBar from "@modules/home/components/usp-bar"
 
 export const metadata: Metadata = {
-  title: "Shoppen — Considered goods for everyday life",
+  title: "Solkast — Considered goods for everyday life",
   description:
     "A curated shop of apparel, accessories and home goods. Built to last, designed to be lived in.",
 }

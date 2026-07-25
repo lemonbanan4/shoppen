@@ -21,7 +21,7 @@ export default async function Footer() {
               className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-white uppercase"
             >
               <LogoMark size="18" />
-              Shoppen
+              Solkast
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-6">
               Considered goods for everyday life. Apparel, accessories and home
@@ -136,7 +136,7 @@ export default async function Footer() {
           </div>
         </div>
         <div className="flex w-full py-8 justify-between items-center border-t border-neutral-800 text-xs">
-          <p>© {new Date().getFullYear()} Shoppen. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Solkast. All rights reserved.</p>
           <p>Free shipping over €75 · 30-day returns</p>
         </div>
       </div>

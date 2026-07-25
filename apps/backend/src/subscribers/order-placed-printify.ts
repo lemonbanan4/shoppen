@@ -91,7 +91,7 @@ export default async function orderPlacedPrintifyHandler({
     const shopId = await client.resolveShopId();
     const { id: printifyOrderId } = await client.createOrder(shopId, {
       external_id: order.id,
-      label: `Shoppen #${order.display_id}`,
+      label: `Solkast #${order.display_id}`,
       line_items: lineItems,
       shipping_method: 1,
       send_shipping_notification: false,

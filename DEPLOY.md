@@ -1,4 +1,4 @@
-# Deploying Shoppen to Railway
+# Deploying Solkast to Railway
 
 One Railway project hosts everything: Postgres, Redis, the Medusa backend
 (+ admin at `/app`), and the Next.js storefront. Expect ~$10–15/month.
@@ -16,8 +16,8 @@ Everything after that can be driven from the CLI (Claude can do it for you).
 ### 1. Project + databases
 
 ```bash
-cd medusa-shoppen
-railway init --name shoppen          # create project
+cd medusa-solkast
+railway init --name solkast          # create project
 railway add --database postgres
 railway add --database redis
 ```
@@ -39,7 +39,7 @@ Settings → Root Directory). The `railway.json` there handles build & start
 | `JWT_SECRET` | fresh 64-hex secret (`openssl rand -hex 32`) |
 | `COOKIE_SECRET` | fresh 64-hex secret |
 | `AUTH_MFA_ENCRYPTION_KEY` | fresh 64-hex secret |
-| `STORE_CORS` | storefront URL (e.g. `https://shoppen.up.railway.app`) |
+| `STORE_CORS` | storefront URL (e.g. `https://solkast.up.railway.app`) |
 | `ADMIN_CORS` | backend URL (e.g. `https://backend.up.railway.app`) |
 | `AUTH_CORS` | both URLs, comma-separated |
 | `STOREFRONT_URL` | storefront URL (used in emails) |

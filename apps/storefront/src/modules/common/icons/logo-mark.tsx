@@ -2,7 +2,7 @@ import React from "react"
 
 import { IconProps } from "types/icon"
 
-// The Shoppen monogram — a hand-drawn geometric "S", not a font glyph.
+// The Solkast monogram — a hand-drawn geometric "S", not a font glyph.
 const LogoMark: React.FC<IconProps> = ({
   size = "20",
   color = "currentColor",

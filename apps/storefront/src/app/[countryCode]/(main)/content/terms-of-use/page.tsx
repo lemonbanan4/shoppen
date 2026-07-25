@@ -3,7 +3,7 @@ import ContentPage from "@modules/common/components/content-page"
 
 export const metadata: Metadata = {
   title: "Terms of use",
-  description: "The terms that apply when you shop with Shoppen.",
+  description: "The terms that apply when you shop with Solkast.",
 }
 
 export default function TermsOfUsePage() {
@@ -11,7 +11,7 @@ export default function TermsOfUsePage() {
     <ContentPage
       eyebrow="Legal"
       title="Terms of use"
-      intro="The plain-language version of what you agree to when ordering from Shoppen."
+      intro="The plain-language version of what you agree to when ordering from Solkast."
     >
       <section>
         <h2>Orders & pricing</h2>
@@ -54,7 +54,7 @@ export default function TermsOfUsePage() {
       <section>
         <h2>Contact</h2>
         <p>
-          Questions about these terms: <strong>hello@shoppen.example</strong>.
+          Questions about these terms: <strong>hello@solkast.example</strong>.
         </p>
       </section>
     </ContentPage>

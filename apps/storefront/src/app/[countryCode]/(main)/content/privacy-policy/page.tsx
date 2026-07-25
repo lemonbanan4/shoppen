@@ -3,7 +3,7 @@ import ContentPage from "@modules/common/components/content-page"
 
 export const metadata: Metadata = {
   title: "Privacy policy",
-  description: "How Shoppen collects, uses and protects your data.",
+  description: "How Solkast collects, uses and protects your data.",
 }
 
 export default function PrivacyPolicyPage() {
@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
         <h2>Your rights</h2>
         <p>
           Under the GDPR you can request a copy of your data, correction, or
-          deletion at any time. Email <strong>hello@shoppen.example</strong> and
+          deletion at any time. Email <strong>hello@solkast.example</strong> and
           we'll respond within 30 days.
         </p>
       </section>
