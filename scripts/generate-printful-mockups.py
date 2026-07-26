@@ -101,18 +101,30 @@ def generate(catalog_product_id, variant_ids, files_by_placement):
         return []
 
     req_files = []
-    for placement, src_url in files_by_placement.items():
+    for placement, (src_url, src_w, src_h) in files_by_placement.items():
         pf_id = var_placements[ref_variant].get(placement)
         if pf_id is None or pf_id not in by_id:
             continue
         p = by_id[pf_id]
+        area_w, area_h = p["width"], p["height"]
+
+        # Fit inside the print area preserving aspect ratio, then centre.
+        # Filling the area outright stretches square artwork into a portrait
+        # print file, which both distorts it and misrepresents where it prints.
+        if src_w and src_h:
+            scale = min(area_w / src_w, area_h / src_h)
+            w, h = int(src_w * scale), int(src_h * scale)
+        else:
+            w, h = area_w, area_h
+        left, top = int((area_w - w) / 2), int((area_h - h) / 2)
+
         req_files.append({
             "placement": placement,
             "image_url": src_url,
             "position": {
-                "area_width": p["width"], "area_height": p["height"],
-                "width": p["width"], "height": p["height"],
-                "top": 0, "left": 0,
+                "area_width": area_w, "area_height": area_h,
+                "width": w, "height": h,
+                "top": top, "left": left,
             },
         })
     if not req_files:
@@ -194,7 +206,7 @@ def main():
             t = f["type"]
             if t in SKIP_FILE_TYPES or not f.get("preview_url"):
                 continue
-            src = f["url"] or f["preview_url"]
+            src = (f["url"] or f["preview_url"], f.get("width"), f.get("height"))
             if t in accepted:
                 files_by_placement[t] = src
             elif t == "default":
