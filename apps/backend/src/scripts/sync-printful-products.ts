@@ -61,10 +61,26 @@ const titleCase = (id: string) =>
  * requires at least one). Fall back to parsing the variant's own display
  * name ("{Product} / {Color} / {Size}") in that case.
  */
+// Print-configuration options Printful attaches to sync variants (embroidery
+// type, thread colors per placement, ...). These describe how the design is
+// produced, not a choice the shopper makes — never surface them as options.
+const isPrintConfigOption = (id: string) =>
+  id === "embroidery_type" ||
+  id.includes("thread_colors") ||
+  id.startsWith("stitch") ||
+  id.startsWith("lifelike") ||
+  id === "notes";
+
 const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> => {
   const optionValues: Record<string, string> = {};
   for (const opt of v.options || []) {
+    if (isPrintConfigOption(opt.id)) {
+      continue;
+    }
     if (opt.value === undefined || opt.value === null || opt.value === "") {
+      continue;
+    }
+    if (Array.isArray(opt.value) && opt.value.length === 0) {
       continue;
     }
     optionValues[titleCase(opt.id)] = String(opt.value);
@@ -101,10 +117,13 @@ const toMedusaProduct = (
 
   // Prefer each variant's generated mockup (the design actually applied to
   // the garment) over `product.image`, which is just the blank catalog photo.
+  // API-created products expose it as a "preview" file; dashboard-created
+  // ones only carry a (non-visible) "mockup" file, which is equally usable.
   const images = variants
     .map(
       (v) =>
         v.files?.find((f) => f.type === "preview")?.preview_url ||
+        v.files?.find((f) => f.type === "mockup")?.preview_url ||
         v.product?.image
     )
     .filter((url): url is string => Boolean(url))
