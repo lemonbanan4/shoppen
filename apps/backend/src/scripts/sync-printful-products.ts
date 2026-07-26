@@ -38,6 +38,11 @@ const MAX_IMAGES = 6;
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
   "Bed Rotting Club Tee",
+  "Overthinking Club Tee",
+  "In My Overthinking Era Tee",
+  "Caution Overthinking Tee",
+  "Retail Therapy Club Tee",
+  "Warning Impulse Tee",
   "Terminally Online Tee",
   "Screen Time Warning Tee",
   "Terminally Online Hoodie",
