@@ -37,6 +37,7 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
+  "Bed Rotting Club Tee",
   "Terminally Online Tee",
   "Screen Time Warning Tee",
   "Terminally Online Hoodie",
