@@ -33,6 +33,14 @@ POLL_MAX = 8
 # Non-artwork files that must never be treated as a print placement.
 SKIP_FILE_TYPES = {"preview", "mockup", "label_inside", "label_outside"}
 
+# A product page only needs a handful of angles; the generator otherwise
+# returns a mockup per variant colour, which runs to dozens of near-duplicates.
+MAX_IMAGES_PER_PRODUCT = 6
+
+# Single-placement products (hoodies, beanies, caps) store their artwork under
+# the generic "default" type, which is not itself a valid generator placement.
+DEFAULT_PLACEMENT_PREFERENCE = ("front", "embroidery_front", "embroidery_front_large")
+
 _last_mg_call = [0.0]
 
 
@@ -123,11 +131,18 @@ def generate(catalog_product_id, variant_ids, files_by_placement):
             return []
         t = t["result"]
         if t["status"] == "completed":
-            urls = []
+            # Primary view per placement first, then alternate angles, so the
+            # cap keeps the most useful images rather than colour duplicates.
+            mains, extras = [], []
             for m in t.get("mockups", []):
-                urls.append(m["mockup_url"])
-                urls += [e["url"] for e in m.get("extra", [])]
-            return urls
+                mains.append(m["mockup_url"])
+                extras += [e["url"] for e in m.get("extra", [])]
+            ordered, seen = [], set()
+            for u in mains + extras:
+                if u not in seen:
+                    seen.add(u)
+                    ordered.append(u)
+            return ordered[:MAX_IMAGES_PER_PRODUCT]
         if t["status"] == "failed":
             print(f"    task failed: {json.dumps(t)[:160]}")
             return []
@@ -179,8 +194,16 @@ def main():
             t = f["type"]
             if t in SKIP_FILE_TYPES or not f.get("preview_url"):
                 continue
+            src = f["url"] or f["preview_url"]
             if t in accepted:
-                files_by_placement[t] = f["url"] or f["preview_url"]
+                files_by_placement[t] = src
+            elif t == "default":
+                target = next(
+                    (p for p in DEFAULT_PLACEMENT_PREFERENCE if p in accepted),
+                    next(iter(sorted(accepted)), None),
+                )
+                if target:
+                    files_by_placement[target] = src
 
         if not files_by_placement:
             have = [f["type"] for f in variants[0]["files"]]
