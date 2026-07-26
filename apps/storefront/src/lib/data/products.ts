@@ -126,6 +126,11 @@ export const listProductsWithSort = async ({
       ...queryParams,
       ...(optionFilters.length ? { option_value_id: optionFilters } : {}),
       limit: 100,
+      // Listing cards only render thumbnail/images, title and the cheapest
+      // price — the default field set (variant images/options/inventory/
+      // metadata) pushes this 100-product payload past Next's 2MB per-entry
+      // data-cache limit, making it uncacheable and memory-hungry.
+      fields: "*variants.calculated_price,*images",
     },
     countryCode,
   })
