@@ -25,16 +25,24 @@ export default async function applyPrintfulMockups({
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
-  const manifestPath =
-    process.env.MOCKUP_MANIFEST ||
-    path.resolve(process.cwd(), "mockups.json");
+  // `railway run` does not reliably forward ad-hoc env vars into the command
+  // it spawns, so the checked-in manifest is the dependable source; the env
+  // var only overrides it when explicitly set and present.
+  const candidates = [
+    process.env.MOCKUP_MANIFEST,
+    path.resolve(process.cwd(), "mockups.json"),
+    path.resolve(__dirname, "../../mockups.json"),
+    path.resolve(process.cwd(), "apps/backend/mockups.json"),
+  ].filter(Boolean) as string[];
 
-  if (!fs.existsSync(manifestPath)) {
+  const manifestPath = candidates.find((p) => fs.existsSync(p));
+  if (!manifestPath) {
     logger.error(
-      `No manifest at ${manifestPath}. Run generate_mockups.py first, or set MOCKUP_MANIFEST.`
+      `No manifest found. Looked in:\n  ${candidates.join("\n  ")}\nRun scripts/generate-printful-mockups.py first.`
     );
     return;
   }
+  logger.info(`Using manifest: ${manifestPath}`);
 
   const manifest: Record<string, { name: string; images: string[] }> =
     JSON.parse(fs.readFileSync(manifestPath, "utf8"));
