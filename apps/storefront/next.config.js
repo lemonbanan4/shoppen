@@ -84,6 +84,12 @@ const nextConfig = {
         hostname: "files.cdn.printful.com",
       },
       {
+        // Generated product mockups are re-hosted here: the Printful Mockup
+        // Generator returns temporary S3 URLs that expire.
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+      },
+      {
         protocol: "https",
         hostname: "*.cloudfront.net",
       },
