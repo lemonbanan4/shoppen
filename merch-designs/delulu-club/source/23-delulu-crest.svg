@@ -1,0 +1,34 @@
+<svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <path id="dt" d="M 170.00 600.00 A 430.00 430.00 0 0 1 1030.00 600.00" fill="none"/>
+  <path id="db" d="M 170.00 600.00 A 430.00 430.00 0 0 0 1030.00 600.00" fill="none"/>
+</defs>
+<circle cx="600" cy="600" r="480" fill="none" stroke="#0A0A0A" stroke-width="14"/>
+<circle cx="600" cy="600" r="428" fill="none" stroke="#0A0A0A" stroke-width="4"/>
+
+<text font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="64" fill="#0A0A0A" letter-spacing="8">
+  <textPath href="#dt" startOffset="50%" text-anchor="middle">DELULU CLUB</textPath>
+</text>
+<text font-family="Arial Black, Arial-Black, sans-serif" font-weight="900" font-size="42" fill="#B23B2E" letter-spacing="8">
+  <textPath href="#db" startOffset="50%" text-anchor="middle">SOLKAST &#8226; EST. 2026</textPath>
+</text>
+
+<g stroke="#0A0A0A" fill="none" stroke-width="11.7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M 442.83 649.092 C 326.21999999999997 561.888, 381.99 478.74, 442.83 534.51 C 503.66999999999996 478.74, 559.4399999999999 561.888, 442.83 649.092 Z"/>
+<path d="M 757.1700000000001 649.092 C 640.5600000000001 561.888, 696.33 478.74, 757.1700000000001 534.51 C 818.0100000000001 478.74, 873.7800000000001 561.888, 757.1700000000001 649.092 Z"/>
+<path d="M 539.16 541.608 C 564.51 507.132, 635.49 507.132, 660.84 541.608"/>
+<path d="M 336.35999999999996 551.748 C 265.38 527.412, 245.09999999999997 514.23, 229.88999999999996 483.81"/>
+<path d="M 863.6400000000001 551.748 C 934.6200000000001 527.412, 954.9000000000001 514.23, 970.1100000000001 483.81"/>
+<path d="M 400.24199999999996 564.93 L 430.662 524.37" stroke-width="6.5"/>
+<path d="M 714.5820000000001 564.93 L 745.0020000000001 524.37" stroke-width="6.5"/>
+<path d="M 280.59 404.51 L 288.59799999999996 425.10200000000003 L 309.19 433.11 L 288.59799999999996 441.118 L 280.59 461.71000000000004 L 272.582 441.118 L 251.98999999999998 433.11 L 272.582 425.10200000000003 Z" fill="#B23B2E" stroke="none"/>
+<path d="M 909.2700000000001 432.59 L 915.094 447.566 L 930.07 453.39 L 915.094 459.214 L 909.2700000000001 474.19 L 903.4460000000001 459.214 L 888.4700000000001 453.39 L 903.4460000000001 447.566 Z" fill="#B23B2E" stroke="none"/>
+<path d="M 600 678.55 L 605.096 691.654 L 618.2 696.75 L 605.096 701.846 L 600 714.95 L 594.904 701.846 L 581.8 696.75 L 594.904 691.654 Z" fill="#B23B2E" stroke="none"/>
+<path d="M 797.73 663.47 L 801.37 672.83 L 810.73 676.47 L 801.37 680.11 L 797.73 689.47 L 794.09 680.11 L 784.73 676.47 L 794.09 672.83 Z" fill="#0A0A0A" stroke="none"/>
+</g>
+
+<text x="600" y="800" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="44" fill="#0A0A0A">delulu is the solulu</text>
+
+<circle cx="112" cy="600" r="10" fill="#B23B2E"/>
+<circle cx="1088" cy="600" r="10" fill="#B23B2E"/>
+</svg>

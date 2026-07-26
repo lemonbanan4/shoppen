@@ -54,7 +54,7 @@ export default function TermsOfUsePage() {
       <section>
         <h2>Contact</h2>
         <p>
-          Questions about these terms: <strong>hello@solkast.example</strong>.
+          Questions about these terms: <strong>hello@solkast.com</strong>.
         </p>
       </section>
     </ContentPage>

@@ -3,11 +3,16 @@ import {
   ContainerRegistrationKeys,
   ProductStatus,
 } from "@medusajs/framework/utils";
+import fs from "fs";
+import path from "path";
 import {
   createCollectionsWorkflow,
   createProductCategoriesWorkflow,
   createProductsWorkflow,
+  deleteCollectionsWorkflow,
+  deleteProductCategoriesWorkflow,
   deleteProductsWorkflow,
+  updateProductsWorkflow,
 } from "@medusajs/medusa/core-flows";
 import {
   PrintfulClient,
@@ -37,6 +42,7 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
+  "Delulu Club Tee",
   "Bed Rotting Club Tee",
   "Overthinking Club Tee",
   "In My Overthinking Era Tee",
@@ -99,17 +105,29 @@ const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> =>
     optionValues["Color"] = parts[0];
     optionValues["Size"] = parts[1];
   } else if (parts.length === 1) {
-    optionValues["Option"] = parts[0];
+    // Single-option products (beanies, caps in one size) vary by colour.
+    optionValues["Color"] = parts[0];
   } else {
     optionValues["Variant"] = v.name;
   }
   return optionValues;
 };
 
+// Storefront department for a product, inferred from its name. Everything
+// also stays in Print on Demand; this keeps the Apparel/Accessories category
+// pages populated now that the demo catalog is gone.
+const classifyDepartment = (name: string): string => {
+  const n = name.toLowerCase();
+  if (/\b(cap|hat|beanie)\b/.test(n)) return "accessories";
+  if (/\b(mug|cup|poster|bottle|blanket)\b/.test(n)) return "home-goods";
+  return "apparel";
+};
+
 const toMedusaProduct = (
   detail: PrintfulSyncProductDetail,
   ctx: {
     categoryId: string;
+    categoryIdByHandle: Map<string, string>;
     newArrivalsCollectionId: string;
     bestsellersCollectionId: string;
     salesChannelId: string;
@@ -154,7 +172,12 @@ const toMedusaProduct = (
     handle: `printful-${p.id}`,
     description: "",
     status: ProductStatus.PUBLISHED,
-    category_ids: [ctx.categoryId],
+    category_ids: [
+      ctx.categoryId,
+      ...(ctx.categoryIdByHandle.has(classifyDepartment(p.name))
+        ? [ctx.categoryIdByHandle.get(classifyDepartment(p.name))!]
+        : []),
+    ],
     collection_id: NEW_ARRIVALS_TITLES.has(p.name)
       ? ctx.newArrivalsCollectionId
       : ctx.bestsellersCollectionId,
@@ -283,6 +306,16 @@ export default async function syncPrintfulProducts({
     categoryId = result[0].id;
   }
 
+  // Department categories (created by the original seed) for classification.
+  const { data: departmentCategories } = await query.graph({
+    entity: "product_category",
+    fields: ["id", "handle"],
+    filters: { handle: ["apparel", "accessories", "home-goods"] },
+  });
+  const categoryIdByHandle = new Map(
+    departmentCategories.map((c) => [c.handle as string, c.id])
+  );
+
   const { data: existingCollections } = await query.graph({
     entity: "product_collection",
     fields: ["id", "handle"],
@@ -354,6 +387,7 @@ export default async function syncPrintfulProducts({
 
   const ctx = {
     categoryId,
+    categoryIdByHandle,
     newArrivalsCollectionId: newArrivalsCollectionId!,
     bestsellersCollectionId: bestsellersCollectionId!,
     salesChannelId: salesChannels[0].id,
@@ -378,4 +412,75 @@ export default async function syncPrintfulProducts({
   logger.info(
     `Done. ${created}/${details.length} Printful products synced into the store (category: Print on Demand).`
   );
+
+  // ——— Re-apply generated mockup images ———
+  // Syncing recreates products, which resets their images to Printful's
+  // single default view; without this step every sync silently regressed the
+  // storefront until apply-printful-mockups.ts was run by hand.
+  const manifestCandidates = [
+    process.env.MOCKUP_MANIFEST,
+    path.resolve(process.cwd(), "mockups.json"),
+    path.resolve(__dirname, "../../mockups.json"),
+    path.resolve(process.cwd(), "apps/backend/mockups.json"),
+  ].filter(Boolean) as string[];
+  const manifestPath = manifestCandidates.find((p) => fs.existsSync(p));
+  if (!manifestPath) {
+    logger.warn(
+      "No mockup manifest found — product images are Printful defaults until scripts/generate-printful-mockups.py runs."
+    );
+  } else {
+    const manifest: Record<string, { name: string; images: string[] }> =
+      JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    const { data: syncedProducts } = await query.graph({
+      entity: "product",
+      fields: ["id", "handle"],
+      filters: { handle: Object.keys(manifest).map((id) => `printful-${id}`) },
+    });
+    const productByHandle = new Map(
+      syncedProducts.map((p) => [p.handle as string, p.id])
+    );
+    let applied = 0;
+    for (const [printfulId, entry] of Object.entries(manifest)) {
+      const productId = productByHandle.get(`printful-${printfulId}`);
+      if (!productId || !entry.images?.length) continue;
+      await updateProductsWorkflow(container).run({
+        input: {
+          selector: { id: productId },
+          update: {
+            thumbnail: entry.images[0],
+            images: entry.images.map((url) => ({ url })),
+          },
+        },
+      });
+      applied++;
+    }
+    logger.info(`Applied generated mockups to ${applied} product(s).`);
+  }
+
+  // ——— Drop empty storefront entries left over from the demo seed ———
+  // Nav and footer render categories/collections from data; an empty
+  // "Essentials" collection or "Home" category is a dead page a customer can
+  // land on.
+  const { data: essentials } = await query.graph({
+    entity: "product_collection",
+    fields: ["id", "products.id"],
+    filters: { handle: "essentials" },
+  });
+  if (essentials[0] && !(essentials[0].products || []).length) {
+    await deleteCollectionsWorkflow(container).run({
+      input: { ids: [essentials[0].id] },
+    });
+    logger.info('Removed empty "Essentials" collection.');
+  }
+  const { data: homeGoods } = await query.graph({
+    entity: "product_category",
+    fields: ["id", "products.id"],
+    filters: { handle: "home-goods" },
+  });
+  if (homeGoods[0] && !(homeGoods[0].products || []).length) {
+    await deleteProductCategoriesWorkflow(container).run({
+      input: [homeGoods[0].id],
+    });
+    logger.info('Removed empty "Home" category.');
+  }
 }

@@ -24,8 +24,8 @@ export default async function Footer() {
               Solkast
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-6">
-              Considered goods for everyday life. Apparel, accessories and home
-              goods — built to last, designed to be lived in.
+              Independent streetwear label. Original graphic capsules —
+              printed to order in the EU and US, never overstocked.
             </p>
             <div className="mt-8">
               <NewsletterForm />

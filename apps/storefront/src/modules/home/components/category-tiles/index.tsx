@@ -2,21 +2,18 @@ import { listCategories } from "@lib/data/categories"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
+// Tiles use our own generated product mockups, not stock photography.
+const MOCKUPS =
+  "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups"
+
 const TILE_CONFIG: Record<string, { image: string; tagline: string }> = {
   apparel: {
-    image:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80&auto=format",
-    tagline: "Everyday garments, built to last",
+    image: `${MOCKUPS}/pf-451951375-0.jpg`,
+    tagline: "Graphic tees & heavyweight hoodies",
   },
   accessories: {
-    image:
-      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=1200&q=80&auto=format",
-    tagline: "The details that finish the look",
-  },
-  "home-goods": {
-    image:
-      "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=1200&q=80&auto=format",
-    tagline: "Objects for slower mornings",
+    image: `${MOCKUPS}/pf-451903997-0.jpg`,
+    tagline: "Caps & beanies, embroidered",
   },
 }
 
@@ -43,7 +40,11 @@ export default async function CategoryTiles() {
           </h2>
         </div>
       </div>
-      <div className="grid grid-cols-1 xsmall:grid-cols-3 gap-4 small:gap-6">
+      <div
+        className={`grid grid-cols-1 gap-4 small:gap-6 ${
+          tiles.length === 2 ? "xsmall:grid-cols-2" : "xsmall:grid-cols-3"
+        }`}
+      >
         {tiles.map((tile) => (
           <LocalizedClientLink
             key={tile.handle}

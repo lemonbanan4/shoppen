@@ -1,29 +1,43 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
+// The hero shows our own products — generated mockups re-hosted in the
+// public assets repo — instead of stock photography of someone else's.
+const MOCKUPS =
+  "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups"
+
+const HERO_IMAGES = [
+  {
+    src: `${MOCKUPS}/pf-452139428-0.jpg`,
+    alt: "Delulu Club tee — heart-glasses crest on white",
+    tall: true,
+  },
+  {
+    src: `${MOCKUPS}/pf-452120542-0.jpg`,
+    alt: "Warning Impulse tee — yellow warning label on black",
+    tall: false,
+  },
+  {
+    src: `${MOCKUPS}/pf-451939140-0.jpg`,
+    alt: "Skyline heavyweight hoodie — isometric city print on black",
+    tall: false,
+  },
+]
+
 const Hero = () => {
   return (
-    <section className="relative w-full h-[70vh] small:h-[82vh] overflow-hidden">
-      <Image
-        src="https://images.unsplash.com/photo-1635650804060-bb009bcb2ea5?w=2400&q=80&auto=format"
-        alt="Model in an oversized graphic-print tee standing in an urban lot"
-        fill
-        priority
-        className="object-cover object-center"
-        sizes="100vw"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-neutral-950/10 to-transparent" />
-      <div className="absolute inset-0 flex items-end">
-        <div className="content-container pb-14 small:pb-20 text-white">
-          <p className="text-[11px] small:text-xs tracking-[0.24em] uppercase mb-4 text-white/80">
-            New capsule — out now
+    <section className="bg-neutral-950 text-white">
+      <div className="content-container py-14 small:py-24 grid grid-cols-1 small:grid-cols-2 gap-10 small:gap-16 items-center">
+        <div>
+          <p className="text-[11px] small:text-xs tracking-[0.24em] uppercase mb-4 text-white/70">
+            New capsule — Delulu Club
           </p>
-          <h1 className="text-4xl small:text-6xl font-medium leading-[1.05] max-w-2xl text-balance">
+          <h1 className="text-4xl small:text-6xl font-medium leading-[1.05] text-balance">
             Streetwear, considered.
           </h1>
-          <p className="mt-4 max-w-md text-sm small:text-base text-white/80">
-            Graphic tees, hoodies and caps — small batch, printed to order,
-            built to actually wear.
+          <p className="mt-4 max-w-md text-sm small:text-base text-white/75">
+            Original graphic capsules — small batch, printed to order on
+            organic heavyweight blanks, built to actually wear.
           </p>
           <div className="mt-8 flex gap-3">
             <LocalizedClientLink
@@ -40,6 +54,25 @@ const Hero = () => {
               New arrivals
             </LocalizedClientLink>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 small:gap-4">
+          {HERO_IMAGES.map((img, i) => (
+            <div
+              key={img.src}
+              className={`relative rounded-xl overflow-hidden bg-neutral-100 ${
+                img.tall ? "row-span-2 aspect-[3/4]" : "aspect-square"
+              }`}
+            >
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                priority={i === 0}
+                sizes="(max-width: 1024px) 50vw, 25vw"
+                className="object-cover object-center"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>

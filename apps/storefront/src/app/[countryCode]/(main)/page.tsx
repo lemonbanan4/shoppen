@@ -9,9 +9,9 @@ import Hero from "@modules/home/components/hero"
 import UspBar from "@modules/home/components/usp-bar"
 
 export const metadata: Metadata = {
-  title: "Solkast — Considered goods for everyday life",
+  title: "Solkast — Independent streetwear, printed to order",
   description:
-    "A curated shop of apparel, accessories and home goods. Built to last, designed to be lived in.",
+    "Original graphic tees, hoodies and caps. Small-batch streetwear designed in Sweden, printed to order in the EU and US.",
 }
 
 const RAIL_ORDER: { handle: string; eyebrow: string }[] = [

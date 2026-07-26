@@ -17,7 +17,6 @@ const SideMenuItems = {
   "Shop all": "/store",
   "New arrivals": "/collections/new-arrivals",
   Bestsellers: "/collections/bestsellers",
-  Essentials: "/collections/essentials",
   Account: "/account",
   Cart: "/cart",
 }

@@ -7,11 +7,11 @@ import "styles/globals.css"
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: {
-    default: "Solkast — Considered goods for everyday life",
+    default: "Solkast — Independent streetwear, printed to order",
     template: "%s | Solkast",
   },
   description:
-    "Solkast is a curated shop of apparel, accessories and home goods. Built to last, designed to be lived in.",
+    "Original graphic tees, hoodies and caps. Small-batch streetwear designed in Sweden, printed to order in the EU and US.",
   manifest: "/manifest.json",
 }
 

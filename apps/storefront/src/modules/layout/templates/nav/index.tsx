@@ -14,7 +14,6 @@ const NAV_LINKS = [
   { label: "Shop all", href: "/store" },
   { label: "New arrivals", href: "/collections/new-arrivals" },
   { label: "Bestsellers", href: "/collections/bestsellers" },
-  { label: "Essentials", href: "/collections/essentials" },
 ]
 
 export default async function Nav() {
