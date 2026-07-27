@@ -9,11 +9,13 @@ const Help = () => {
       <div className="text-base-regular my-2">
         <ul className="gap-y-2 flex flex-col">
           <li>
-            <LocalizedClientLink href="/contact">Contact</LocalizedClientLink>
+            <LocalizedClientLink href="/customer-service">
+              Contact
+            </LocalizedClientLink>
           </li>
           <li>
-            <LocalizedClientLink href="/contact">
-              Returns & Exchanges
+            <LocalizedClientLink href="/content/shipping-and-returns">
+              Returns &amp; Exchanges
             </LocalizedClientLink>
           </li>
         </ul>
