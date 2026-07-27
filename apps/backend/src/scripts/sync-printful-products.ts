@@ -42,6 +42,8 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
+  "Gym Rat Club Tee",
+  "Warning Gains Tee",
   "Delulu Pattern Leggings",
   "Delulu Pattern Sports Bra",
   "Delulu Pattern Crop Top",
