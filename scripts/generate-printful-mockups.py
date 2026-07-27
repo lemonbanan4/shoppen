@@ -71,6 +71,16 @@ def call(path, method="GET", body=None):
 
 
 _printfile_cache = {}
+_catalog_type_cache = {}
+
+
+def catalog_type(catalog_product_id):
+    if catalog_product_id not in _catalog_type_cache:
+        res = call(f"/products/{catalog_product_id}")
+        _catalog_type_cache[catalog_product_id] = (
+            (res or {}).get("result", {}).get("product", {}).get("type") or ""
+        )
+    return _catalog_type_cache[catalog_product_id]
 
 
 def printfile_info(catalog_product_id):
@@ -183,6 +193,14 @@ def main():
         variant_ids = [v["variant_id"] for v in variants]
 
         print(f"[{idx+1}/{len(products)}] {sp['name']}  (catalog {catalog_product_id})")
+
+        # All-over-print garments are assembled from per-panel print files;
+        # re-fitting the artwork slices the design across seams and produces
+        # mockups that misrepresent the product. Printful's own preview file
+        # (used by the sync's image fallback chain) is the correct imagery.
+        if catalog_type(catalog_product_id) == "CUT-SEW":
+            print("    cut-and-sew (all-over print) — skipping, preview file is authoritative")
+            continue
 
         # Placement names vary by product type ("front"/"back" on tees,
         # "default" on hoodies/beanies, "embroidery_front_large" on caps), so

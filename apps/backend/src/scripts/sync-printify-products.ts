@@ -222,6 +222,31 @@ export default async function syncPrintifyProducts({
     });
   }
 
+  // ——— Prune products deleted upstream ———
+  // A product removed in Printify just stops appearing in the list above, so
+  // without this it lingers in the store: published and purchasable but
+  // impossible to fulfil (mirrors the same guard in the Printful sync).
+  const liveHandles = new Set(handles);
+  const { data: allProducts } = await query.graph({
+    entity: "product",
+    fields: ["id", "title", "handle", "metadata"],
+  });
+  const orphans = allProducts.filter(
+    (p) =>
+      (p.metadata as any)?.fulfillment === "printify" &&
+      !liveHandles.has(p.handle as string)
+  );
+  if (orphans.length) {
+    logger.info(
+      `Pruning ${orphans.length} product(s) no longer in Printify: ${orphans
+        .map((p) => p.title)
+        .join(", ")}`
+    );
+    await deleteProductsWorkflow(container).run({
+      input: { ids: orphans.map((p) => p.id) },
+    });
+  }
+
   const ctx = {
     categoryId,
     salesChannelId: salesChannels[0].id,
