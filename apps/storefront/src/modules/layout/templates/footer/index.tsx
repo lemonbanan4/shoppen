@@ -102,6 +102,14 @@ export default async function Footer() {
                 <li>
                   <LocalizedClientLink
                     className="hover:text-white transition-colors"
+                    href="/content/about"
+                  >
+                    About Solkast
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors"
                     href="/customer-service"
                   >
                     Customer service

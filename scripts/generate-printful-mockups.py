@@ -169,9 +169,10 @@ def generate(catalog_product_id, variant_ids, files_by_placement, option_group=N
                    "variant_ids": variant_ids[:6],
                    "format": "jpg",
                    "files": req_files,
-                   # Ask for the on-model style and its front views; falls
-                   # back to the flat/ghost default when unsupported.
-                   **({"option_groups": [option_group], "options": ["Front", "Front 2"]}
+                   # On-model shots plus clean flat views. Restricting
+                   # `options` as well collapsed most products to a single
+                   # image, so let each group return its own angles.
+                   **({"option_groups": [option_group, "Ghost"]}
                       if option_group else {}),
                })
     if not res:
