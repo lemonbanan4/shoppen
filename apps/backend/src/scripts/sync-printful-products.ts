@@ -20,6 +20,7 @@ import {
   PrintfulSyncVariant,
 } from "../lib/printful-client";
 import { convertToStorePrices, fetchExchangeRates, STORE_CURRENCIES } from "../lib/pricing";
+import { displayTitle, toHandle } from "../lib/product-naming";
 
 /**
  * Syncs the Printful catalog (embroidery pieces) into this store.
@@ -218,6 +219,18 @@ const condenseSizeGuide = (
   return { unit: table.unit || "cm", sizes, rows };
 };
 
+/**
+ * Readable product URL: /products/explorers-club-oversized-tee rather than
+ * /products/printful-451903742. The words in a URL are a ranking signal and
+ * the link is visible whenever someone shares a product, so the id-based
+ * handle was costing us on both.
+ *
+ * Printful names can be long ("... unisex organic oversized high neck
+ * t-shirt"), so cut to ~60 characters on a word boundary. Handles must be
+ * unique, so `taken` carries the slugs already assigned in this run and a
+ * collision falls back to appending the Printful id.
+ */
+
 const toMedusaProduct = (
   detail: PrintfulSyncProductDetail,
   ctx: {
@@ -231,9 +244,11 @@ const toMedusaProduct = (
     shippingProfileId: string;
     exchangeRatesByCurrency: Map<string, Record<string, number>>;
     psychologicalRounding: boolean;
+    takenHandles: Set<string>;
   }
 ) => {
   const { sync_product: p, sync_variants: variants } = detail;
+  const name = displayTitle(p.name);
 
   // Prefer each variant's generated mockup (the design actually applied to
   // the garment) over `product.image`, which is just the blank catalog photo.
@@ -265,10 +280,10 @@ const toMedusaProduct = (
   }));
 
   return {
-    title: p.name,
-    handle: `printful-${p.id}`,
+    title: name,
+    handle: toHandle(name, p.id, ctx.takenHandles),
     description: buildDescription(
-      p.name,
+      name,
       variants[0]?.product?.product_id
         ? ctx.catalogInfoById.get(variants[0].product.product_id)?.description
         : undefined
@@ -276,12 +291,12 @@ const toMedusaProduct = (
     status: ProductStatus.PUBLISHED,
     category_ids: [
       ctx.categoryId,
-      ...(ctx.categoryIdByHandle.has(classifyDepartment(p.name))
-        ? [ctx.categoryIdByHandle.get(classifyDepartment(p.name))!]
+      ...(ctx.categoryIdByHandle.has(classifyDepartment(name))
+        ? [ctx.categoryIdByHandle.get(classifyDepartment(name))!]
         : []),
       ...(() => {
         const fit = classifyFit(
-          p.name,
+          name,
           variants[0]?.product?.product_id
             ? ctx.catalogInfoById.get(variants[0].product.product_id)?.title
             : undefined
@@ -290,7 +305,7 @@ const toMedusaProduct = (
         return id ? [id] : [];
       })(),
     ],
-    collection_id: NEW_ARRIVALS_TITLES.has(p.name)
+    collection_id: NEW_ARRIVALS_TITLES.has(name)
       ? ctx.newArrivalsCollectionId
       : ctx.bestsellersCollectionId,
     shipping_profile_id: ctx.shippingProfileId,
@@ -521,34 +536,36 @@ export default async function syncPrintfulProducts({
     }
   }
 
-  // ——— Replace previously synced versions of these products ———
-  const handles = details.map((d) => `printful-${d.sync_product.id}`);
-  const { data: existing } = await query.graph({
-    entity: "product",
-    fields: ["id", "handle"],
-    filters: { handle: handles },
-  });
-  if (existing.length) {
-    logger.info(`Replacing ${existing.length} previously synced products...`);
-    await deleteProductsWorkflow(container).run({
-      input: { ids: existing.map((p) => p.id) },
-    });
-  }
-
-  // ——— Prune products deleted upstream ———
-  // A product removed in Printful simply stops appearing in the list above,
-  // so without this it would linger in the store: still published, still
-  // purchasable, but impossible to fulfil.
-  const liveHandles = new Set(handles);
+  // ——— Clear out every previously synced Printful product ———
+  // Matched on metadata.printful_product_id rather than on the handle: the
+  // handle is now a slug derived from the product name, so it changes
+  // whenever a product is renamed and can no longer identify anything.
+  //
+  // This covers two cases at once — products still in Printful (deleted here,
+  // recreated below with fresh data) and products deleted upstream, which
+  // would otherwise linger in the store: still published, still purchasable,
+  // but impossible to fulfil.
+  const liveIds = new Set(details.map((d) => d.sync_product.id));
   const { data: allProducts } = await query.graph({
     entity: "product",
     fields: ["id", "title", "handle", "metadata"],
   });
-  const orphans = allProducts.filter(
-    (p) =>
-      (p.metadata as any)?.fulfillment === "printful" &&
-      !liveHandles.has(p.handle as string)
+  const printfulProducts = allProducts.filter(
+    (p) => (p.metadata as any)?.fulfillment === "printful"
   );
+  const stale = printfulProducts.filter((p) =>
+    liveIds.has(Number((p.metadata as any)?.printful_product_id))
+  );
+  const orphans = printfulProducts.filter(
+    (p) => !liveIds.has(Number((p.metadata as any)?.printful_product_id))
+  );
+
+  if (stale.length) {
+    logger.info(`Replacing ${stale.length} previously synced products...`);
+    await deleteProductsWorkflow(container).run({
+      input: { ids: stale.map((p) => p.id) },
+    });
+  }
   if (orphans.length) {
     logger.info(
       `Pruning ${orphans.length} product(s) no longer in Printful: ${orphans
@@ -571,6 +588,7 @@ export default async function syncPrintfulProducts({
     shippingProfileId: shippingProfiles[0].id,
     exchangeRatesByCurrency,
     psychologicalRounding,
+    takenHandles: new Set<string>(),
   };
 
   let created = 0;
@@ -610,15 +628,16 @@ export default async function syncPrintfulProducts({
       JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     const { data: syncedProducts } = await query.graph({
       entity: "product",
-      fields: ["id", "handle"],
-      filters: { handle: Object.keys(manifest).map((id) => `printful-${id}`) },
+      fields: ["id", "metadata"],
     });
-    const productByHandle = new Map(
-      syncedProducts.map((p) => [p.handle as string, p.id])
+    const productByPrintfulId = new Map(
+      syncedProducts
+        .filter((p) => (p.metadata as any)?.printful_product_id)
+        .map((p) => [String((p.metadata as any).printful_product_id), p.id])
     );
     let applied = 0;
     for (const [printfulId, entry] of Object.entries(manifest)) {
-      const productId = productByHandle.get(`printful-${printfulId}`);
+      const productId = productByPrintfulId.get(String(printfulId));
       if (!productId || !entry.images?.length) continue;
       await updateProductsWorkflow(container).run({
         input: {

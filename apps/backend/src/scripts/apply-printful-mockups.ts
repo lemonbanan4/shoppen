@@ -57,15 +57,21 @@ export default async function applyPrintfulMockups({
 
   const { data: products } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "handle"],
+    fields: ["id", "title", "metadata"],
   });
-  const byHandle = new Map(products.map((p) => [p.handle as string, p]));
+  // Keyed on the Printful id from metadata, not the handle: handles are
+  // name-derived slugs and change whenever a product is renamed.
+  const byPrintfulId = new Map(
+    products
+      .filter((p) => (p.metadata as any)?.printful_product_id)
+      .map((p) => [String((p.metadata as any).printful_product_id), p])
+  );
 
   let updated = 0;
   for (const [printfulId, { name, images }] of entries) {
-    const product = byHandle.get(`printful-${printfulId}`);
+    const product = byPrintfulId.get(String(printfulId));
     if (!product) {
-      logger.warn(`  skipped ${name}: no store product for printful-${printfulId}`);
+      logger.warn(`  skipped ${name}: no store product for Printful id ${printfulId}`);
       continue;
     }
 

@@ -47,6 +47,8 @@ const stripHtml = (html: string) =>
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
+import { displayTitle, toHandle } from "../lib/product-naming";
+
 const MAX_IMAGES = 6;
 
 const toMedusaProduct = (
@@ -55,6 +57,7 @@ const toMedusaProduct = (
     categoryId: string;
     salesChannelId: string;
     shippingProfileId: string;
+    takenHandles: Set<string>;
     shopId: number;
     exchangeRates: Record<string, number>;
     psychologicalRounding: boolean;
@@ -85,9 +88,11 @@ const toMedusaProduct = (
     .filter((src, idx, arr) => arr.indexOf(src) === idx)
     .slice(0, MAX_IMAGES);
 
+  const name = displayTitle(p.title);
+
   return {
-    title: p.title,
-    handle: `printify-${p.id}`,
+    title: name,
+    handle: toHandle(name, p.id, ctx.takenHandles),
     description: stripHtml(p.description),
     status: ProductStatus.PUBLISHED,
     category_ids: [ctx.categoryId],
@@ -208,33 +213,34 @@ export default async function syncPrintifyProducts({
     categoryId = result[0].id;
   }
 
-  // ——— Replace previously synced versions of these products ———
-  const handles = products.map((p) => `printify-${p.id}`);
-  const { data: existing } = await query.graph({
-    entity: "product",
-    fields: ["id", "handle"],
-    filters: { handle: handles },
-  });
-  if (existing.length) {
-    logger.info(`Replacing ${existing.length} previously synced products...`);
-    await deleteProductsWorkflow(container).run({
-      input: { ids: existing.map((p) => p.id) },
-    });
-  }
-
-  // ——— Prune products deleted upstream ———
-  // A product removed in Printify just stops appearing in the list above, so
-  // without this it lingers in the store: published and purchasable but
-  // impossible to fulfil (mirrors the same guard in the Printful sync).
-  const liveHandles = new Set(handles);
+  // ——— Clear out every previously synced Printify product ———
+  // Matched on metadata.printify_product_id rather than on the handle: the
+  // handle is now a slug derived from the product name, so it changes
+  // whenever a product is renamed and can no longer identify anything.
+  //
+  // This covers products still in Printify (recreated below with fresh data)
+  // and products deleted upstream, which would otherwise linger in the store:
+  // published and purchasable but impossible to fulfil.
+  const liveIds = new Set(products.map((p) => String(p.id)));
   const { data: allProducts } = await query.graph({
     entity: "product",
     fields: ["id", "title", "handle", "metadata"],
   });
-  const orphans = allProducts.filter(
-    (p) =>
-      (p.metadata as any)?.fulfillment === "printify" &&
-      !liveHandles.has(p.handle as string)
+  const printifyProducts = allProducts.filter(
+    (p) => (p.metadata as any)?.fulfillment === "printify"
+  );
+  const stale = printifyProducts.filter((p) =>
+    liveIds.has(String((p.metadata as any)?.printify_product_id))
+  );
+  if (stale.length) {
+    logger.info(`Replacing ${stale.length} previously synced products...`);
+    await deleteProductsWorkflow(container).run({
+      input: { ids: stale.map((p) => p.id) },
+    });
+  }
+
+  const orphans = printifyProducts.filter(
+    (p) => !liveIds.has(String((p.metadata as any)?.printify_product_id))
   );
   if (orphans.length) {
     logger.info(
@@ -251,6 +257,7 @@ export default async function syncPrintifyProducts({
     categoryId,
     salesChannelId: salesChannels[0].id,
     shippingProfileId: shippingProfiles[0].id,
+    takenHandles: new Set<string>(),
     shopId,
     exchangeRates,
     psychologicalRounding,

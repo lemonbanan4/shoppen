@@ -33,20 +33,36 @@ export const getCacheTag = async (tag: string): Promise<string> => {
   }
 }
 
+/**
+ * How long catalog responses may be served from cache.
+ *
+ * Cart and customer data are invalidated by cache tag the moment they are
+ * mutated, but the catalog is written by the Printful sync script, which
+ * talks to the backend directly and never touches the storefront's tags —
+ * and the tag is per-visitor (`products-<cookie id>`) so it could not
+ * invalidate everyone anyway. Combined with `cache: "force-cache"` and no
+ * expiry that pinned the catalog forever: newly synced products never
+ * appeared in the shop. An expiry window bounds it without giving up
+ * caching on the hot path.
+ */
+export const CATALOG_REVALIDATE_SECONDS = 60
+
 export const getCacheOptions = async (
-  tag: string
-): Promise<{ tags: string[] } | Record<string, never>> => {
+  tag: string,
+  revalidate?: number
+): Promise<
+  { tags?: string[]; revalidate?: number } | Record<string, never>
+> => {
   if (typeof window !== "undefined") {
     return {}
   }
 
   const cacheTag = await getCacheTag(tag)
 
-  if (!cacheTag) {
-    return {}
+  return {
+    ...(cacheTag ? { tags: [`${cacheTag}`] } : {}),
+    ...(revalidate !== undefined ? { revalidate } : {}),
   }
-
-  return { tags: [`${cacheTag}`] }
 }
 
 export const setAuthToken = async (token: string) => {

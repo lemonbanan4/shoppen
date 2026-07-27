@@ -87,12 +87,26 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  // Search engines cut the snippet around 160 characters, so trim on a word
+  // boundary rather than mid-word.
+  const summary = product.description?.trim()
+    ? product.description.trim().length > 160
+      ? product.description.trim().slice(0, 157).replace(/\s+\S*$/, "") + "…"
+      : product.description.trim()
+    : `${product.title} — printed to order by Solkast.`
+
   return {
     title: `${product.title}`,
-    description: `${product.title}`,
+    description: summary,
+    // Selecting a colour adds ?v_id=..., which would otherwise look like a
+    // separate page with duplicate content. Point them all at the clean URL.
+    alternates: {
+      canonical: `/${params.countryCode}/products/${handle}`,
+    },
     openGraph: {
       title: `${product.title}`,
-      description: `${product.title}`,
+      description: summary,
+      type: "website",
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }
@@ -114,11 +128,13 @@ export default async function ProductPage(props: Props) {
     queryParams: { handle: params.handle },
   }).then(({ response }) => response.products[0])
 
-  const images = getImagesForVariant(pricedProduct, selectedVariantId)
-
   if (!pricedProduct) {
     notFound()
   }
+
+  // Must follow the guard: deriving images from an undefined product throws,
+  // and the throw surfaced as a 500 instead of the intended 404.
+  const images = getImagesForVariant(pricedProduct, selectedVariantId)
 
   return (
     <ProductTemplate

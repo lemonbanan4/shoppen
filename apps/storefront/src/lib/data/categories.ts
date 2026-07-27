@@ -1,10 +1,10 @@
 import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
-import { getCacheOptions } from "./cookies"
+import { getCacheOptions, CATALOG_REVALIDATE_SECONDS } from "./cookies"
 
 export const listCategories = async (query?: Record<string, unknown>) => {
   const next = {
-    ...(await getCacheOptions("categories")),
+    ...(await getCacheOptions("categories", CATALOG_REVALIDATE_SECONDS)),
   }
 
   const limit = query?.limit || 100
@@ -30,7 +30,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
   const handle = `${categoryHandle.join("/")}`
 
   const next = {
-    ...(await getCacheOptions("categories")),
+    ...(await getCacheOptions("categories", CATALOG_REVALIDATE_SECONDS)),
   }
 
   return sdk.client

@@ -23,6 +23,7 @@ export default async function ProductPreview({
         <Thumbnail
           thumbnail={product.thumbnail}
           images={product.images}
+          alt={product.title}
           size="full"
           isFeatured={isFeatured}
         />

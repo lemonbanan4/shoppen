@@ -7,9 +7,11 @@ import { useCallback, useEffect, useState } from "react"
 
 type ImageGalleryProps = {
   images: HttpTypes.StoreProductImage[]
+  /** Product name, so each view is described rather than numbered. */
+  title?: string
 }
 
-const ImageGallery = ({ images }: ImageGalleryProps) => {
+const ImageGallery = ({ images, title }: ImageGalleryProps) => {
   // Index of the image open in the lightbox; null when closed.
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
@@ -64,7 +66,11 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                     src={image.url}
                     priority={index <= 2 ? true : false}
                     className="absolute inset-0 rounded-rounded"
-                    alt={`Product image ${index + 1}`}
+                    alt={
+                      title
+                        ? `${title} — view ${index + 1} of ${images.length}`
+                        : `Product image ${index + 1}`
+                    }
                     fill
                     sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
                     style={{
@@ -126,7 +132,11 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           >
             <Image
               src={openImage.url}
-              alt={`Product image ${openIndex! + 1} enlarged`}
+              alt={
+                title
+                  ? `${title} — view ${openIndex! + 1}, enlarged`
+                  : `Product image ${openIndex! + 1} enlarged`
+              }
               fill
               sizes="92vw"
               style={{ objectFit: "contain" }}
