@@ -6,6 +6,7 @@ import CategoryTiles from "@modules/home/components/category-tiles"
 import EditorialBanner from "@modules/home/components/editorial-banner"
 import ProductRail from "@modules/home/components/featured-products/product-rail"
 import Hero from "@modules/home/components/hero"
+import SiteJsonLd from "@modules/common/components/site-jsonld"
 import UspBar from "@modules/home/components/usp-bar"
 
 export const metadata: Metadata = {
@@ -43,6 +44,7 @@ export default async function Home(props: {
 
   return (
     <>
+      <SiteJsonLd countryCode={countryCode} />
       <Hero />
       <UspBar />
       {rails[0] && (

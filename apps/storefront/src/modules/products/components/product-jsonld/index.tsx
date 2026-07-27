@@ -32,14 +32,30 @@ const ProductJsonLd = ({
     image: (product.images || []).map((i) => i.url).filter(Boolean),
     sku: product.variants?.[0]?.sku || product.id,
     url,
+    brand: { "@type": "Brand", name: "Solkast" },
     offers: {
       "@type": "Offer",
       url,
       priceCurrency: cheapestPrice?.currency_code?.toUpperCase(),
       price: cheapestPrice?.calculated_price_number,
+      itemCondition: "https://schema.org/NewCondition",
       availability: anyVariantAvailable
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
+      // Mirrors the 30-day policy stated in the footer and on the shipping
+      // and returns page. Only claims that are actually true of the store —
+      // a mismatch here is what gets merchant listings demoted.
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: region.countries?.map((c) => c.iso_2?.toUpperCase()),
+        returnPolicyCategory:
+          "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnByMail",
+        // returnFees deliberately omitted: the policy page does not say who
+        // pays return postage, and guessing "free" here would be an unverified
+        // claim to Google.
+      },
     },
   }
 

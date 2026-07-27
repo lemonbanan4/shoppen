@@ -176,8 +176,11 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                   </p>
                 )}
 
+                {/* A compact row per result rather than a card grid: in a
+                    type-ahead the name and price are what you scan, and a
+                    4/5 card pushed both out of view behind a ~400px image. */}
                 {results.length > 0 && (
-                  <ul className="grid grid-cols-2 small:grid-cols-4 gap-4 p-5">
+                  <ul className="py-2">
                     {results.map((product) => {
                       const { cheapestPrice } = getProductPrice({ product })
                       return (
@@ -185,24 +188,24 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                           <LocalizedClientLink
                             href={`/products/${product.handle}`}
                             onClick={close}
-                            className="group block"
+                            className="flex items-center gap-x-4 px-5 py-3 hover:bg-neutral-50 transition-colors"
                           >
-                            <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-neutral-100">
+                            <div className="relative h-14 w-14 shrink-0 rounded-md overflow-hidden bg-neutral-100">
                               {product.thumbnail && (
                                 <Image
                                   src={product.thumbnail}
                                   alt={product.title}
                                   fill
-                                  sizes="200px"
-                                  className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                                  sizes="56px"
+                                  className="object-cover object-center"
                                 />
                               )}
                             </div>
-                            <p className="mt-2 text-sm text-neutral-900 truncate">
+                            <p className="flex-1 min-w-0 truncate text-sm text-neutral-900">
                               {product.title}
                             </p>
                             {cheapestPrice && (
-                              <p className="text-sm text-neutral-500">
+                              <p className="shrink-0 text-sm text-neutral-500">
                                 {cheapestPrice.calculated_price}
                               </p>
                             )}
