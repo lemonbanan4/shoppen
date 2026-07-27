@@ -121,7 +121,9 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-x-1.5 hover:text-ui-fg-base transition-colors"
+        // -m-2 p-2 keeps the visual size while giving the icon a ~40px
+        // touch area; a bare 16px icon is far below the usable minimum.
+        className="flex items-center gap-x-1.5 hover:text-ui-fg-base transition-colors -m-2 p-2"
         aria-label="Search products"
         data-testid="nav-search-button"
       >

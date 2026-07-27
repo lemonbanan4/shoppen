@@ -13,6 +13,8 @@ import SideMenu from "@modules/layout/components/side-menu"
 const NAV_LINKS = [
   { label: "Shop all", href: "/store" },
   { label: "New arrivals", href: "/collections/new-arrivals" },
+  { label: "Women's", href: "/categories/womens" },
+  { label: "Men's", href: "/categories/mens" },
   { label: "Bestsellers", href: "/collections/bestsellers" },
 ]
 
