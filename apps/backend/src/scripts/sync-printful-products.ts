@@ -66,6 +66,9 @@ const NEW_ARRIVALS_TITLES = new Set([
   "Retail Therapy Cap",
 ]);
 
+// Garment sizes as Printful writes them in variant names.
+const SIZE_TOKEN = /^(XXS|XS|S|M|L|XL|[2-5]XL|One Size|OS)$/i;
+
 const titleCase = (id: string) =>
   id
     .split("_")
@@ -113,8 +116,10 @@ const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> =>
     optionValues["Color"] = parts[0];
     optionValues["Size"] = parts[1];
   } else if (parts.length === 1) {
-    // Single-option products (beanies, caps in one size) vary by colour.
-    optionValues["Color"] = parts[0];
+    // A single trailing token is either a size ("... / M", one colourway) or
+    // a colour ("... / Black", one size) depending on the product, so label
+    // it by what it actually looks like rather than assuming.
+    optionValues[SIZE_TOKEN.test(parts[0]) ? "Size" : "Color"] = parts[0];
   } else {
     optionValues["Variant"] = v.name;
   }

@@ -72,6 +72,14 @@ def call(path, method="GET", body=None):
 
 _printfile_cache = {}
 _catalog_type_cache = {}
+_catalog_meta_cache = {}
+
+
+def catalog_meta(catalog_product_id):
+    if catalog_product_id not in _catalog_meta_cache:
+        res = call(f"/products/{catalog_product_id}")
+        _catalog_meta_cache[catalog_product_id] = (res or {}).get("result", {}).get("product")
+    return _catalog_meta_cache[catalog_product_id]
 
 
 def catalog_type(catalog_product_id):
@@ -100,7 +108,22 @@ def printfile_info(catalog_product_id):
     return info
 
 
-def generate(catalog_product_id, variant_ids, files_by_placement):
+# On-model mockup styles. Printful photographs real models wearing the
+# blank and composites the artwork onto them, so the print stays accurate —
+# unlike generating a person and a garment from scratch.
+ON_MODEL_GROUPS = {"womens": "Women's", "mens": "Men's", "unisex": "Men's"}
+
+
+def classify_fit(product_name, catalog_title):
+    hay = f"{catalog_title or ''} {product_name}".lower()
+    if any(k in hay for k in ("women", "sports bra", "crop top", "leggings", "bodycon")):
+        return "womens"
+    if any(k in hay for k in ("men'", "mens ", "board shorts", "swim trunks")):
+        return "mens"
+    return "unisex"
+
+
+def generate(catalog_product_id, variant_ids, files_by_placement, option_group=None):
     info = printfile_info(catalog_product_id)
     if not info:
         return []
@@ -142,7 +165,15 @@ def generate(catalog_product_id, variant_ids, files_by_placement):
         return []
 
     res = call(f"/mockup-generator/create-task/{catalog_product_id}", "POST",
-               {"variant_ids": variant_ids[:6], "format": "jpg", "files": req_files})
+               {
+                   "variant_ids": variant_ids[:6],
+                   "format": "jpg",
+                   "files": req_files,
+                   # Ask for the on-model style and its front views; falls
+                   # back to the flat/ghost default when unsupported.
+                   **({"option_groups": [option_group], "options": ["Front", "Front 2"]}
+                      if option_group else {}),
+               })
     if not res:
         return []
     key = res["result"]["task_key"]
@@ -240,7 +271,12 @@ def main():
             print(f"    no artwork placement matched (files={have}, accepted={sorted(accepted)})")
             continue
 
-        urls = generate(catalog_product_id, variant_ids, files_by_placement)
+        catalog_title = (catalog_meta(catalog_product_id) or {}).get("title")
+        group = ON_MODEL_GROUPS.get(classify_fit(sp["name"], catalog_title))
+        urls = generate(catalog_product_id, variant_ids, files_by_placement, group)
+        if not urls and group:
+            print("    on-model unavailable, falling back to flat")
+            urls = generate(catalog_product_id, variant_ids, files_by_placement)
         if not urls:
             continue
 
