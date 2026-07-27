@@ -129,6 +129,58 @@ const classifyDepartment = (name: string): string => {
   return "apparel";
 };
 
+// Fit, from the blank's own catalog title (Printful is explicit: "Unisex
+// ...", "Women's ...", "Men's ..."), falling back to garment type for the
+// cut-and-sew women's pieces whose titles omit it.
+const classifyFit = (
+  productName: string,
+  catalogTitle: string | undefined
+): "womens" | "mens" | "unisex" => {
+  const hay = `${catalogTitle ?? ""} ${productName}`.toLowerCase();
+  if (/\bwomen'?s?\b|\bsports bra\b|\bcrop top\b|\bleggings\b|\bbodycon\b|\bskater dress\b/.test(hay)) {
+    return "womens";
+  }
+  if (/\bmen'?s?\b|\bboard shorts\b|\bswim trunks\b/.test(hay)) {
+    return "mens";
+  }
+  return "unisex";
+};
+
+const FIT_CATEGORIES: { handle: string; name: string; description: string }[] = [
+  { handle: "womens", name: "Women's", description: "Cut for a women's fit." },
+  { handle: "mens", name: "Men's", description: "Cut for a men's fit." },
+  {
+    handle: "unisex",
+    name: "Unisex",
+    description: "Straight, oversized cuts made to fit everyone.",
+  },
+];
+
+/**
+ * Product copy from the blank's catalog description. Printful writes these
+ * as a short intro paragraph followed by bullet-point specs; keep the intro
+ * and the material/weight/fit bullets, drop sourcing boilerplate that reads
+ * oddly on a storefront.
+ */
+const buildDescription = (
+  productName: string,
+  catalogDescription: string | undefined
+): string => {
+  if (!catalogDescription) return "";
+  const [intro, ...rest] = catalogDescription.split("\n•");
+  const bullets = rest
+    .map((b) => b.trim().replace(/\s+/g, " "))
+    .filter(
+      (b) =>
+        b &&
+        !/blank product|sourced from|the sizes correspond|important:/i.test(b)
+    )
+    .slice(0, 8);
+
+  const lead = intro.trim().replace(/\s+/g, " ");
+  return [lead, ...bullets.map((b) => `• ${b}`)].join("\n").trim();
+};
+
 // Condensed, render-ready size table stored on the product for the PDP.
 export type SizeGuide = {
   unit: string;
@@ -165,6 +217,7 @@ const toMedusaProduct = (
     categoryId: string;
     categoryIdByHandle: Map<string, string>;
     sizeGuideByCatalogId: Map<number, SizeGuide | null>;
+    catalogInfoById: Map<number, { title: string; description: string } | null>;
     newArrivalsCollectionId: string;
     bestsellersCollectionId: string;
     salesChannelId: string;
@@ -207,13 +260,28 @@ const toMedusaProduct = (
   return {
     title: p.name,
     handle: `printful-${p.id}`,
-    description: "",
+    description: buildDescription(
+      p.name,
+      variants[0]?.product?.product_id
+        ? ctx.catalogInfoById.get(variants[0].product.product_id)?.description
+        : undefined
+    ),
     status: ProductStatus.PUBLISHED,
     category_ids: [
       ctx.categoryId,
       ...(ctx.categoryIdByHandle.has(classifyDepartment(p.name))
         ? [ctx.categoryIdByHandle.get(classifyDepartment(p.name))!]
         : []),
+      ...(() => {
+        const fit = classifyFit(
+          p.name,
+          variants[0]?.product?.product_id
+            ? ctx.catalogInfoById.get(variants[0].product.product_id)?.title
+            : undefined
+        );
+        const id = ctx.categoryIdByHandle.get(fit);
+        return id ? [id] : [];
+      })(),
     ],
     collection_id: NEW_ARRIVALS_TITLES.has(p.name)
       ? ctx.newArrivalsCollectionId
@@ -304,10 +372,19 @@ export default async function syncPrintfulProducts({
       .map((d) => d.sync_variants[0]?.product?.product_id)
       .filter((id): id is number => Boolean(id))
   );
+  const catalogInfoById = new Map<
+    number,
+    { title: string; description: string } | null
+  >();
   for (const catalogId of catalogIds) {
     sizeGuideByCatalogId.set(
       catalogId,
       condenseSizeGuide(await client.getProductSizes(catalogId))
+    );
+    const info = await client.getCatalogProduct(catalogId);
+    catalogInfoById.set(
+      catalogId,
+      info ? { title: info.title, description: info.description } : null
     );
   }
   logger.info(
@@ -369,11 +446,39 @@ export default async function syncPrintfulProducts({
     categoryId = result[0].id;
   }
 
-  // Department categories (created by the original seed) for classification.
+  // Department categories (from the original seed) plus fit categories,
+  // which are created here so a new store gets them without a manual step.
+  const fitHandles = FIT_CATEGORIES.map((f) => f.handle);
+  const { data: existingFitCategories } = await query.graph({
+    entity: "product_category",
+    fields: ["id", "handle"],
+    filters: { handle: fitHandles },
+  });
+  const missingFits = FIT_CATEGORIES.filter(
+    (f) => !existingFitCategories.some((c) => c.handle === f.handle)
+  );
+  if (missingFits.length) {
+    await createProductCategoriesWorkflow(container).run({
+      input: {
+        product_categories: missingFits.map((f) => ({
+          name: f.name,
+          handle: f.handle,
+          description: f.description,
+          is_active: true,
+        })),
+      },
+    });
+    logger.info(
+      `Created fit categories: ${missingFits.map((f) => f.name).join(", ")}`
+    );
+  }
+
   const { data: departmentCategories } = await query.graph({
     entity: "product_category",
     fields: ["id", "handle"],
-    filters: { handle: ["apparel", "accessories", "home-goods"] },
+    filters: {
+      handle: ["apparel", "accessories", "home-goods", ...fitHandles],
+    },
   });
   const categoryIdByHandle = new Map(
     departmentCategories.map((c) => [c.handle as string, c.id])
@@ -451,6 +556,7 @@ export default async function syncPrintfulProducts({
   const ctx = {
     categoryId,
     sizeGuideByCatalogId,
+    catalogInfoById,
     categoryIdByHandle,
     newArrivalsCollectionId: newArrivalsCollectionId!,
     bestsellersCollectionId: bestsellersCollectionId!,

@@ -152,6 +152,28 @@ export class PrintfulClient {
   }
 
   /**
+   * Catalog blank details — description copy, product type and title.
+   * Returns null rather than failing the sync when unavailable.
+   */
+  async getCatalogProduct(catalogProductId: number): Promise<{
+    id: number;
+    title: string;
+    type: string;
+    description: string;
+    brand?: string | null;
+    model?: string | null;
+  } | null> {
+    try {
+      const { result } = await this.request<any>(
+        `/products/${catalogProductId}`
+      );
+      return result?.product ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Size tables for a catalog product (garment measurements per size).
    * Returns null when the product has none rather than failing the sync.
    */
