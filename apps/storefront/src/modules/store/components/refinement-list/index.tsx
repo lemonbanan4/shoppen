@@ -10,16 +10,20 @@ import {
 import OptionsPicker from "./options-picker"
 import SortProducts, { SortOptions } from "./sort-products"
 
+import { HttpTypes } from "@medusajs/types"
+
 type RefinementListProps = {
   sortBy: SortOptions
   search?: boolean
   hideOptionsPicker?: boolean
+  productOptions?: HttpTypes.StoreProductOption[]
   "data-testid"?: string
 }
 
 const RefinementList = ({
   sortBy,
   hideOptionsPicker = false,
+  productOptions = [],
   "data-testid": dataTestId,
 }: RefinementListProps) => {
   const router = useRouter()
@@ -72,6 +76,7 @@ const RefinementList = ({
       />
       {!hideOptionsPicker && (
         <OptionsPicker
+          options={productOptions}
           selectedValueIds={selectedOptionValueIds}
           setOptionValueIds={setOptionValueIds}
         />

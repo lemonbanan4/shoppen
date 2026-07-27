@@ -14,6 +14,34 @@ type ProductListQueryParams = (HttpTypes.FindParams &
   option_value_id?: string | string[]
 }
 
+/**
+ * Product options for the store filter sidebar, fetched server-side so the
+ * browser never talks to the backend directly for it (the old client-side
+ * fetch surfaced "Failed to fetch" console errors whenever the backend was
+ * unreachable, and depended on CORS).
+ */
+export const listProductOptions = async (): Promise<
+  HttpTypes.StoreProductOption[]
+> => {
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  try {
+    const { product_options } = await sdk.client.fetch<{
+      product_options?: HttpTypes.StoreProductOption[]
+    }>(`/store/product-options`, {
+      method: "GET",
+      query: { is_exclusive: false, fields: "*values" },
+      next,
+      cache: "force-cache",
+    })
+    return product_options || []
+  } catch {
+    return []
+  }
+}
+
 export const listProducts = async ({
   pageParam = 1,
   queryParams,

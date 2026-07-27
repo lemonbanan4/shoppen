@@ -486,4 +486,5 @@ export default async function syncPrintfulProducts({
     });
     logger.info('Removed empty "Home" category.');
   }
+
 }

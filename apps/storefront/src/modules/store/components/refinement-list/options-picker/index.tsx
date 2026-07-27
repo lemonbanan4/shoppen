@@ -4,45 +4,23 @@ import * as Accordion from "@radix-ui/react-accordion"
 import { useEffect, useState } from "react"
 
 import { ChevronDownMini } from "@medusajs/icons"
-import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
 import clsx from "clsx"
 
 type OptionsPickerProps = {
+  // Fetched server-side and passed down; this component only handles
+  // selection state.
+  options: HttpTypes.StoreProductOption[]
   selectedValueIds: string[]
   setOptionValueIds: (valueIds: string[]) => void
 }
 
 const OptionsPicker = ({
+  options,
   selectedValueIds,
   setOptionValueIds,
 }: OptionsPickerProps) => {
-  const [options, setOptions] = useState<HttpTypes.StoreProductOption[]>([])
   const [openItems, setOpenItems] = useState<string[]>([])
-
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const response = await sdk.client.fetch<{
-          product_options?: HttpTypes.StoreProductOption[]
-        }>("/store/product-options", {
-          method: "GET",
-          query: {
-            is_exclusive: false,
-            fields: "*values",
-          },
-        })
-
-        if (response?.product_options) {
-          setOptions(response.product_options)
-        }
-      } catch (error) {
-        console.error("Failed to fetch product options", error)
-      }
-    }
-
-    fetchOptions()
-  }, [])
 
   useEffect(() => {
     if (options.length) {
