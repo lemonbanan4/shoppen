@@ -11,12 +11,41 @@ type ProductTabsProps = {
   product: HttpTypes.StoreProduct
 }
 
+type SizeGuide = {
+  unit: string
+  sizes: string[]
+  rows: { label: string; values: Record<string, string> }[]
+}
+
+const parseSizeGuide = (
+  product: HttpTypes.StoreProduct
+): SizeGuide | null => {
+  const raw = product.metadata?.size_guide
+  if (typeof raw !== "string") return null
+  try {
+    const guide = JSON.parse(raw) as SizeGuide
+    return guide?.rows?.length ? guide : null
+  } catch {
+    return null
+  }
+}
+
 const ProductTabs = ({ product }: ProductTabsProps) => {
+  const sizeGuide = parseSizeGuide(product)
+
   const tabs = [
     {
       label: "Product Information",
       component: <ProductInfoTab product={product} />,
     },
+    ...(sizeGuide
+      ? [
+          {
+            label: "Size Guide",
+            component: <SizeGuideTab guide={sizeGuide} />,
+          },
+        ]
+      : []),
     {
       label: "Shipping & Returns",
       component: <ShippingInfoTab />,
@@ -37,6 +66,47 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
           </Accordion.Item>
         ))}
       </Accordion>
+    </div>
+  )
+}
+
+const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
+  const sizes = guide.sizes.length
+    ? guide.sizes
+    : Array.from(new Set(guide.rows.flatMap((r) => Object.keys(r.values))))
+
+  return (
+    <div className="py-8">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm text-left">
+          <thead>
+            <tr className="border-b border-neutral-200 text-neutral-500">
+              <th className="py-2 pr-4 font-medium">Measurement ({guide.unit})</th>
+              {sizes.map((s) => (
+                <th key={s} className="py-2 px-3 font-medium text-center">
+                  {s}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {guide.rows.map((row) => (
+              <tr key={row.label} className="border-b border-neutral-100">
+                <td className="py-2 pr-4 text-neutral-700">{row.label}</td>
+                {sizes.map((s) => (
+                  <td key={s} className="py-2 px-3 text-center text-neutral-900">
+                    {row.values[s] ?? "–"}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-xs text-neutral-500">
+        Garment measurements, taken flat. Between sizes? Size up for the
+        intended oversized fit.
+      </p>
     </div>
   )
 }

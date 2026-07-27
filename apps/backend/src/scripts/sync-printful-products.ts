@@ -42,6 +42,9 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
+  "Delulu Pattern Leggings",
+  "Delulu Pattern Sports Bra",
+  "Delulu Pattern Crop Top",
   "DEFRAG Men's Board Shorts",
   "DEFRAG Recycled Swim Trunks",
   "DEFRAG Unisex Hoodie",
@@ -126,11 +129,42 @@ const classifyDepartment = (name: string): string => {
   return "apparel";
 };
 
+// Condensed, render-ready size table stored on the product for the PDP.
+export type SizeGuide = {
+  unit: string;
+  sizes: string[];
+  rows: { label: string; values: Record<string, string> }[];
+};
+
+const condenseSizeGuide = (
+  raw: Awaited<ReturnType<PrintfulClient["getProductSizes"]>>
+): SizeGuide | null => {
+  if (!raw?.size_tables?.length) return null;
+  const table =
+    raw.size_tables.find((t) => t.type === "product_measure") ||
+    raw.size_tables[0];
+  const sizes = raw.available_sizes || [];
+  const rows = (table.measurements || [])
+    .map((m) => {
+      const values: Record<string, string> = {};
+      for (const v of m.values || []) {
+        if (!v.size) continue;
+        values[v.size] =
+          v.value ?? [v.min_value, v.max_value].filter(Boolean).join("–");
+      }
+      return { label: m.type_label, values };
+    })
+    .filter((r) => Object.keys(r.values).length);
+  if (!rows.length) return null;
+  return { unit: table.unit || "cm", sizes, rows };
+};
+
 const toMedusaProduct = (
   detail: PrintfulSyncProductDetail,
   ctx: {
     categoryId: string;
     categoryIdByHandle: Map<string, string>;
+    sizeGuideByCatalogId: Map<number, SizeGuide | null>;
     newArrivalsCollectionId: string;
     bestsellersCollectionId: string;
     salesChannelId: string;
@@ -190,6 +224,13 @@ const toMedusaProduct = (
     metadata: {
       printful_product_id: p.id,
       fulfillment: "printful",
+      ...(() => {
+        const catalogId = variants[0]?.product?.product_id;
+        const guide = catalogId
+          ? ctx.sizeGuideByCatalogId.get(catalogId)
+          : null;
+        return guide ? { size_guide: JSON.stringify(guide) } : {};
+      })(),
     },
     variants: variants.map((v: PrintfulSyncVariant, i: number) => {
       const optionValues = variantOptions[i];
@@ -255,6 +296,25 @@ export default async function syncPrintfulProducts({
   for (const s of summaries) {
     details.push(await client.getProduct(s.id));
   }
+
+  // Size tables per catalog product, fetched once per distinct blank.
+  const sizeGuideByCatalogId = new Map<number, SizeGuide | null>();
+  const catalogIds = new Set(
+    details
+      .map((d) => d.sync_variants[0]?.product?.product_id)
+      .filter((id): id is number => Boolean(id))
+  );
+  for (const catalogId of catalogIds) {
+    sizeGuideByCatalogId.set(
+      catalogId,
+      condenseSizeGuide(await client.getProductSizes(catalogId))
+    );
+  }
+  logger.info(
+    `Fetched size guides for ${
+      [...sizeGuideByCatalogId.values()].filter(Boolean).length
+    }/${catalogIds.size} blank(s).`
+  );
 
   const psychologicalRounding =
     process.env.PRINTFUL_PSYCHOLOGICAL_ROUNDING !== "false";
@@ -390,6 +450,7 @@ export default async function syncPrintfulProducts({
 
   const ctx = {
     categoryId,
+    sizeGuideByCatalogId,
     categoryIdByHandle,
     newArrivalsCollectionId: newArrivalsCollectionId!,
     bestsellersCollectionId: bestsellersCollectionId!,

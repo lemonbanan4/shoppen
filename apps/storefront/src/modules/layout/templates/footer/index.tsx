@@ -137,7 +137,24 @@ export default async function Footer() {
         </div>
         <div className="flex w-full py-8 justify-between items-center border-t border-neutral-800 text-xs">
           <p>© {new Date().getFullYear()} Solkast. All rights reserved.</p>
-          <p>Free shipping over €75 · 30-day returns</p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <p>Free shipping over €75 · 30-day returns</p>
+            <ul
+              aria-label="Accepted payment methods"
+              className="flex items-center gap-1.5"
+            >
+              {["Visa", "Mastercard", "Amex", "Apple Pay", "Klarna"].map(
+                (method) => (
+                  <li
+                    key={method}
+                    className="rounded border border-white/20 px-2 py-0.5 text-[10px] tracking-wide text-white/60"
+                  >
+                    {method}
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
         </div>
       </div>
     </footer>

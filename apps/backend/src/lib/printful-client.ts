@@ -151,6 +151,31 @@ export class PrintfulClient {
     return result;
   }
 
+  /**
+   * Size tables for a catalog product (garment measurements per size).
+   * Returns null when the product has none rather than failing the sync.
+   */
+  async getProductSizes(catalogProductId: number): Promise<{
+    available_sizes?: string[];
+    size_tables?: {
+      type: string;
+      unit: string;
+      measurements: {
+        type_label: string;
+        values: { size: string; value?: string; min_value?: string; max_value?: string }[];
+      }[];
+    }[];
+  } | null> {
+    try {
+      const { result } = await this.request<any>(
+        `/products/${catalogProductId}/sizes?unit=cm`
+      );
+      return result;
+    } catch {
+      return null;
+    }
+  }
+
   async createOrder(
     payload: PrintfulOrderPayload,
     confirm = false
