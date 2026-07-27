@@ -51,20 +51,44 @@ Settings → Root Directory). The `railway.json` there handles build & start
 Deploy: `railway up --service backend` (from `apps/backend`), then generate a
 public domain for the service (Settings → Networking → Generate Domain).
 
-### 3. Seed production data
+### 3. Running scripts against production
 
-Migrations run automatically on boot. Seed the rest with the production
-DATABASE_URL (via `railway run`, which injects the service env locally):
+Migrations run automatically on boot. Everything else is a script you run
+from your own machine, pointed at the production database.
+
+Two things make this fiddly, and both have bitten us:
+
+1. **`railway run` is not enough on its own.** It injects the service's
+   `DATABASE_URL`, which is `postgres.railway.internal` — a hostname that
+   only resolves *inside* Railway's network. From a laptop it fails with
+   `getaddrinfo ENOTFOUND postgres.railway.internal`. Use the Postgres
+   service's `DATABASE_PUBLIC_URL` (a TCP proxy) instead.
+2. **The service is named `@dtc/backend`, not `backend`.** `--service backend`
+   returns `Service not found`. Since `apps/backend` is already linked to it,
+   just omit the flag.
+
+A shell-set `DATABASE_URL` takes precedence over the one in `apps/backend/.env`,
+so this targets production while still reading your local API tokens:
 
 ```bash
 cd apps/backend
-railway run --service backend npx medusa exec ./src/scripts/seed-premium.ts
-railway run --service backend npx medusa exec ./src/scripts/rebuild-products-with-options.ts
-railway run --service backend npx medusa exec ./src/scripts/cleanup-old-categories.ts
-railway run --service backend npx medusa exec ./src/scripts/seed-shipping-and-promo.ts
-railway run --service backend npx medusa exec ./src/scripts/sync-printify-products.ts
-railway run --service backend npx medusa user -e you@example.com -p <admin-password>
+export DATABASE_URL="$(railway variables --service Postgres --kv \
+  | grep '^DATABASE_PUBLIC_URL=' | cut -d= -f2-)"
 ```
+
+Then run any script in that same shell. **Both syncs delete and recreate
+every product they manage**, so expect the storefront to be briefly thin
+while they run:
+
+```bash
+npx medusa exec ./src/scripts/sync-printful-products.ts
+npx medusa exec ./src/scripts/sync-printify-products.ts
+npx medusa exec ./src/scripts/seed-bundle-promo.ts
+npx medusa user -e you@example.com -p <admin-password>
+```
+
+Open a fresh terminal (or `unset DATABASE_URL`) to go back to local work —
+otherwise you are still pointed at production.
 
 Grab the production publishable key (Admin → Settings → Publishable API keys,
 or from the `api_key` table) for the storefront.
