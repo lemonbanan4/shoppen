@@ -209,7 +209,29 @@ def main():
     os.makedirs(dest_dir, exist_ok=True)
 
     products = call("/store/products?limit=100")["result"]
+
+    # Regenerating one product should not cost a full sweep: every mockup task
+    # is rate limited to one call per MG_MIN_GAP seconds, so a whole-catalogue
+    # run takes the better part of an hour.
+    #
+    #   ONLY_IDS=451936716 python scripts/generate-printful-mockups.py
+    only = {
+        i.strip() for i in os.environ.get("ONLY_IDS", "").split(",") if i.strip()
+    }
+    if only:
+        products = [p for p in products if str(p["id"]) in only]
+        print(f"ONLY_IDS set — regenerating {len(products)} product(s): {sorted(only)}")
+
+    # Start from the existing manifest so a targeted run updates its entries
+    # instead of dropping every other product's mockups on the floor.
     manifest = {}
+    if os.path.exists(OUT):
+        try:
+            with open(OUT) as f:
+                manifest = json.load(f)
+            print(f"loaded existing manifest ({len(manifest)} product(s))")
+        except Exception as e:
+            print(f"could not read existing manifest ({e}), starting fresh")
 
     for idx, summary in enumerate(products):
         pid = summary["id"]

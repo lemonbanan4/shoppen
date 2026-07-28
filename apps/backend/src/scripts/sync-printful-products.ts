@@ -617,6 +617,11 @@ export default async function syncPrintfulProducts({
     path.resolve(process.cwd(), "mockups.json"),
     path.resolve(__dirname, "../../mockups.json"),
     path.resolve(process.cwd(), "apps/backend/mockups.json"),
+    // Where generate-printful-mockups.py actually writes. Without this the
+    // generator and the sync keep separate copies, and a targeted
+    // regeneration silently leaves the sync applying stale image URLs.
+    path.resolve(__dirname, "../../../../scripts/mockups.json"),
+    path.resolve(process.cwd(), "../../scripts/mockups.json"),
   ].filter(Boolean) as string[];
   const manifestPath = manifestCandidates.find((p) => fs.existsSync(p));
   if (!manifestPath) {
