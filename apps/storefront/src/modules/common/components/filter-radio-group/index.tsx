@@ -23,24 +23,27 @@ const FilterRadioGroup = ({
       <Text className="txt-compact-small-plus text-ui-fg-muted">{title}</Text>
       <RadioGroup data-testid={dataTestId}>
         {items?.map((i) => (
-          <div
-            key={i.value}
-            className={clx("flex gap-x-2 items-center", {
-              "ml-[-23px]": i.value === value,
-            })}
-          >
-            {i.value === value && <EllipseMiniSolid />}
+          // A fixed-width slot holds the selected marker, replacing a
+          // magic-number negative margin (ml-[-23px]) that hung the bullet in
+          // the gutter. Same alignment, but it no longer depends on the
+          // marker icon staying exactly 23px wide.
+          <div key={i.value} className="flex gap-x-2 items-center">
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+              {i.value === value && <EllipseMiniSolid />}
+            </span>
             <RadioGroup.Item
               checked={i.value === value}
               onChange={() => handleChange(i.value)}
-              className="hidden peer"
+              // sr-only, not hidden: display:none takes the input out of the
+              // tab order, so the group could not be operated by keyboard.
+              className="sr-only peer"
               id={i.value}
               value={i.value}
             />
             <Label
               htmlFor={i.value}
               className={clx(
-                "!txt-compact-small !transform-none text-ui-fg-subtle hover:cursor-pointer",
+                "!txt-compact-small !transform-none text-ui-fg-subtle hover:cursor-pointer py-1 peer-focus-visible:underline peer-focus-visible:text-ui-fg-base",
                 {
                   "text-ui-fg-base": i.value === value,
                 }

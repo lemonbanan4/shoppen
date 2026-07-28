@@ -83,10 +83,14 @@ export default async function PaginatedProducts({
         className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
         data-testid="products-list"
       >
-        {products.map((p) => {
+        {products.map((p, index) => {
           return (
             <li key={p.id}>
-              <ProductPreview product={p} region={region} />
+              {/* The widest grid is 4 columns, so the first four are the
+                  candidates for the Largest Contentful Paint element.
+                  Lazy-loading them delays LCP on the page most traffic
+                  lands on. */}
+              <ProductPreview product={p} region={region} priority={index < 4} />
             </li>
           )
         })}

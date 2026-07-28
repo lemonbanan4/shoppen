@@ -54,6 +54,10 @@ const nextConfig = {
     ]
   },
   images: {
+    // Next 15 warns on any quality not listed here and will reject them
+    // outright in 16. Product thumbnails render at 70 to keep grid pages
+    // light; 75 is Next's default, kept for everything that does not opt in.
+    qualities: [70, 75],
     remotePatterns: [
       {
         protocol: "http",

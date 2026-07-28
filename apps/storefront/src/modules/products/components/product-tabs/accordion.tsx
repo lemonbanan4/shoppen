@@ -48,26 +48,30 @@ const Item: React.FC<AccordionItemProps> = ({
       {...props}
       className={clx(
         "border-grey-20 group border-t last:mb-0 last:border-b",
-        "py-3",
+        // Half the row padding lives on the trigger below, so the tap target
+        // reaches 44px without changing the row's overall height.
+        "py-1.5",
         className
       )}
     >
+      {/* The whole row is the trigger. Previously only the small +/- icon
+          was, so tapping the label — the obvious target, and the only one
+          big enough on a phone — did nothing, and the button reached screen
+          readers with no accessible name because the title sat outside it. */}
       <AccordionPrimitive.Header className="px-1">
-        <div className="flex flex-col">
+        <AccordionPrimitive.Trigger className="flex w-full flex-col text-left py-1.5">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-4">
               <Text className="text-ui-fg-subtle text-sm">{title}</Text>
             </div>
-            <AccordionPrimitive.Trigger>
-              {customTrigger || <MorphingTrigger />}
-            </AccordionPrimitive.Trigger>
+            {customTrigger || <MorphingTrigger />}
           </div>
           {subtitle && (
             <Text as="span" className="mt-1 text-sm">
               {subtitle}
             </Text>
           )}
-        </div>
+        </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>
       <AccordionPrimitive.Content
         forceMount={forceMountContent}

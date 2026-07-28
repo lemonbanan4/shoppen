@@ -20,10 +20,15 @@ const InteractiveLink = ({
       onClick={onClick}
       {...props}
     >
-      <Text className="text-ui-fg-interactive">{children}</Text>
+      {/* Brand rust, not Medusa's default --fg-interactive blue: this is the
+          only blue link on an otherwise black-and-rust site, and on the empty
+          cart and 404 pages it read as unstyled rather than deliberate. */}
+      <Text className="text-brand group-hover:text-brand-dark transition-colors">
+        {children}
+      </Text>
       <ArrowUpRightMini
-        className="group-hover:rotate-45 ease-in-out duration-150"
-        color="var(--fg-interactive)"
+        className="group-hover:rotate-45 ease-in-out duration-150 text-brand"
+        color="currentColor"
       />
     </LocalizedClientLink>
   )

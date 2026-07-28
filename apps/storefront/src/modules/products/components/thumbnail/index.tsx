@@ -10,6 +10,9 @@ type ThumbnailProps = {
   /** Product name, so the image has a meaningful alt for screen readers
    *  and image search rather than a generic "Product image". */
   alt?: string
+  /** Eager-load this image. Set on the first row of a grid: one of them is
+   *  the Largest Contentful Paint element, and lazy-loading it delays LCP. */
+  priority?: boolean
   size?: "small" | "medium" | "large" | "full" | "square"
   isFeatured?: boolean
   className?: string
@@ -20,6 +23,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   thumbnail,
   images,
   alt,
+  priority = false,
   size = "small",
   className,
   "data-testid": dataTestid,
@@ -56,6 +60,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
                 : "group-hover:scale-[1.04]"
             )}
             draggable={false}
+            priority={priority}
             quality={70}
             sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
             fill
