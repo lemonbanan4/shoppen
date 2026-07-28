@@ -80,7 +80,15 @@ def main() -> int:
         "--threshold",
         type=int,
         default=70,
-        help="max RGB channel value counted as 'dark card fill' (default 70)",
+        help="max RGB channel value counted as 'dark card fill' (default 70). "
+        "With --light, the MINIMUM value counted as light fill (try 200)",
+    )
+    ap.add_argument(
+        "--light",
+        action="store_true",
+        help="remove a light/white background instead of a dark one. Line art "
+        "exported on white prints as a white rectangle on any garment that is "
+        "not white — obvious on heather grey.",
     )
     ap.add_argument(
         "--min-area-pct",
@@ -103,16 +111,24 @@ def main() -> int:
     rgb = arr[:, :, :3].astype(np.int16)
     alpha = arr[:, :, 3]
 
-    dark = (rgb.max(axis=2) <= args.threshold) & (alpha > 200)
-    labels, n = connected_components(dark)
+    if args.light:
+        # Every channel at or above the threshold — a flat light fill. Using
+        # min() rather than max() keeps saturated pale colours (a pink, a
+        # cream) from being mistaken for white paper.
+        fill = (rgb.min(axis=2) >= args.threshold) & (alpha > 200)
+    else:
+        fill = (rgb.max(axis=2) <= args.threshold) & (alpha > 200)
+    labels, n = connected_components(fill)
 
     min_area = int(h * w * args.min_area_pct / 100.0)
     counts = np.bincount(labels.ravel())
     big = {i for i, c in enumerate(counts) if i != 0 and c >= min_area}
     if not big:
+        hint = "a lower --threshold" if args.light else "a higher --threshold"
         print(
-            f"No dark region reached {args.min_area_pct}% of the image "
-            f"({min_area}px). Nothing removed — try a higher --threshold.",
+            f"No {'light' if args.light else 'dark'} region reached "
+            f"{args.min_area_pct}% of the image ({min_area}px). "
+            f"Nothing removed — try {hint}.",
             file=sys.stderr,
         )
         return 1
