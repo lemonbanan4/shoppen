@@ -317,6 +317,15 @@ def main():
         manifest[str(pid)] = {"name": sp["name"], "images": hosted}
 
 
+    # Drop entries for products that no longer exist upstream. A targeted run
+    # only ever adds to the manifest it seeded from, so without this a deleted
+    # product's mockups linger forever and get re-applied by the sync.
+    live_ids = {str(p["id"]) for p in call("/store/products?limit=100")["result"]}
+    removed = [k for k in manifest if k not in live_ids]
+    for k in removed:
+        print(f"pruning {k} ({manifest[k].get('name','?')}) — gone from Printful")
+        del manifest[k]
+
     # Write every location the sync looks in. These had drifted into two
     # copies once already, and because the sync takes the first candidate it
     # finds, a stale copy silently wins and newly generated mockups are never
