@@ -47,12 +47,16 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
 
   return (
     <div className="flex items-start relative">
-      <div className="flex flex-col flex-1 small:mx-16 gap-y-4">
+      {/* Phones get a swipeable, snapping carousel — stacking six full-width
+          photos vertically meant scrolling past all of them to reach the buy
+          controls. Desktop keeps the vertical stack, which pairs with the
+          sticky info columns either side. */}
+      <div className="flex flex-row w-full gap-x-2 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden small:flex-col small:flex-1 small:gap-y-4 small:mx-16 small:overflow-visible">
         {images.map((image, index) => {
           return (
             <Container
               key={image.id}
-              className="relative aspect-[29/34] w-full overflow-hidden bg-ui-bg-subtle cursor-zoom-in"
+              className="relative aspect-[29/34] w-[85%] shrink-0 snap-center small:w-full small:shrink overflow-hidden bg-ui-bg-subtle cursor-zoom-in"
               id={image.id}
             >
               {!!image.url && (
@@ -72,7 +76,10 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
                         : `Product image ${index + 1}`
                     }
                     fill
-                    sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                    // Matches the layout: a carousel slide is 85vw until the
+                    // small breakpoint turns the gallery into a fixed-width
+                    // column. A stale hint here serves under-resolution images.
+                    sizes="(max-width: 1023px) 85vw, 800px"
                     style={{
                       objectFit: "cover",
                     }}

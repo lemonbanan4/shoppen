@@ -6,6 +6,7 @@ import Refresh from "@modules/common/icons/refresh"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import { splitDescription } from "@lib/util/product-description"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -35,7 +36,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 
   const tabs = [
     {
-      label: "Product Information",
+      label: "Details & fabric",
       component: <ProductInfoTab product={product} />,
     },
     ...(sizeGuide
@@ -112,38 +113,57 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
 }
 
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
-        </div>
+  // The spec bullets from the supplier's catalog copy. These carry the real
+  // detail — fabric, weight, fit, certifications — where Medusa's own
+  // material/weight/dimension fields are unset for print-on-demand products
+  // and rendered as a grid of dashes.
+  const { bullets } = splitDescription(product.description)
+
+  const attributes = [
+    ["Material", product.material],
+    ["Weight", product.weight ? `${product.weight} g` : null],
+    ["Country of origin", product.origin_country],
+    ["Type", product.type?.value],
+    [
+      "Dimensions",
+      product.length && product.width && product.height
+        ? `${product.length}L x ${product.width}W x ${product.height}H`
+        : null,
+    ],
+  ].filter(([, value]) => Boolean(value)) as [string, string][]
+
+  if (!bullets.length && !attributes.length) {
+    return (
+      <div className="text-small-regular py-8">
+        <p className="text-ui-fg-subtle">
+          Full details for this piece are on their way.
+        </p>
       </div>
+    )
+  }
+
+  return (
+    <div className="text-small-regular py-8 flex flex-col gap-y-6">
+      {bullets.length > 0 && (
+        <ul className="flex flex-col gap-y-2">
+          {bullets.map((bullet, i) => (
+            <li key={i} className="flex gap-x-2 text-ui-fg-subtle">
+              <span aria-hidden="true">•</span>
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {attributes.length > 0 && (
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          {attributes.map(([label, value]) => (
+            <div key={label}>
+              <span className="font-semibold">{label}</span>
+              <p>{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
