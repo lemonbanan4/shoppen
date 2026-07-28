@@ -317,9 +317,20 @@ def main():
         manifest[str(pid)] = {"name": sp["name"], "images": hosted}
 
 
-    with open(OUT, "w") as f:
-        json.dump(manifest, f, indent=2)
-    print(f"\nwrote {OUT} ({len(manifest)} product(s))")
+    # Write every location the sync looks in. These had drifted into two
+    # copies once already, and because the sync takes the first candidate it
+    # finds, a stale copy silently wins and newly generated mockups are never
+    # applied — the sync reports success having used week-old image URLs.
+    targets = [
+        OUT,
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     "apps", "backend", "mockups.json"),
+    ]
+    for t in targets:
+        os.makedirs(os.path.dirname(t), exist_ok=True)
+        with open(t, "w") as f:
+            json.dump(manifest, f, indent=2)
+        print(f"wrote {t} ({len(manifest)} product(s))")
 
     subprocess.run(["git", "add", ASSETS_SUBDIR], cwd=ASSETS_REPO, check=True)
     r = subprocess.run(["git", "commit", "-m", "Add generated multi-view product mockups"],
