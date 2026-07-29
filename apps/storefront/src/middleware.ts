@@ -192,6 +192,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|images|assets|png|svg|jpg|jpeg|gif|webp).*)",
+    // `ingest` is the PostHog reverse-proxy prefix (see next.config.js
+    // rewrites) — its capture endpoint has no file extension, so without
+    // this exclusion the country-code redirect below hijacks it into
+    // `/se/ingest/...` before the rewrite ever sees it, and every event is
+    // silently lost.
+    "/((?!api|ingest|_next/static|_next/image|favicon.ico|images|assets|png|svg|jpg|jpeg|gif|webp).*)",
   ],
 }
