@@ -10,7 +10,9 @@ import SiteJsonLd from "@modules/common/components/site-jsonld"
 import UspBar from "@modules/home/components/usp-bar"
 
 export const metadata: Metadata = {
-  title: "Ångerköp — Köp nu. Ångra sen.",
+  // absolute: the root template would append "| Ångerköp" to a title
+  // that already leads with the brand.
+  title: { absolute: "Ångerköp — Köp nu. Ångra sen." },
   description:
     "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta på beställning i EU. Buy now, regret later.",
 }
