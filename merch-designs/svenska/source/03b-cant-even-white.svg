@@ -1,0 +1,17 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+<!-- ORKAR INTE — "can't be bothered". The joke is the bluntness, so the
+     design is nothing but type: two words, heavy grotesk, tight leading.
+     A single lowered underline stroke reads as the energy dropping out. -->
+<text x="700" y="330" text-anchor="middle"
+      font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
+      font-size="240" letter-spacing="6" fill="#F5F4F0">CAN'T</text>
+<text x="700" y="590" text-anchor="middle"
+      font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
+      font-size="240" letter-spacing="6" fill="#F5F4F0">EVEN</text>
+<!-- the tired underline: starts level, sags, gives up before the end -->
+<path d="M 320 680 L 760 680 Q 860 680 900 706 L 1010 706"
+      stroke="#F5F4F0" stroke-width="18" fill="none" stroke-linecap="round"/>
+<text x="700" y="800" text-anchor="middle"
+      font-family="Helvetica, Arial, sans-serif" font-weight="700"
+      font-size="30" letter-spacing="10" fill="#C88A6A">SOLKAST &#8226; EST. NO IDEA</text>
+</svg>
