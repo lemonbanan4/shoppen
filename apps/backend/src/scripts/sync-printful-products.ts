@@ -43,28 +43,12 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
-  "Gym Rat Club Tee",
-  "Warning Gains Tee",
-  "Delulu Pattern Leggings",
-  "Delulu Pattern Sports Bra",
-  "Delulu Pattern Crop Top",
-  "DEFRAG Men's Board Shorts",
-  "DEFRAG Recycled Swim Trunks",
-  "DEFRAG Unisex Hoodie",
-  "Delulu Club Tee",
-  "Bed Rotting Club Tee",
-  "Overthinking Club Tee",
-  "In My Overthinking Era Tee",
-  "Caution Overthinking Tee",
-  "Retail Therapy Club Tee",
-  "Warning Impulse Tee",
-  "Terminally Online Tee",
-  "Screen Time Warning Tee",
-  "Terminally Online Hoodie",
-  "Retail Therapy Club Tee",
-  "Warning Impulse Tee",
-  "Treat Yourself Embroidered Tee",
-  "Retail Therapy Cap",
+  // The Ångerköp store carries only the svenska capsule for launch; every
+  // tee is a new arrival. (Names from the Solkast era live in that store's
+  // archive and never reach this sync any more.)
+  "ORKAR INTE Tee",
+  "VARNING: Impulsköp Tee",
+  "CAN'T EVEN Tee",
 ]);
 
 // Garment sizes as Printful writes them in variant names.

@@ -8,18 +8,18 @@ const MOCKUPS =
 
 const HERO_IMAGES = [
   {
-    src: `${MOCKUPS}/pf-452617529-2.jpg`,
+    src: `${MOCKUPS}/pf-452640447-2.jpg`,
     alt: "ORKAR INTE tee — vit text på svart organisk t-shirt",
     tall: true,
   },
   {
-    src: `${MOCKUPS}/pf-452617557-0.jpg`,
+    src: `${MOCKUPS}/pf-452640475-0.jpg`,
     alt: "VARNING: Impulsköp tee — gul varningsetikett på svart",
     tall: false,
   },
   {
-    src: `${MOCKUPS}/pf-452120542-0.jpg`,
-    alt: "Warning Impulse tee — yellow warning label on black",
+    src: `${MOCKUPS}/pf-452640501-0.jpg`,
+    alt: "CAN'T EVEN tee — vit text på svart organisk t-shirt",
     tall: false,
   },
 ]
