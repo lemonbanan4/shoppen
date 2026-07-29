@@ -22,7 +22,12 @@ if (!POSTHOG_KEY) {
   }
 } else {
   posthog.init(POSTHOG_KEY, {
-    api_host: "/ingest",
+    // Every route here lives under a /<countryCode> segment, and posthog-js's
+    // "history_change" pageview mode resolves a bare "/ingest" against the
+    // current route rather than the origin root — capture requests were
+    // going to /se/ingest/... instead of /ingest/..., 404ing before the
+    // next.config.js rewrite ever saw them. An absolute URL sidesteps that.
+    api_host: `${window.location.origin}/ingest`,
     ui_host: "https://eu.posthog.com",
     defaults: "2026-01-30",
     capture_pageview: "history_change",
