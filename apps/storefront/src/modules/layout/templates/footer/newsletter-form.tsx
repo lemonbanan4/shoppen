@@ -3,6 +3,7 @@
 import React from "react"
 import { toast } from "sonner"
 import { subscribeToNewsletter } from "@lib/data/newsletter"
+import posthog from "posthog-js"
 
 const NewsletterForm = () => {
   const [loading, setLoading] = React.useState(false)
@@ -22,6 +23,7 @@ const NewsletterForm = () => {
       return
     }
 
+    posthog.capture("newsletter_subscribed")
     toast.success("You're on the list")
   }
 

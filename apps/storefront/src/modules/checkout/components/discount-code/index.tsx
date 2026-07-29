@@ -9,6 +9,7 @@ import { HttpTypes } from "@medusajs/types"
 import Trash from "@modules/common/icons/trash"
 import ErrorMessage from "../error-message"
 import { SubmitButton } from "../submit-button"
+import posthog from "posthog-js"
 
 type DiscountCodeProps = {
   cart: HttpTypes.StoreCart
@@ -44,7 +45,11 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
 
     try {
       await applyPromotions(codes)
+      posthog.capture("discount_code_applied", {
+        discount_code: code.toString(),
+      })
     } catch (e) {
+      posthog.captureException(e)
       setErrorMessage(e instanceof Error ? e.message : String(e))
     }
 

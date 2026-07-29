@@ -3,6 +3,7 @@ import React from "react"
 import UnderlineLink from "@modules/common/components/interactive-link"
 
 import AccountNav from "../components/account-nav"
+import PostHogIdentifier from "../components/posthog-identifier"
 import { HttpTypes } from "@medusajs/types"
 
 interface AccountLayoutProps {
@@ -16,6 +17,14 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
 }) => {
   return (
     <div className="flex-1 small:py-12" data-testid="account-page">
+      {customer && (
+        <PostHogIdentifier
+          customerId={customer.id}
+          email={customer.email}
+          firstName={customer.first_name}
+          lastName={customer.last_name}
+        />
+      )}
       <div className="flex-1 content-container h-full max-w-5xl mx-auto bg-white flex flex-col">
         <div className="grid grid-cols-1  small:grid-cols-[240px_1fr] py-12">
           <div>{customer && <AccountNav customer={customer} />}</div>

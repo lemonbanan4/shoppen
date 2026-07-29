@@ -11,6 +11,7 @@ import ChevronDown from "@modules/common/icons/chevron-down"
 import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import User from "@modules/common/icons/user"
+import posthog from "posthog-js"
 
 const AccountNav = ({
   customer,
@@ -21,6 +22,8 @@ const AccountNav = ({
   const { countryCode } = useParams() as { countryCode: string }
 
   const handleLogout = async () => {
+    posthog.capture("user_logged_out")
+    posthog.reset()
     await signout(countryCode)
   }
 

@@ -18,6 +18,7 @@ import {
   setAuthToken,
   setPendingCustomer,
 } from "./cookies"
+import { getPostHogClient } from "@lib/posthog-server"
 
 export type CustomerAuthState =
   | { state: "error"; error: string }
@@ -245,12 +246,14 @@ async function completeLogin(
   // `/store/customers/me` rejects tokens without a registered actor, so a
   // failed retrieve means we still need to create the customer, then log in
   // again to obtain a customer-bound token.
-  const customerExists = await sdk.store.customer
+  const existingCustomer = await sdk.store.customer
     .retrieve({}, { authorization: `Bearer ${token}` })
-    .then(() => true)
-    .catch(() => false)
+    .then(({ customer }) => customer)
+    .catch(() => null)
 
-  if (!customerExists) {
+  const isNewUser = !existingCustomer
+
+  if (isNewUser) {
     const pending = await getPendingCustomer()
 
     try {
@@ -280,6 +283,28 @@ async function completeLogin(
 
   const customerCacheTag = await getCacheTag("customers")
   revalidateTag(customerCacheTag)
+
+  const posthog = getPostHogClient()
+  const customer = existingCustomer ?? await sdk.store.customer
+    .retrieve({}, { authorization: `Bearer ${token}` })
+    .then(({ customer }) => customer)
+    .catch(() => null)
+
+  if (customer) {
+    posthog.identify({
+      distinctId: customer.id,
+      properties: {
+        email: customer.email,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+      },
+    })
+    posthog.capture({
+      distinctId: customer.id,
+      event: isNewUser ? "user_signed_up" : "user_logged_in",
+    })
+    await posthog.flush()
+  }
 
   try {
     await transferCart()
