@@ -20,7 +20,9 @@ import urllib.request
 
 TOKEN = os.environ["PRINTFUL_API_TOKEN"]
 STORE = "18510270"
-ASSETS_REPO = "/private/tmp/shoppen-merch-assets-repo2"
+# Not /private/tmp: macOS's periodic tmp cleaner reaps files older than a few
+# days and it gutted the previous clone's .git (HEAD and config deleted).
+ASSETS_REPO = "/Users/lemon/development/shoppen/shoppen-merch-assets"
 ASSETS_SUBDIR = "mockups"
 RAW_BASE = "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main"
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mockups.json")

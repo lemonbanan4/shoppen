@@ -10,9 +10,9 @@ import SiteJsonLd from "@modules/common/components/site-jsonld"
 import UspBar from "@modules/home/components/usp-bar"
 
 export const metadata: Metadata = {
-  title: "Solkast — Independent streetwear, printed to order",
+  title: "Ångerköp — Köp nu. Ångra sen.",
   description:
-    "Original graphic tees, hoodies and caps. Small-batch streetwear designed in Sweden, printed to order in the EU and US.",
+    "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta på beställning i EU. Buy now, regret later.",
 }
 
 const RAIL_ORDER: { handle: string; eyebrow: string }[] = [

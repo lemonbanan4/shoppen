@@ -18,7 +18,7 @@ const NAV_LINKS = [
   { label: "Bestsellers", href: "/collections/bestsellers" },
 ]
 
-export default async function Nav() {
+export default async function Nav({ countryCode }: { countryCode?: string }) {
   const [regions, locales, currentLocale] = await Promise.all([
     listRegions().then((regions: StoreRegion[]) => regions),
     listLocales(),
@@ -37,7 +37,11 @@ export default async function Nav() {
   return (
     <div className="sticky top-0 inset-x-0 z-50 group">
       <div className="bg-brand text-white text-[11px] tracking-[0.14em] uppercase text-center py-2 px-4">
-        Free shipping on orders over €75 — easy 30-day returns
+        {/* Swedish shoppers buy in SEK with their own free-shipping
+            threshold; everyone else keeps the EUR message. */}
+        {countryCode === "se"
+          ? "Fri frakt över 800 kr — enkel 30 dagars retur"
+          : "Free shipping on orders over €75 — easy 30-day returns"}
       </div>
       <header className="relative h-16 mx-auto border-b duration-200 bg-white/95 backdrop-blur-md border-neutral-100">
         <nav className="content-container text-sm text-neutral-500 flex items-center justify-between w-full h-full">
@@ -55,7 +59,7 @@ export default async function Nav() {
               data-testid="nav-store-link"
             >
               <LogoMark size="18" />
-              Solkast
+              Ångerköp
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-6 h-full ml-6">
               {NAV_LINKS.map((link) => (

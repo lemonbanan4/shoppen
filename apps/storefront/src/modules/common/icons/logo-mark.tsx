@@ -2,7 +2,7 @@ import React from "react"
 
 import { IconProps } from "types/icon"
 
-// The Solkast sun mark — a 12-point sunburst over three receding bars,
+// The Ångerköp sun mark — a 12-point sunburst over three receding bars,
 // literalizing "Sol" (sun). The ring is a true cut-out (evenodd), not a
 // hardcoded background color, so it reads correctly on any surface.
 const LogoMark: React.FC<IconProps> = ({

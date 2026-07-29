@@ -93,7 +93,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     ? product.description.trim().length > 160
       ? product.description.trim().slice(0, 157).replace(/\s+\S*$/, "") + "…"
       : product.description.trim()
-    : `${product.title} — printed to order by Solkast.`
+    : `${product.title} — printed to order by Ångerköp.`
 
   return {
     title: `${product.title}`,

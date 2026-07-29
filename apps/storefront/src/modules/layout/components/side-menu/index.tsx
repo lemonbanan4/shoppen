@@ -129,7 +129,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                         />
                       </div>
                       <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} Solkast. All rights
+                        © {new Date().getFullYear()} Ångerköp. All rights
                         reserved.
                       </Text>
                     </div>

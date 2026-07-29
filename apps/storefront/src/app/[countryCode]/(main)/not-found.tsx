@@ -4,7 +4,7 @@ import InteractiveLink from "@modules/common/components/interactive-link"
 
 export const metadata: Metadata = {
   title: "404",
-  description: "This page doesn't exist — browse the Solkast store instead.",
+  description: "This page doesn't exist — browse the Ångerköp store instead.",
 }
 
 export default function NotFound() {

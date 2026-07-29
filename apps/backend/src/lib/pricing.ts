@@ -5,7 +5,7 @@
  * currency this store sells in.
  */
 
-export const STORE_CURRENCIES = ["usd", "eur"];
+export const STORE_CURRENCIES = ["usd", "eur", "sek"];
 
 type Logger = { warn: (msg: string) => void; info: (msg: string) => void };
 

@@ -2,63 +2,63 @@ import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "Om Ångerköp",
   description:
-    "Solkast is an independent streetwear label — original graphic capsules, printed to order in the EU and US.",
+    "Ångerköp är ett svenskt streetwear-märke. Tröjor för dig som redan vet hur det slutar — ekologisk bomull, tryckt på beställning i EU.",
 }
 
 export default function AboutPage() {
   return (
     <ContentPage
-      eyebrow="About"
-      title="Made in small batches, on purpose"
-      intro="Solkast is an independent streetwear label. Every piece starts as a drawing, not a trend report."
+      eyebrow="Om oss"
+      title="Vi vet varför du är här."
+      intro="Ångerköp är ett svenskt märke för dig som lägger saker i kundvagnen kl 02:47 och ångrar det på söndag. Vi dömer inte. Vi trycker tröjor om det."
     >
       <section>
-        <h2>The idea</h2>
+        <h2>Idén</h2>
         <p>
-          Most graphic tees are either a logo you're paying to advertise, or a
-          joke that stops being funny the second time you wear it. We wanted the
-          third thing: pieces with an actual point of view, cut and printed well
-          enough that you keep reaching for them.
+          De flesta grafiska tröjor är antingen en logga du betalar för att
+          göra reklam för, eller ett skämt som slutar vara roligt andra gången
+          du har på dig den. Vi ville göra det tredje: tröjor som säger det
+          tyst — ORKAR INTE, VARNING: IMPULSKÖP — och som är tillräckligt bra
+          för att du ska fortsätta använda dem.
         </p>
         <p>
-          Each capsule is its own running joke — a club you're quietly admitting
-          you belong to. Overthinking Club. Retail Therapy. Bed Rotting. The
-          designs are drawn in-house, as vectors, so every line stays sharp at
-          any size.
+          The short version in English: Ångerköp means &quot;regret
+          purchase&quot;. You already know how this ends. That&apos;s the
+          point.
         </p>
       </section>
       <section>
-        <h2>How it's made</h2>
+        <h2>Hur det görs</h2>
         <ul>
           <li>
-            Organic, heavyweight blanks — mostly Stanley/Stella, GOTS-certified
-            cotton with a proper oversized cut.
+            Ekologisk bomull — Stanley/Stella, GOTS-certifierad. Riktiga
+            plagg, inte reklamblad.
           </li>
           <li>
-            Printed to order in the EU and US, close to you, so nothing is
-            shipped across the planet and nothing sits in a warehouse.
+            Tryckt på beställning i EU. Inget lager, ingen överproduktion,
+            inget som skeppas runt halva jorden.
           </li>
           <li>
-            No overstock, no end-of-season landfill. We only make what someone
-            actually wants.
+            Vi gör bara det någon faktiskt beställt. Ironiskt nog är det
+            motsatsen till impulsköp.
           </li>
         </ul>
       </section>
       <section>
-        <h2>Printed to order</h2>
+        <h2>Tryckt på beställning</h2>
         <p>
-          Because each piece is made after you order it, dispatch takes a couple
-          of days longer than a warehouse would. That's the trade: slightly more
-          patience from you, dramatically less waste from us.
+          Eftersom varje plagg görs efter att du beställt det tar leveransen
+          några dagar längre än ett lager skulle. Det är bytet: lite mer
+          tålamod från dig, dramatiskt mindre svinn från oss.
         </p>
       </section>
       <section>
-        <h2>Say hello</h2>
+        <h2>Säg hej</h2>
         <p>
-          Questions, ideas, or a design you want to see exist? Email{" "}
-          <strong>hello@solkast.com</strong> — a person reads it.
+          Frågor, idéer, eller en tröja du vill se finnas? Mejla{" "}
+          <strong>hej@angerkop.se</strong> — en människa läser det.
         </p>
       </section>
     </ContentPage>

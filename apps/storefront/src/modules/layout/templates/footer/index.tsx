@@ -21,11 +21,11 @@ export default async function Footer() {
               className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-white uppercase"
             >
               <LogoMark size="18" />
-              Solkast
+              Ångerköp
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-6">
-              Independent streetwear label. Original graphic capsules —
-              printed to order in the EU and US, never overstocked.
+              Svenskt streetwear-märke för dig som redan vet hur det slutar.
+              Ekologisk bomull, tryckt på beställning i EU. Buy now, regret later.
             </p>
             <div className="mt-8">
               <NewsletterForm />
@@ -104,7 +104,7 @@ export default async function Footer() {
                     className="hover:text-white transition-colors"
                     href="/content/about"
                   >
-                    About Solkast
+                    About Ångerköp
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -144,9 +144,9 @@ export default async function Footer() {
           </div>
         </div>
         <div className="flex w-full py-8 justify-between items-center border-t border-neutral-800 text-xs">
-          <p>© {new Date().getFullYear()} Solkast. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Ångerköp. All rights reserved.</p>
           <div className="flex items-center gap-4 flex-wrap">
-            <p>Free shipping over €75 · 30-day returns</p>
+            <p>Fri frakt över 800 kr · 30 dagars retur · Free EU shipping over €75</p>
             <ul
               aria-label="Accepted payment methods"
               className="flex items-center gap-1.5"

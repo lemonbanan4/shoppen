@@ -58,7 +58,7 @@ export default function CustomerServicePage() {
       <section>
         <h2>Contact</h2>
         <p>
-          Email us at <strong>hello@solkast.com</strong> and we'll get back
+          Email us at <strong>hej@angerkop.se</strong> and we'll get back
           to you within one business day.
         </p>
       </section>

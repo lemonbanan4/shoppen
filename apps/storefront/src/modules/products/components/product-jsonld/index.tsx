@@ -32,7 +32,7 @@ const ProductJsonLd = ({
     image: (product.images || []).map((i) => i.url).filter(Boolean),
     sku: product.variants?.[0]?.sku || product.id,
     url,
-    brand: { "@type": "Brand", name: "Solkast" },
+    brand: { "@type": "Brand", name: "Ångerköp" },
     offers: {
       "@type": "Offer",
       url,

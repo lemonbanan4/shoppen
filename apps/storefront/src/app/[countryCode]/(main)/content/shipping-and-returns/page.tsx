@@ -31,7 +31,7 @@ export default function ShippingReturnsPage() {
           photo and we'll replace or refund immediately.
         </p>
         <p>
-          To start a return, email <strong>hello@solkast.com</strong> with
+          To start a return, email <strong>hej@angerkop.se</strong> with
           your order number. Refunds are issued to the original payment method
           within 5 business days of us receiving the return.
         </p>

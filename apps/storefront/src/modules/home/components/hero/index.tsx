@@ -8,18 +8,18 @@ const MOCKUPS =
 
 const HERO_IMAGES = [
   {
-    src: `${MOCKUPS}/pf-452139428-0.jpg`,
-    alt: "Delulu Club tee — heart-glasses crest on white",
+    src: `${MOCKUPS}/pf-452617529-2.jpg`,
+    alt: "ORKAR INTE tee — vit text på svart organisk t-shirt",
     tall: true,
+  },
+  {
+    src: `${MOCKUPS}/pf-452617557-0.jpg`,
+    alt: "VARNING: Impulsköp tee — gul varningsetikett på svart",
+    tall: false,
   },
   {
     src: `${MOCKUPS}/pf-452120542-0.jpg`,
     alt: "Warning Impulse tee — yellow warning label on black",
-    tall: false,
-  },
-  {
-    src: `${MOCKUPS}/pf-451939140-0.jpg`,
-    alt: "Skyline heavyweight hoodie — isometric city print on black",
     tall: false,
   },
 ]
@@ -30,14 +30,14 @@ const Hero = () => {
       <div className="content-container py-14 small:py-24 grid grid-cols-1 small:grid-cols-2 gap-10 small:gap-16 items-center">
         <div>
           <p className="text-[11px] small:text-xs tracking-[0.24em] uppercase mb-4 text-white/70">
-            New capsule — Delulu Club
+            Ny kapsel — Svenska
           </p>
           <h1 className="text-4xl small:text-6xl font-medium leading-[1.05] text-balance">
-            Streetwear, considered.
+            Köp nu. Ångra sen.
           </h1>
           <p className="mt-4 max-w-md text-sm small:text-base text-white/75">
-            Original graphic capsules — small batch, printed to order on
-            organic heavyweight blanks, built to actually wear.
+            Ångerköp — tröjor för dig som redan vet hur det slutar. Ekologisk
+            bomull, tryckt på beställning i EU. Buy now, regret later.
           </p>
           <div className="mt-8 flex gap-3">
             <LocalizedClientLink
