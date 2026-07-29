@@ -1,9 +1,9 @@
 <svg viewBox="0 0 2700 1050" xmlns="http://www.w3.org/2000/svg">
-<text x="1350" y="450" text-anchor="middle" font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
-      font-size="260" letter-spacing="6" fill="#0A0A0A">UTBRÄND</text>
-<text x="1350" y="640" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="500"
-      font-size="150" letter-spacing="20" fill="#0A0A0A">men mysig</text>
-<line x1="1050" y1="720" x2="1650" y2="720" stroke="#9A4B2E"
-      stroke-width="10" stroke-linecap="round"/>
-<text x="1350" y="850" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="34" letter-spacing="12" fill="#9A4B2E">ÅNGERKÖP &#8226; EST. INGEN ANING</text>
+<text x="1350" y="430" text-anchor="middle" font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
+      font-size="175" letter-spacing="4" fill="#0A0A0A">UTBRÄND</text>
+<text x="1350" y="580" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="500"
+      font-size="105" letter-spacing="14" fill="#0A0A0A">men mysig</text>
+<line x1="1120" y1="650" x2="1580" y2="650" stroke="#9A4B2E"
+      stroke-width="8" stroke-linecap="round"/>
+<text x="1350" y="790" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="34" letter-spacing="12" fill="#9A4B2E">ÅNGERKÖP &#8226; EST. INGEN ANING</text>
 </svg>

@@ -7,9 +7,11 @@ Reusing a tee file here would letterbox it: Printful fits artwork inside the
 printfile, so a 1.56 design lands ~1640px wide on a 2700px canvas and prints
 small with dead space either side. These are laid out for the wrap instead.
 
-Composition targets the mug's front face rather than a full 360° wrap. The
-design sits centred, roughly 60% of the wrap width, so it reads square-on to
-someone holding it — a full wrap would put the punchline round the side.
+Composition targets the mug's front face. That face is only about a third of
+the 2700px wrap, so artwork is held inside a ~1100px centred band. A first
+pass set "ORKAR INTE" on one line at 83% of the wrap and the mockup showed
+exactly the failure this avoids: the front read "R INTE" with "ORKA" curved
+away round the side.
 
 Mugs are white ceramic and printed by sublimation, so there is only one ink
 version: dark type. No white-ink variant is needed or possible.
@@ -41,26 +43,27 @@ def footer_tag(y):
 
 
 def orkar_inte():
-    """One line here rather than the tee's two — the wrap is wide and short,
-    so stacking would shrink the type to fit the height."""
+    """Stacked, like the tee — one line cannot fit the front face."""
     return f"""<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">
-<text x="{W//2}" y="560" text-anchor="middle" {BLACK_FACE}
-      font-size="300" letter-spacing="10" fill="{INK}">ORKAR INTE</text>
-<path d="M 800 660 L 1500 660 Q 1660 660 1720 700 L 1900 700"
-      stroke="{INK}" stroke-width="22" fill="none" stroke-linecap="round"/>
+<text x="{W//2}" y="400" text-anchor="middle" {BLACK_FACE}
+      font-size="210" letter-spacing="6" fill="{INK}">ORKAR</text>
+<text x="{W//2}" y="620" text-anchor="middle" {BLACK_FACE}
+      font-size="210" letter-spacing="6" fill="{INK}">INTE</text>
+<path d="M 1010 690 L 1330 690 Q 1400 690 1430 712 L 1520 712"
+      stroke="{INK}" stroke-width="16" fill="none" stroke-linecap="round"/>
 {footer_tag(830)}
 </svg>"""
 
 
 def utbrand_men_mysig():
     return f"""<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">
-<text x="{W//2}" y="450" text-anchor="middle" {BLACK_FACE}
-      font-size="260" letter-spacing="6" fill="{INK}">UTBRÄND</text>
-<text x="{W//2}" y="640" text-anchor="middle" {PLAIN_FACE}
-      font-size="150" letter-spacing="20" fill="{INK}">men mysig</text>
-<line x1="{W//2-300}" y1="720" x2="{W//2+300}" y2="720" stroke="{ACCENT}"
-      stroke-width="10" stroke-linecap="round"/>
-{footer_tag(850)}
+<text x="{W//2}" y="430" text-anchor="middle" {BLACK_FACE}
+      font-size="175" letter-spacing="4" fill="{INK}">UTBRÄND</text>
+<text x="{W//2}" y="580" text-anchor="middle" {PLAIN_FACE}
+      font-size="105" letter-spacing="14" fill="{INK}">men mysig</text>
+<line x1="{W//2-230}" y1="650" x2="{W//2+230}" y2="650" stroke="{ACCENT}"
+      stroke-width="8" stroke-linecap="round"/>
+{footer_tag(790)}
 </svg>"""
 
 
@@ -76,8 +79,10 @@ def compose_varning():
     the wrap height and centre it instead — it reads as a badge on the face."""
     src = Image.open(os.path.join(FINAL, "varning-impulskop-PRINT.png")).convert("RGBA")
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    margin = 70
-    scale = (H - margin * 2) / src.height
+    # Sized to the front face (~1100px), not the wrap height, or the label
+    # curves away round the side of the mug.
+    target_w = 1040
+    scale = target_w / src.width
     label = src.resize((int(src.width * scale), int(src.height * scale)), Image.LANCZOS)
     canvas.alpha_composite(label, ((W - label.width) // 2, (H - label.height) // 2))
     out = os.path.join(FINAL, "mug-varning-impulskop-PRINT.png")
