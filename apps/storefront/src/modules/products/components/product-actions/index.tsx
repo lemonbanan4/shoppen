@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
+import posthog from "posthog-js"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -121,6 +122,14 @@ export default function ProductActions({
 
   const inView = useIntersection(actionsRef, "0px")
 
+  useEffect(() => {
+    posthog.capture("product_viewed", {
+      product_id: product.id,
+      product_handle: product.handle,
+      product_title: product.title,
+    })
+  }, [product.id])
+
   // add the selected variant to the cart
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return null
@@ -133,10 +142,19 @@ export default function ProductActions({
         quantity: 1,
         countryCode,
       })
+      posthog.capture("add_to_cart", {
+        product_id: product.id,
+        product_handle: product.handle,
+        product_title: product.title,
+        variant_id: selectedVariant.id,
+        variant_title: selectedVariant.title,
+        quantity: 1,
+      })
       toast.success(`${product.title} added to cart`, {
         description: selectedVariant.title,
       })
     } catch (err: any) {
+      posthog.captureException(err)
       toast.error("Couldn't add this to your cart", {
         description: err?.message || "Please try again.",
       })

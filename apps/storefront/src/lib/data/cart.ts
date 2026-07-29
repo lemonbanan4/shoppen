@@ -15,6 +15,7 @@ import {
 } from "./cookies"
 import { getRegion } from "./regions"
 import { getLocale } from "./locale-actions"
+import { getPostHogClient } from "@lib/posthog-server"
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -417,6 +418,21 @@ export async function placeOrder(cartId?: string) {
 
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)
+
+    const posthog = getPostHogClient()
+    const distinctId = cartRes.order.customer_id ?? cartRes.order.email ?? "anonymous"
+    posthog.capture({
+      distinctId,
+      event: "order_placed",
+      properties: {
+        order_id: cartRes.order.id,
+        currency_code: cartRes.order.currency_code,
+        total: cartRes.order.total,
+        item_count: cartRes.order.items?.length ?? 0,
+        country_code: countryCode,
+      },
+    })
+    await posthog.flush()
 
     removeCartId()
     redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
