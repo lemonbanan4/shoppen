@@ -1,0 +1,12 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+<text x="700" y="360" text-anchor="middle" font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
+      font-size="230" letter-spacing="4" fill="#F5F4F0">UTBRÄND</text>
+<text x="700" y="530" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="500"
+      font-size="128" letter-spacing="16" fill="#F5F4F0">men mysig</text>
+<!-- A smoke wisp was tried here and cut: at print size it read as a stray
+     mark rather than smoke, and the joke is carried by the type contrast
+     alone. The capsule stays type-only. -->
+<line x1="470" y1="620" x2="930" y2="620" stroke="#C88A6A"
+      stroke-width="8" stroke-linecap="round"/>
+<text x="700" y="800" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="10" fill="#C88A6A">ÅNGERKÖP &#8226; EST. INGEN ANING</text>
+</svg>

@@ -43,12 +43,16 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
-  // The Ångerköp store carries only the svenska capsule for launch; every
-  // tee is a new arrival. (Names from the Solkast era live in that store's
-  // archive and never reach this sync any more.)
+  // The svenska capsule is the whole Ångerköp catalogue at launch, so every
+  // tee is a new arrival. The Bestsellers rail carries the Printify hoodie
+  // (assigned by assign-printify-homepage-collection.ts) until real sales
+  // history exists to order it by.
   "ORKAR INTE Tee",
   "VARNING: Impulsköp Tee",
   "CAN'T EVEN Tee",
+  "LAGOM DELULU Tee",
+  "DET LÖSER SIG Tee",
+  "UTBRÄND MEN MYSIG Tee",
 ]);
 
 // Garment sizes as Printful writes them in variant names.

@@ -1,0 +1,15 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+<text x="700" y="330" text-anchor="middle" font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
+      font-size="240" letter-spacing="6" fill="#0A0A0A">LAGOM</text>
+<text x="700" y="590" text-anchor="middle" font-family="Arial Black, Arial-Black, sans-serif" font-weight="900"
+      font-size="240" letter-spacing="6" fill="#0A0A0A">DELULU</text>
+<!-- gauge: end stops, a track, and the marker sitting exactly in the middle -->
+<line x1="430" y1="672" x2="970" y2="672" stroke="#0A0A0A"
+      stroke-width="8" stroke-linecap="round"/>
+<line x1="430" y1="652" x2="430" y2="692" stroke="#0A0A0A" stroke-width="8"
+      stroke-linecap="round"/>
+<line x1="970" y1="652" x2="970" y2="692" stroke="#0A0A0A" stroke-width="8"
+      stroke-linecap="round"/>
+<circle cx="700" cy="672" r="22" fill="#0A0A0A"/>
+<text x="700" y="800" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="10" fill="#9A4B2E">ÅNGERKÖP &#8226; EST. INGEN ANING</text>
+</svg>
