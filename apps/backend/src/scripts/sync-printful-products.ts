@@ -55,6 +55,14 @@ const NEW_ARRIVALS_TITLES = new Set([
   "UTBRÄND MEN MYSIG Tee",
 ]);
 
+// Mugs are the sub-200 kr entry tier rather than part of the tee drop, so
+// they sit on the second homepage rail with the hoodie.
+const BESTSELLER_TITLES = new Set([
+  "ORKAR INTE Mugg",
+  "UTBRÄND MEN MYSIG Mugg",
+  "VARNING: Impulsköp Mugg",
+]);
+
 // Garment sizes as Printful writes them in variant names.
 const SIZE_TOKEN = /^(XXS|XS|S|M|L|XL|[2-5]XL|One Size|OS)$/i;
 
@@ -121,24 +129,39 @@ const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> =>
 const classifyDepartment = (name: string): string => {
   const n = name.toLowerCase();
   if (/\b(cap|hat|beanie)\b/.test(n)) return "accessories";
-  if (/\b(mug|cup|poster|bottle|blanket)\b/.test(n)) return "home-goods";
+  // "mugg" is the Swedish spelling used by the svenska capsule.
+  if (/\b(mug|mugg|cup|poster|bottle|blanket)\b/.test(n)) return "home-goods";
   return "apparel";
 };
 
 // Fit, from the blank's own catalog title (Printful is explicit: "Unisex
 // ...", "Women's ...", "Men's ..."), falling back to garment type for the
 // cut-and-sew women's pieces whose titles omit it.
+const WOMENS_PATTERN =
+  /\bwomen'?s?\b|\bsports bra\b|\bcrop top\b|\bleggings\b|\bbodycon\b|\bskater dress\b/;
+const MENS_PATTERN = /\bmen'?s?\b|\bboard shorts\b|\bswim trunks\b/;
+
 const classifyFit = (
   productName: string,
   catalogTitle: string | undefined
 ): "womens" | "mens" | "unisex" => {
-  const hay = `${catalogTitle ?? ""} ${productName}`.toLowerCase();
-  if (/\bwomen'?s?\b|\bsports bra\b|\bcrop top\b|\bleggings\b|\bbodycon\b|\bskater dress\b/.test(hay)) {
+  // The blank's own catalog title is authoritative and decides alone —
+  // Printful always states the cut ("Unisex Organic Cotton Creator 2.0").
+  // The product name is only consulted when the title is silent, because
+  // our own titles are prose and collide: "UTBRÄND MEN MYSIG" ("burnt out
+  // but cosy") matched \bmen\b and filed a unisex tee under Men's.
+  const title = (catalogTitle ?? "").toLowerCase();
+  if (WOMENS_PATTERN.test(title)) return "womens";
+  if (MENS_PATTERN.test(title)) return "mens";
+
+  // Fall back to the product name only for cut-and-sew pieces whose catalog
+  // titles omit the cut, and only on garment-type words — never on a bare
+  // "men"/"women", which is where the prose collision happens.
+  const name = productName.toLowerCase();
+  if (/\bsports bra\b|\bcrop top\b|\bleggings\b|\bbodycon\b|\bskater dress\b/.test(name)) {
     return "womens";
   }
-  if (/\bmen'?s?\b|\bboard shorts\b|\bswim trunks\b/.test(hay)) {
-    return "mens";
-  }
+  if (/\bboard shorts\b|\bswim trunks\b/.test(name)) return "mens";
   return "unisex";
 };
 
@@ -283,6 +306,9 @@ const toMedusaProduct = (
         ? [ctx.categoryIdByHandle.get(classifyDepartment(name))!]
         : []),
       ...(() => {
+        // Fit categories describe how a garment is cut; a mug or a poster
+        // has no fit, and filing one under "Unisex" makes that page lie.
+        if (classifyDepartment(name) !== "apparel") return [];
         const fit = classifyFit(
           name,
           variants[0]?.product?.product_id
@@ -293,9 +319,10 @@ const toMedusaProduct = (
         return id ? [id] : [];
       })(),
     ],
-    collection_id: NEW_ARRIVALS_TITLES.has(name)
-      ? ctx.newArrivalsCollectionId
-      : ctx.bestsellersCollectionId,
+    collection_id:
+      BESTSELLER_TITLES.has(name) || !NEW_ARRIVALS_TITLES.has(name)
+        ? ctx.bestsellersCollectionId
+        : ctx.newArrivalsCollectionId,
     shipping_profile_id: ctx.shippingProfileId,
     images: images.map((url) => ({ url })),
     options,
