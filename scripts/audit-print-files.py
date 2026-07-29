@@ -51,7 +51,7 @@ SKIP_TYPES = {"preview", "mockup", "label_inside", "label_outside",
 def api(path):
     r = urllib.request.Request(
         "https://api.printful.com" + path,
-        headers={"Authorization": "Bearer " + TOKEN},
+        headers={"Authorization": "Bearer " + TOKEN, **({"X-PF-Store-Id": os.environ["PRINTFUL_STORE_ID"]} if os.environ.get("PRINTFUL_STORE_ID") else {})},
     )
     for _ in range(5):
         try:

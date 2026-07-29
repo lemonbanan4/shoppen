@@ -19,7 +19,8 @@ import time
 import urllib.request
 
 TOKEN = os.environ["PRINTFUL_API_TOKEN"]
-STORE = "18510270"
+# Ångerköp by default; the old Solkast store is 18510270 (archive).
+STORE = os.environ.get("PRINTFUL_STORE_ID", "18510270")
 # Not /private/tmp: macOS's periodic tmp cleaner reaps files older than a few
 # days and it gutted the previous clone's .git (HEAD and config deleted).
 ASSETS_REPO = "/Users/lemon/development/shoppen/shoppen-merch-assets"
