@@ -6,7 +6,7 @@ import { updateProductsWorkflow } from "@medusajs/medusa/core-flows";
  * The Printify sync flow (unlike sync-printful-products.ts) doesn't assign
  * a homepage collection, so Printify products can go live fully published
  * and priced but stay invisible on New Arrivals/Bestsellers. This assigns
- * any Printify-fulfilled product with no collection yet to New Arrivals.
+ * any Printify-fulfilled product with no collection yet to Bestsellers.
  * Safe to re-run — only touches products that are still unassigned.
  *
  *   npx medusa exec ./src/scripts/assign-printify-homepage-collection.ts
@@ -22,7 +22,7 @@ export default async function assignPrintifyHomepageCollection({
   const { data: newArrivals } = await query.graph({
     entity: "product_collection",
     fields: ["id"],
-    filters: { handle: "new-arrivals" },
+    filters: { handle: "bestsellers" },
   });
   const newArrivalsCollectionId = newArrivals[0]?.id;
   if (!newArrivalsCollectionId) {

@@ -642,6 +642,36 @@ export default async function syncPrintfulProducts({
     logger.info(`Applied generated mockups to ${applied} product(s).`);
   }
 
+  // ——— Drop managed categories that ended up empty ———
+  // The sync creates fit and department categories up front; with a small
+  // capsule catalogue several stay empty, and nav/footer render them as
+  // dead links. Delete any managed category with no products — the next
+  // sync recreates it the moment a product actually needs it.
+  const MANAGED_CATEGORY_HANDLES = [
+    "womens",
+    "mens",
+    "unisex",
+    "apparel",
+    "accessories",
+    "home-goods",
+  ];
+  const { data: managedCats } = await query.graph({
+    entity: "product_category",
+    fields: ["id", "name", "handle", "products.id"],
+    filters: { handle: MANAGED_CATEGORY_HANDLES },
+  });
+  const emptyCats = managedCats.filter((c) => !(c.products || []).length);
+  if (emptyCats.length) {
+    logger.info(
+      `Dropping ${emptyCats.length} empty categor(ies): ${emptyCats
+        .map((c) => c.name)
+        .join(", ")}`
+    );
+    await deleteProductCategoriesWorkflow(container).run({
+      input: emptyCats.map((c) => c.id),
+    });
+  }
+
   // ——— Drop empty storefront entries left over from the demo seed ———
   // Nav and footer render categories/collections from data; an empty
   // "Essentials" collection or "Home" category is a dead page a customer can

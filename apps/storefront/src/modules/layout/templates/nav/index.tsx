@@ -10,12 +10,12 @@ import CartButton from "@modules/layout/components/cart-button"
 import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
 
+// A four-product capsule store: every link must land on a page with
+// products on it. The fit categories return when the catalogue does.
 const NAV_LINKS = [
   { label: "Shop all", href: "/store" },
   { label: "New arrivals", href: "/collections/new-arrivals" },
-  { label: "Women's", href: "/categories/womens" },
-  { label: "Men's", href: "/categories/mens" },
-  { label: "Bestsellers", href: "/collections/bestsellers" },
+  { label: "Om oss", href: "/content/about" },
 ]
 
 export default async function Nav({ countryCode }: { countryCode?: string }) {
