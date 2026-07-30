@@ -46,14 +46,14 @@ const layout = (body: string) => `<!doctype html>
       <tr><td align="center">
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
           <tr><td style="padding:0 8px 24px;text-align:center;">
-            <span style="font-size:18px;font-weight:600;letter-spacing:0.22em;color:#0a0a0a;">SOLKAST</span>
+            <span style="font-size:18px;font-weight:600;letter-spacing:0.22em;color:#0a0a0a;">ÅNGERKÖP</span>
           </td></tr>
           <tr><td style="background-color:#ffffff;border-radius:16px;padding:40px;">
             ${body}
           </td></tr>
           <tr><td style="padding:24px 8px;text-align:center;font-size:12px;color:#737373;line-height:1.6;">
-            Free shipping on orders over €75 · 30-day returns<br/>
-            © ${new Date().getFullYear()} Solkast. Considered goods for everyday life.
+            Free shipping over 800 kr / €75 · 30-day returns<br/>
+            © ${new Date().getFullYear()} Ångerköp. Köp nu. Ångra sen.
           </td></tr>
         </table>
       </td></tr>
@@ -131,16 +131,19 @@ const orderPlaced = (data: OrderPlacedData) => {
 const customerWelcome = (data: CustomerWelcomeData) => {
   const name = data.customer.first_name || "there";
   return {
-    subject: "Welcome to Solkast",
+    // These templates are not locale-aware, and the store sells in SEK, EUR
+    // and USD — so they stay in English rather than sending Swedish to a
+    // German customer. Worth revisiting off the order's region.
+    subject: "Welcome to Ångerköp",
     html: layout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Hi ${name}, welcome</h1>
       <p style="margin:0 0 20px;font-size:14px;color:#525252;line-height:1.7;">
-        Your Solkast account is ready. You can track orders, save addresses and
+        Your Ångerköp account is ready. You can track orders, save addresses and
         check out faster next time.
       </p>
       <p style="margin:0;font-size:14px;color:#525252;line-height:1.7;">
         As a small welcome: use code <strong style="color:#171717;">WELCOME10</strong>
-        for 10% off your first order.
+        for 10% off your first order. Regret it later if you like — 30-day returns.
       </p>
     `),
   };
@@ -157,7 +160,7 @@ const orderTransferRequested = (data: OrderTransferData) => {
     html: layout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Order transfer request</h1>
       <p style="margin:0 0 20px;font-size:14px;color:#525252;line-height:1.7;">
-        A Solkast account has asked to connect your order
+        An Ångerköp account has asked to connect your order
         <strong>#${data.order.display_id}</strong> to their account. If this was
         you, confirm below. If you don't recognize this request, you can safely
         ignore this email or decline it.
