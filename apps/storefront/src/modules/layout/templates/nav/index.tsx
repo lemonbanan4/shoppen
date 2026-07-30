@@ -5,18 +5,24 @@ import { getLocale } from "@lib/data/locale-actions"
 import { listRegions } from "@lib/data/regions"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import LogoMark from "@modules/common/icons/logo-mark"
 import CartButton from "@modules/layout/components/cart-button"
 import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
 
-// A four-product capsule store: every link must land on a page with
-// products on it. The fit categories return when the catalogue does.
-const NAV_LINKS = [
-  { label: "Shop all", href: "/store" },
-  { label: "New arrivals", href: "/collections/new-arrivals" },
-  { label: "Om oss", href: "/content/about" },
-]
+// A small capsule store: every link must land on a page with products on it.
+// The fit categories return when the catalogue does.
+const navLinksFor = (countryCode?: string) =>
+  countryCode === "se"
+    ? [
+        { label: "Handla allt", href: "/store" },
+        { label: "Nyheter", href: "/collections/new-arrivals" },
+        { label: "Om oss", href: "/content/about" },
+      ]
+    : [
+        { label: "Shop all", href: "/store" },
+        { label: "New arrivals", href: "/collections/new-arrivals" },
+        { label: "About", href: "/content/about" },
+      ]
 
 export default async function Nav({ countryCode }: { countryCode?: string }) {
   const [regions, locales, currentLocale] = await Promise.all([
@@ -55,14 +61,13 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             </div>
             <LocalizedClientLink
               href="/"
-              className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-neutral-950 uppercase"
+              className="flex items-center text-lg font-semibold tracking-[0.22em] text-neutral-950 uppercase"
               data-testid="nav-store-link"
             >
-              <LogoMark size="18" />
               Ångerköp
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-6 h-full ml-6">
-              {NAV_LINKS.map((link) => (
+              {navLinksFor(countryCode).map((link) => (
                 <LocalizedClientLink
                   key={link.href}
                   href={link.href}
@@ -81,7 +86,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
               href="/account"
               data-testid="nav-account-link"
             >
-              Account
+              {countryCode === "se" ? "Konto" : "Account"}
             </LocalizedClientLink>
             <Suspense
               fallback={

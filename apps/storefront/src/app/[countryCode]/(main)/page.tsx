@@ -2,10 +2,13 @@ import { Metadata } from "next"
 
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
-import CategoryTiles from "@modules/home/components/category-tiles"
+import DesignsGrid from "@modules/home/components/designs-grid"
 import EditorialBanner from "@modules/home/components/editorial-banner"
 import ProductRail from "@modules/home/components/featured-products/product-rail"
 import Hero from "@modules/home/components/hero"
+import HowItWorks from "@modules/home/components/how-it-works"
+import Manifesto from "@modules/home/components/manifesto"
+import Marquee from "@modules/home/components/marquee"
 import SiteJsonLd from "@modules/common/components/site-jsonld"
 import UspBar from "@modules/home/components/usp-bar"
 
@@ -17,9 +20,29 @@ export const metadata: Metadata = {
     "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta på beställning i EU. Buy now, regret later.",
 }
 
-const RAIL_ORDER: { handle: string; eyebrow: string }[] = [
-  { handle: "new-arrivals", eyebrow: "Just landed" },
-  { handle: "bestsellers", eyebrow: "Most loved" },
+// Collection titles live in the database in English, so each rail carries its
+// own Swedish heading rather than surfacing the raw title.
+const RAIL_ORDER: {
+  handle: string
+  eyebrow: string
+  eyebrowEn: string
+  title: string
+  titleEn: string
+}[] = [
+  {
+    handle: "new-arrivals",
+    eyebrow: "Nyss landat",
+    eyebrowEn: "Just landed",
+    title: "Nyheter",
+    titleEn: "New arrivals",
+  },
+  {
+    handle: "bestsellers",
+    eyebrow: "Mest älskat",
+    eyebrowEn: "Most loved",
+    title: "Mest sålda",
+    titleEn: "Bestsellers",
+  },
 ]
 
 export default async function Home(props: {
@@ -39,6 +62,8 @@ export default async function Home(props: {
     return null
   }
 
+  const isSv = countryCode === "se"
+
   const rails = RAIL_ORDER.map((rail) => ({
     ...rail,
     collection: collections.find((c) => c.handle === rail.handle),
@@ -48,23 +73,30 @@ export default async function Home(props: {
     <>
       <SiteJsonLd countryCode={countryCode} />
       <Hero />
-      <UspBar />
+      <Marquee />
+      <UspBar countryCode={countryCode} />
+      <DesignsGrid />
+      <EditorialBanner countryCode={countryCode} />
       {rails[0] && (
         <ProductRail
           collection={rails[0].collection!}
           region={region}
-          eyebrow={rails[0].eyebrow}
+          eyebrow={isSv ? rails[0].eyebrow : rails[0].eyebrowEn}
+          title={isSv ? rails[0].title : rails[0].titleEn}
+          countryCode={countryCode}
         />
       )}
-      <CategoryTiles />
+      <Manifesto countryCode={countryCode} />
+      <HowItWorks countryCode={countryCode} />
       {rails[1] && (
         <ProductRail
           collection={rails[1].collection!}
           region={region}
-          eyebrow={rails[1].eyebrow}
+          eyebrow={isSv ? rails[1].eyebrow : rails[1].eyebrowEn}
+          title={isSv ? rails[1].title : rails[1].titleEn}
+          countryCode={countryCode}
         />
       )}
-      <EditorialBanner />
     </>
   )
 }

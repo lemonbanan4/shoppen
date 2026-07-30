@@ -79,6 +79,12 @@ module.exports = {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
+        // Paired with a track that renders its content twice; -50% lands the
+        // second copy exactly where the first began.
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
         "fade-in-right": {
           "0%": {
             opacity: "0",
@@ -159,6 +165,7 @@ module.exports = {
         enter: "enter 200ms ease-out",
         "slide-in": "slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)",
         leave: "leave 150ms ease-in forwards",
+        marquee: "marquee 32s linear infinite",
       },
     },
   },

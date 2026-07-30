@@ -8,10 +8,16 @@ export default async function ProductRail({
   collection,
   region,
   eyebrow,
+  title,
+  countryCode,
 }: {
   collection: HttpTypes.StoreCollection
   region: HttpTypes.StoreRegion
   eyebrow?: string
+  // The collection's own title comes from the database in English; a Swedish
+  // page passes its own heading rather than surfacing that.
+  title?: string
+  countryCode?: string
 }) {
   const {
     response: { products: pricedProducts },
@@ -37,15 +43,15 @@ export default async function ProductRail({
               {eyebrow}
             </p>
           )}
-          <h2 className="text-xl small:text-2xl font-medium text-neutral-950">
-            {collection.title}
+          <h2 className="text-xl small:text-2xl font-semibold tracking-[-0.02em] text-neutral-950">
+            {title ?? collection.title}
           </h2>
         </div>
         <LocalizedClientLink
           href={`/collections/${collection.handle}`}
           className="text-sm text-neutral-500 hover:text-brand transition-colors shrink-0"
         >
-          View all →
+          {countryCode === "se" ? "Se alla →" : "View all →"}
         </LocalizedClientLink>
       </div>
       <ul className="grid grid-flow-col auto-cols-[68%] xsmall:auto-cols-[42%] small:auto-cols-[calc(25%-18px)] gap-4 small:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 small:mx-0 small:px-0">
