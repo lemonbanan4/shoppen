@@ -176,6 +176,42 @@ const FIT_CATEGORIES: { handle: string; name: string; description: string }[] = 
 ];
 
 /**
+ * Our own opening line per product, replacing Printful's.
+ *
+ * Printful's intro is written to sell a blank to anyone — "Whether you're
+ * drinking your morning coffee, evening tea, or something in between" — which
+ * on a Swedish deadpan storefront is the one place the brand voice drops out.
+ * The spec bullets underneath are left alone on purpose: they are factual,
+ * they are in English (so a non-Swedish buyer still gets material, weight and
+ * care), and hand-writing them here would let them drift from the real blank.
+ *
+ * Keyed by product name. Anything not listed keeps Printful's intro, so a new
+ * product still syncs sensibly before someone writes copy for it.
+ */
+const PRODUCT_LEADS: Record<string, string> = {
+  "ORKAR INTE Tee":
+    "För dagar då duschen är ett projekt. Tung ekologisk bomull som tål att bäras tre dagar i rad — vilket är ungefär vad som kommer att hända.",
+  "VARNING: Impulsköp Tee":
+    "En varningsetikett för dig som redan lagt varan i kundvagnen kl 02:47. Gult på svart, syns tvärs över rummet — precis som en varning ska.",
+  "LAGOM DELULU Tee":
+    "Exakt rätt mängd osund optimism. Mätaren står stilla i mitten, för svensk måttfullhet gäller även när man lurar sig själv.",
+  "CAN'T EVEN Tee":
+    "Ingen översättning behövs. Två ord som sköter hela dagens kommunikation åt dig.",
+  "DET LÖSER SIG Tee":
+    "Sveriges mest använda plan. Parentesen längst ner är den ärliga delen.",
+  "UTBRÄND MEN MYSIG Tee":
+    "Trasig, men i mjukt tyg. Första ordet skriker, andra viskar — ungefär som veckan du precis haft.",
+  "ORKAR INTE Hoodie":
+    "Samma rad, tyngre plagg. Mid-weight hoodie i ekologisk bomull för dagar då även t-shirten kändes ambitiös.",
+  "ORKAR INTE Mugg":
+    "För morgonen då kaffet är enda anledningen att gå upp. Trycket håller längre än din motivation.",
+  "UTBRÄND MEN MYSIG Mugg":
+    "Till teet du dricker under filten. Erkänner läget utan att göra någon stor grej av det.",
+  "VARNING: Impulsköp Mugg":
+    "Ställ den på skrivbordet som en påminnelse. Den kommer inte hjälpa, men den är åtminstone ärlig.",
+};
+
+/**
  * Product copy from the blank's catalog description. Printful writes these
  * as a short intro paragraph followed by bullet-point specs; keep the intro
  * and the material/weight/fit bullets, drop sourcing boilerplate that reads
@@ -185,7 +221,8 @@ const buildDescription = (
   productName: string,
   catalogDescription: string | undefined
 ): string => {
-  if (!catalogDescription) return "";
+  const lead = PRODUCT_LEADS[productName];
+  if (!catalogDescription) return lead ?? "";
   const [intro, ...rest] = catalogDescription.split("\n•");
   const bullets = rest
     .map((b) => b.trim().replace(/\s+/g, " "))
@@ -196,8 +233,9 @@ const buildDescription = (
     )
     .slice(0, 8);
 
-  const lead = intro.trim().replace(/\s+/g, " ");
-  return [lead, ...bullets.map((b) => `• ${b}`)].join("\n").trim();
+  return [lead ?? intro.trim().replace(/\s+/g, " "), ...bullets.map((b) => `• ${b}`)]
+    .join("\n")
+    .trim();
 };
 
 // Condensed, render-ready size table stored on the product for the PDP.
