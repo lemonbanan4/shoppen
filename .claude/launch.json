@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start", "--workspace", "@dtc/storefront"],
       "port": 8000
+    },
+    {
+      "name": "solkast",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "4321", "--directory", "apps/solkast"],
+      "port": 4321
     }
   ]
 }

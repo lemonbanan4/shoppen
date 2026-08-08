@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solkast — Considered goods</title>
+<meta name="description" content="Solkast is a small Swedish label making considered, quiet clothing. Organic cotton, printed to order in the EU." />
+<meta name="theme-color" content="#e9e7e0" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2317181b'/><path d='M8 21 L16 9 L24 21' stroke='%23e9e7e0' stroke-width='2.5' fill='none'/></svg>" />
+<style>
+/* ── Tokens ───────────────────────────────────────────────────────────────
+   Solkast is Swedish for, roughly, "sun-cast". The palette inverts that:
+   the accent is the colour of the shadow the sun throws, not the sun. Bone
+   is pulled grey rather than warm so the page reads Nordic, not rustic.     */
+:root {
+  --paper:      #e9e7e0;
+  --paper-deep: #dedbd2;
+  --ink:        #17181b;
+  --ink-soft:   #5a5c61;
+  --slate:      #46586b;
+  --line:       rgba(23, 24, 27, 0.14);
+  --shade:      rgba(70, 88, 107, 0.20);
+
+  --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --gutter: clamp(1.25rem, 5vw, 5.5rem);
+  --rule: 1px solid var(--line);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:      #131417;
+    --paper-deep: #0d0e10;
+    --ink:        #e6e4dd;
+    --ink-soft:   #94969c;
+    --slate:      #8aa0b6;
+    --line:       rgba(230, 228, 221, 0.16);
+    --shade:      rgba(138, 160, 182, 0.22);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:      #131417;
+  --paper-deep: #0d0e10;
+  --ink:        #e6e4dd;
+  --ink-soft:   #94969c;
+  --slate:      #8aa0b6;
+  --line:       rgba(230, 228, 221, 0.16);
+  --shade:      rgba(138, 160, 182, 0.22);
+}
+:root[data-theme="light"] {
+  --paper:      #e9e7e0;
+  --paper-deep: #dedbd2;
+  --ink:        #17181b;
+  --ink-soft:   #5a5c61;
+  --slate:      #46586b;
+  --line:       rgba(23, 24, 27, 0.14);
+  --shade:      rgba(70, 88, 107, 0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--slate); outline-offset: 3px; }
+
+.label {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ── Masthead ─────────────────────────────────────────────────────────── */
+.masthead {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem var(--gutter);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: var(--rule);
+}
+.masthead__mark {
+  font-size: 0.8125rem; font-weight: 500;
+  letter-spacing: 0.42em; text-transform: uppercase;
+  text-decoration: none;
+}
+.masthead nav { display: flex; gap: clamp(1rem, 3vw, 2.5rem); }
+.masthead nav a { text-decoration: none; }
+.masthead nav a:hover { color: var(--slate); }
+
+/* ── Hero: the wordmark throws a hard diagonal shadow ─────────────────── */
+.hero {
+  position: relative;
+  padding: clamp(5rem, 17vh, 11rem) var(--gutter) clamp(3.5rem, 9vh, 6rem);
+  border-bottom: var(--rule);
+  overflow: hidden;
+}
+.cast {
+  position: relative;
+  display: inline-block;
+  /* --lean is nudged by pointer position; the shadow swings like real light */
+  --lean: -34deg;
+}
+.cast__word {
+  position: relative; z-index: 2;
+  margin: 0;
+  font-size: clamp(3.4rem, 15.5vw, 13rem);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+/* The cast itself: the same word, skewed flat and dropped behind. */
+.cast__shadow {
+  position: absolute; left: 0; top: 0; z-index: 1;
+  margin: 0;
+  font-size: clamp(3.4rem, 15.5vw, 13rem);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 0.86;
+  text-transform: uppercase;
+  color: var(--shade);
+  transform-origin: 0 100%;
+  transform: skewX(var(--lean)) scaleY(0.52);
+  transition: transform 900ms cubic-bezier(.22,.61,.36,1);
+  pointer-events: none;
+  user-select: none;
+}
+.hero__meta {
+  display: flex; flex-wrap: wrap; gap: 0.75rem 2.5rem;
+  margin-top: clamp(2rem, 5vh, 3.5rem);
+  padding-top: 1.25rem;
+  border-top: var(--rule);
+  max-width: 62ch;
+}
+.hero__lede {
+  flex: 1 1 22ch;
+  font-family: var(--serif);
+  font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
+  line-height: 1.55;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* ── Editorial column ─────────────────────────────────────────────────── */
+.column {
+  padding: clamp(4rem, 11vh, 8rem) var(--gutter);
+  border-bottom: var(--rule);
+}
+.column__inner { max-width: 65ch; display: flex; flex-direction: column; gap: 1.5rem; }
+.column h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.4vw, 2.375rem);
+  font-weight: 300; letter-spacing: -0.02em; line-height: 1.15;
+  text-wrap: balance;
+}
+.column p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.0625rem; line-height: 1.68;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+.column p strong { color: var(--ink); font-weight: 400; }
+
+/* ── Lookbook: deliberate large/small rhythm, not a uniform grid ──────── */
+.look { padding: clamp(3.5rem, 9vh, 6.5rem) var(--gutter); border-bottom: var(--rule); }
+.look__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  margin-bottom: clamp(2rem, 5vh, 3.25rem);
+}
+.look__head h2 {
+  margin: 0; font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+  font-weight: 300; letter-spacing: -0.015em;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: clamp(1.5rem, 3.5vw, 3rem) clamp(1.25rem, 2.5vw, 2.25rem);
+}
+/* Every fourth piece runs wide, so the eye moves in a rhythm rather than
+   scanning an even wall of thumbnails. */
+.piece--wide { grid-column: span 2; }
+@media (max-width: 40rem) { .piece--wide { grid-column: span 1; } }
+
+.piece { display: flex; flex-direction: column; gap: 0.85rem; }
+.piece__frame {
+  position: relative;
+  background: var(--paper-deep);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+.piece--wide .piece__frame { aspect-ratio: 8 / 5; }
+.piece__frame img {
+  width: 100%; height: 100%; object-fit: cover;
+  mix-blend-mode: multiply;
+  transition: transform 1100ms cubic-bezier(.22,.61,.36,1);
+}
+@media (prefers-color-scheme: dark) {
+  .piece__frame img { mix-blend-mode: normal; opacity: 0.92; }
+}
+:root[data-theme="dark"] .piece__frame img { mix-blend-mode: normal; opacity: 0.92; }
+:root[data-theme="light"] .piece__frame img { mix-blend-mode: multiply; opacity: 1; }
+.piece:hover .piece__frame img { transform: scale(1.035); }
+
+.piece__line {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; padding-top: 0.7rem; border-top: var(--rule);
+}
+.piece__name { font-size: 0.9375rem; font-weight: 400; letter-spacing: -0.005em; }
+.piece__ref { font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.1em; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.piece__spec { font-size: 0.8125rem; color: var(--ink-soft); margin: 0; }
+
+/* ── Spec list ────────────────────────────────────────────────────────── */
+.specs { padding: clamp(4rem, 10vh, 7rem) var(--gutter); border-bottom: var(--rule); }
+.specs__grid {
+  display: grid; gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  margin-top: clamp(1.75rem, 4vh, 2.75rem);
+}
+.spec { padding: 1.5rem 0; border-top: var(--rule); display: flex; flex-direction: column; gap: 0.5rem; }
+.specs__grid .spec { padding-right: clamp(1rem, 3vw, 3rem); }
+.spec h3 { margin: 0; font-size: 1rem; font-weight: 400; }
+.spec p { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--ink-soft); }
+
+/* ── Sign-up ──────────────────────────────────────────────────────────── */
+.signup { padding: clamp(4.5rem, 12vh, 8rem) var(--gutter); }
+.signup__inner { max-width: 44rem; display: flex; flex-direction: column; gap: 1.75rem; }
+.signup h2 {
+  margin: 0; font-size: clamp(1.75rem, 4.4vw, 3rem);
+  font-weight: 300; letter-spacing: -0.025em; line-height: 1.1; text-wrap: balance;
+}
+.field { display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--ink); padding-bottom: 0.6rem; }
+.field input {
+  flex: 1; min-width: 0;
+  border: 0; background: transparent; color: var(--ink);
+  font-family: var(--sans); font-size: 1.0625rem; font-weight: 300;
+  padding: 0.35rem 0;
+}
+.field input::placeholder { color: var(--ink-soft); }
+.field input:focus { outline: none; }
+.field button {
+  border: 0; background: transparent; color: var(--ink);
+  font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.22em;
+  text-transform: uppercase; cursor: pointer; padding: 0.35rem 0;
+}
+.field button:hover { color: var(--slate); }
+.signup__note { margin: 0; font-size: 0.8125rem; color: var(--ink-soft); }
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+footer {
+  padding: 2.25rem var(--gutter) 3rem;
+  border-top: var(--rule);
+  display: flex; flex-wrap: wrap; gap: 1rem 2.5rem;
+  align-items: baseline; justify-content: space-between;
+}
+footer a { color: var(--ink-soft); text-decoration: none; }
+footer a:hover { color: var(--ink); }
+
+/* ── Scroll reveal ─────────────────────────────────────────────────────
+   Gated behind .js so the page is fully legible with scripting off — the
+   reveal is an enhancement, not the thing that makes content appear.      */
+.js .rise { opacity: 0; transform: translateY(18px); transition: opacity 900ms ease, transform 900ms cubic-bezier(.22,.61,.36,1); }
+.js .rise.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js .rise { opacity: 1; transform: none; transition: none; }
+  .cast__shadow, .piece__frame img { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <a class="masthead__mark" href="#top">Solkast</a>
+  <nav class="label">
+    <a href="#pieces">Pieces</a>
+    <a href="#made">Made</a>
+    <a href="#list">List</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="cast" id="cast">
+      <p class="cast__shadow" aria-hidden="true">Solkast</p>
+      <h1 class="cast__word">Solkast</h1>
+    </div>
+    <div class="hero__meta">
+      <p class="hero__lede">
+        A small Swedish label making quiet clothing. Heavy organic cotton,
+        considered cuts, nothing shouted.
+      </p>
+      <p class="label" style="align-self:flex-end;">Est. Halmstad &middot; SE</p>
+    </div>
+  </section>
+
+  <section class="column">
+    <div class="column__inner rise">
+      <p class="label">On the name</p>
+      <h2>Solkast is Swedish for the way light gets thrown.</h2>
+      <p>
+        Not the sun itself — the cast of it. The long shadow at four in the
+        afternoon, the shape a thing makes when the light hits it sideways.
+        That felt like the right idea for clothes meant to be worn for years
+        rather than noticed for a season.
+      </p>
+      <p>
+        Everything is <strong>printed to order</strong> in the EU. Nothing is
+        held in a warehouse, nothing is made in a quantity we hope to shift.
+        You order a piece; it gets made; it comes to you. It takes a few days
+        longer and wastes considerably less.
+      </p>
+    </div>
+  </section>
+
+  <section class="look" id="pieces">
+    <div class="look__head rise">
+      <h2>Pieces</h2>
+      <p class="label">Twelve &middot; Organic cotton &middot; Unisex</p>
+    </div>
+    <div class="grid">
+      <article class="piece rise piece--wide" style="transition-delay:0ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452551732-0.jpg" alt="Defragmenting — Relaxed hoodie · Organic" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Defragmenting</span>
+            <span class="piece__ref">1732</span>
+          </div>
+          <p class="piece__spec">Relaxed hoodie · Organic</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:45ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452525158-0.jpg" alt="Asphalt Up — Relaxed hoodie · Organic" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Asphalt Up</span>
+            <span class="piece__ref">5158</span>
+          </div>
+          <p class="piece__spec">Relaxed hoodie · Organic</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:90ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452525155-0.jpg" alt="Asphalt Up — Oversized sweatshirt" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Asphalt Up</span>
+            <span class="piece__ref">5155</span>
+          </div>
+          <p class="piece__spec">Oversized sweatshirt</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:135ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-451939140-0.jpg" alt="Skyline — Heavyweight hoodie" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Skyline</span>
+            <span class="piece__ref">9140</span>
+          </div>
+          <p class="piece__spec">Heavyweight hoodie</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:180ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452490041-0.jpg" alt="Asphalt Up — Oversized tee · Organic" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Asphalt Up</span>
+            <span class="piece__ref">0041</span>
+          </div>
+          <p class="piece__spec">Oversized tee · Organic</p>
+        </div>
+      </article>
+      <article class="piece rise piece--wide" style="transition-delay:225ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-451936716-0.jpg" alt="Defragment — Oversized tee · Organic" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Defragment</span>
+            <span class="piece__ref">6716</span>
+          </div>
+          <p class="piece__spec">Oversized tee · Organic</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:270ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452538608-0.jpg" alt="Touching Grass — Oversized tee · Organic" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Touching Grass</span>
+            <span class="piece__ref">8608</span>
+          </div>
+          <p class="piece__spec">Oversized tee · Organic</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:315ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452542677-0.jpg" alt="Touching Grass — Unisex hoodie" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Touching Grass</span>
+            <span class="piece__ref">2677</span>
+          </div>
+          <p class="piece__spec">Unisex hoodie</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:360ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-452543180-0.jpg" alt="Touching Grass — Large organic tote" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Touching Grass</span>
+            <span class="piece__ref">3180</span>
+          </div>
+          <p class="piece__spec">Large organic tote</p>
+        </div>
+      </article>
+      <article class="piece rise piece--wide" style="transition-delay:360ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-451913956-0.jpg" alt="Solkast — Embroidered beanie" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Solkast</span>
+            <span class="piece__ref">3956</span>
+          </div>
+          <p class="piece__spec">Embroidered beanie</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:360ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-451903997-0.jpg" alt="Solkast — Dad hat · Embroidered" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Solkast</span>
+            <span class="piece__ref">3997</span>
+          </div>
+          <p class="piece__spec">Dad hat · Embroidered</p>
+        </div>
+      </article>
+      <article class="piece rise" style="transition-delay:360ms">
+        <div class="piece__frame">
+          <img src="https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-451903742-0.jpg" alt="Explorers Club — High neck tee · Organic" loading="lazy" decoding="async" width="1000" height="1000" />
+        </div>
+        <div>
+          <div class="piece__line">
+            <span class="piece__name">Explorers Club</span>
+            <span class="piece__ref">3742</span>
+          </div>
+          <p class="piece__spec">High neck tee · Organic</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="specs" id="made">
+    <div class="rise">
+      <p class="label">How it is made</p>
+      <h2 style="margin:.6rem 0 0;font-size:clamp(1.5rem,3.4vw,2.25rem);font-weight:300;letter-spacing:-.02em;">
+        Four things we hold to.
+      </h2>
+    </div>
+    <div class="specs__grid rise">
+      <div class="spec">
+        <h3>Organic cotton</h3>
+        <p>Ring-spun, mid to heavy weight. GOTS-certified fibre, chosen so a piece holds its shape past the first year.</p>
+      </div>
+      <div class="spec">
+        <h3>Printed to order</h3>
+        <p>Made after you order it, in the EU. No deadstock, no end-of-season pallet going somewhere it shouldn't.</p>
+      </div>
+      <div class="spec">
+        <h3>Unisex cuts</h3>
+        <p>Relaxed and oversized fits drafted to sit the same on most bodies. Sizes S through 2XL.</p>
+      </div>
+      <div class="spec">
+        <h3>Thirty days</h3>
+        <p>Unworn and unwashed, returned inside thirty days, refunded in full. Longer than the law asks.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="signup" id="list">
+    <div class="signup__inner rise">
+      <p class="label">The list</p>
+      <h2>Solkast is between seasons.</h2>
+      <p class="column__inner" style="font-family:var(--serif);font-size:1.0625rem;line-height:1.68;color:var(--ink-soft);margin:0;max-width:56ch;">
+        Every piece above exists and has been made. The shop is closed while the
+        next run is put together. Leave an address and you will hear once —
+        when it opens.
+      </p>
+      <form class="field" id="form">
+        <input id="email" type="email" name="email" required autocomplete="email"
+               placeholder="you@example.com" aria-label="Email address" />
+        <button type="submit">Notify me</button>
+      </form>
+      <p class="signup__note" id="note">One email. No newsletter, no sequence.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p class="label" style="margin:0;">&copy; <span id="yr">2026</span> Solkast &middot; CogCore LLC</p>
+  <p class="label" style="margin:0;">
+    <a href="https://angerkop.se">Ångerköp</a> &nbsp;·&nbsp;
+    <a href="mailto:hej@solkast.com">hej@solkast.com</a>
+  </p>
+</footer>
+
+<script>
+document.documentElement.classList.add("js");
+
+// Reveal on scroll.
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+document.querySelectorAll(".rise").forEach((el) => io.observe(el));
+
+// The shadow swings with the pointer — light has a direction, so it should
+// move when you do. Skipped entirely when reduced motion is requested.
+const cast = document.getElementById("cast");
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  window.addEventListener("pointermove", (e) => {
+    const x = e.clientX / window.innerWidth;          // 0 → 1 across the page
+    cast.style.setProperty("--lean", `${-56 + x * 44}deg`);
+  }, { passive: true });
+}
+
+document.getElementById("yr").textContent = new Date().getFullYear();
+
+// No backend on this page yet; store locally and confirm honestly.
+document.getElementById("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  if (!email) return;
+  try { localStorage.setItem("solkast:list", email); } catch (_) {}
+  document.getElementById("note").textContent = "Noted — " + email + ". You'll hear once.";
+  e.target.reset();
+});
+</script>
+</body>
+</html>
