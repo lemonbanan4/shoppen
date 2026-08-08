@@ -37,6 +37,11 @@ import { displayTitle, toHandle } from "../lib/product-naming";
  * PRINTFUL_PSYCHOLOGICAL_ROUNDING=false.
  */
 
+// The Printful store this run is syncing. Stamped onto every product so the
+// pruning pass can tell "not in this store's catalogue any more" apart from
+// "belongs to a different store entirely".
+const PRINTFUL_STORE_ID = process.env.PRINTFUL_STORE_ID || "";
+
 const MAX_IMAGES = 6;
 
 // Homepage rail placement: the newest two capsules read as "New Arrivals",
@@ -366,6 +371,10 @@ const toMedusaProduct = (
     options,
     metadata: {
       printful_product_id: p.id,
+      // Which Printful store this came from. The pruning pass below deletes
+      // any Printful product it does not see upstream, so without this a
+      // second store's products would be wiped every time this store synced.
+      printful_store_id: PRINTFUL_STORE_ID,
       fulfillment: "printful",
       ...(() => {
         const catalogId = variants[0]?.product?.product_id;
@@ -603,9 +612,17 @@ export default async function syncPrintfulProducts({
     entity: "product",
     fields: ["id", "title", "handle", "metadata"],
   });
-  const printfulProducts = allProducts.filter(
-    (p) => (p.metadata as any)?.fulfillment === "printful"
-  );
+  // Scoped to this Printful store. Products carrying a different
+  // printful_store_id belong to another brand's catalogue and must survive
+  // this run untouched — without this they read as orphans and get deleted.
+  // Products predating the stamp have no store id; they are this store's,
+  // since it was the only one synced before the field existed.
+  const printfulProducts = allProducts.filter((p) => {
+    const meta = p.metadata as Record<string, unknown> | null;
+    if (meta?.fulfillment !== "printful") return false;
+    const owner = meta?.printful_store_id;
+    return !owner || String(owner) === PRINTFUL_STORE_ID;
+  });
   const stale = printfulProducts.filter((p) =>
     liveIds.has(Number((p.metadata as any)?.printful_product_id))
   );
