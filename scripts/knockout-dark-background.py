@@ -22,6 +22,26 @@ components, and only clear components larger than a minimum area.
 
 Run it on the ORIGINAL full-resolution export, never on a downscaled preview —
 resampling blends the fill into neighbouring pixels and the threshold smears.
+
+For AI-generated art exported onto a flat background, the working recipe is:
+
+    --light --threshold 200 --feather 0 --unmatte --min-area-pct 0.0002
+    (drop --light and use --threshold 70 when the background is black)
+
+Each flag earns its place, and the defaults are wrong here for a reason:
+
+  --feather 0     the default of 1 keeps a pixel of background at every edge.
+                  Invisible on a dark fill, a white outline on a light one.
+  --unmatte       rebuilds the anti-aliased ramp the threshold would cut
+                  through, and un-multiplies the background back out.
+  --min-area-pct  the 0.5 default only clears regions bigger than half a
+                  percent of the image. Background trapped between brush
+                  strokes forms thousands of small pockets — 2120 of them in
+                  one Solkast design, none large enough to qualify, together
+                  1.66%% of the frame printing as white specks. Lowering it is
+                  safe because the artwork's own light tones sit far below the
+                  threshold: measured on that design, trapped background read
+                  247 while the statue's brightest highlight read 141.
 """
 import argparse
 import sys
