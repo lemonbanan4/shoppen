@@ -499,10 +499,26 @@ export default async function syncPrintfulProducts({
   }
 
   // ——— Infra lookups ———
-  const { data: salesChannels } = await query.graph({
+  // Named, not positional. This used to take salesChannels[0], which is only
+  // correct while exactly one channel exists — adding a second brand's
+  // channel could silently publish this store's products onto it, depending
+  // on row order.
+  const SALES_CHANNEL_NAME =
+    process.env.PRINTFUL_SALES_CHANNEL || "Default Sales Channel";
+  const { data: allSalesChannels } = await query.graph({
     entity: "sales_channel",
-    fields: ["id"],
+    fields: ["id", "name"],
   });
+  const salesChannels = allSalesChannels.filter(
+    (c) => c.name === SALES_CHANNEL_NAME
+  );
+  if (!salesChannels.length) {
+    throw new Error(
+      `No sales channel named "${SALES_CHANNEL_NAME}". Available: ${allSalesChannels
+        .map((c) => c.name)
+        .join(", ")}`
+    );
+  }
   const { data: shippingProfiles } = await query.graph({
     entity: "shipping_profile",
     fields: ["id"],
