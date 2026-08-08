@@ -100,7 +100,25 @@ def main() -> int:
         "--feather",
         type=int,
         default=1,
-        help="shrink the cleared area by N px so outlines keep a clean edge",
+        help="shrink the cleared area by N px so outlines keep a clean edge. "
+        "Leaves one pixel of background around every edge, which is invisible "
+        "for a dark fill on a dark garment and a glaring white outline for a "
+        "light one — pass 0 with --unmatte",
+    )
+    ap.add_argument(
+        "--unmatte-width",
+        type=int,
+        default=3,
+        help="how many pixels either side of the cut to rebuild (default 3)",
+    )
+    ap.add_argument(
+        "--unmatte",
+        action="store_true",
+        help="recover soft edges instead of cutting hard. Anti-aliased pixels "
+        "are the artwork blended into the background, so a hard threshold "
+        "either keeps them (a bright fringe) or cuts them (jagged edges). "
+        "This derives partial alpha from how far each edge pixel sits from "
+        "the background colour, then un-multiplies that colour back out.",
     )
     args = ap.parse_args()
 
@@ -147,6 +165,49 @@ def main() -> int:
 
     out = arr.copy()
     out[:, :, 3] = np.where(clear, 0, alpha)
+
+    if args.unmatte:
+        # Rebuild the anti-aliased ramp instead of cutting through it.
+        #
+        # A hard threshold splits that ramp: pixels above it are erased, the
+        # ones just below survive at full opacity, and what is left is a bright
+        # one-pixel outline. Both halves are wrong — the edge is neither fully
+        # background nor fully artwork.
+        #
+        # So take a few pixels either side of the boundary and derive coverage
+        # from brightness across the whole ramp, rather than asking a yes/no
+        # question at one cut-off.
+        edge = np.zeros_like(clear)
+        edge[1:, :] |= clear[:-1, :] != clear[1:, :]
+        edge[:-1, :] |= clear[:-1, :] != clear[1:, :]
+        edge[:, 1:] |= clear[:, :-1] != clear[:, 1:]
+        edge[:, :-1] |= clear[:, :-1] != clear[:, 1:]
+        for _ in range(max(1, args.unmatte_width) - 1):
+            grown = edge.copy()
+            grown[1:, :] |= edge[:-1, :]
+            grown[:-1, :] |= edge[1:, :]
+            grown[:, 1:] |= edge[:, :-1]
+            grown[:, :-1] |= edge[:, 1:]
+            edge = grown
+
+        bg = 255.0 if args.light else 0.0
+        # Fully opaque by the time a pixel is this far from the background.
+        solid = args.threshold - 60 if args.light else args.threshold + 60
+
+        c = rgb[edge].astype(np.float32)
+        v = c.min(axis=1) if args.light else c.max(axis=1)
+        span = abs(args.threshold - solid)
+        a = np.clip(np.abs(v - bg) / max(1e-6, abs(bg - solid)), 0.0, 1.0)
+
+        # Un-multiply the background back out: observed = a*F + (1-a)*bg,
+        # so F = (observed - (1-a)*bg) / a. Skipping this leaves the
+        # background mixed into the edge, which prints as a halo even where
+        # the pixel is only partly opaque.
+        a3 = np.repeat(a[:, None], 3, axis=1)
+        f = np.where(a3 > 0.04, (c - (1.0 - a3) * bg) / np.maximum(a3, 0.04), c)
+
+        out[:, :, :3][edge] = np.clip(f, 0, 255).astype(np.uint8)
+        out[:, :, 3][edge] = (a * 255).astype(np.uint8)
 
     removed = clear.sum()
     before = (alpha > 200).sum()
