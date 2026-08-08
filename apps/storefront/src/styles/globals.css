@@ -110,3 +110,28 @@
     @apply text-[32px] leading-[44px] font-semibold;
   }
 }
+
+/* ── Solkast: dark shop ────────────────────────────────────────────────────
+   The artwork is gold halftone on black; a white shop around it reads as a
+   gallery wall behind a poster.
+
+   Only two rules live here, both about surfaces that have no sensible light
+   equivalent. Everything else is done in the components themselves.
+
+   A first pass tried to invert the whole shop from here by rewriting utility
+   classes — .bg-white to black, .text-neutral-950 to bone. It broke on the
+   first variant it met: the nav is bg-white/95, which .bg-white never
+   matches, so the bar stayed light while the wordmark on it turned bone and
+   vanished. Overriding utilities cannot know what sits on what.             */
+
+/* Studio product shots arrive on white. The tile stays light on purpose so
+   the garment keeps its shadow — the images are the one bright thing here. */
+[data-brand="solkast"] [data-testid="product-wrapper"] img {
+  background-color: #f4f2ee;
+}
+
+/* Headings tighten to sit closer to the artwork's condensed lettering. */
+[data-brand="solkast"] h1,
+[data-brand="solkast"] h2 {
+  letter-spacing: -0.03em;
+}

@@ -1,5 +1,6 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
+import { isSolkast } from "@lib/brand"
 
 // Our own generated mockups, not stock photography of someone else's clothes.
 const MOCKUPS =
@@ -42,21 +43,33 @@ const Hero = () => {
     <section className="bg-neutral-950 text-white">
       <div className="content-container pt-16 pb-12 small:pt-24 small:pb-16">
         <p className="text-[11px] small:text-xs tracking-[0.28em] uppercase text-brand-light">
-          Svenska kapseln — nu i fyra färger
+          {isSolkast
+            ? "Chase the light. Become the standard."
+            : "Svenska kapseln — nu i fyra färger"}
         </p>
         {/* The product is type, so the page leads with type too. Leading has
             to clear Å and Ö rings against the previous line's descenders —
             the usual sub-1 display leading collides in Swedish. */}
         <h1 className="mt-5 text-[3.25rem] leading-[1.06] small:text-[7rem] small:leading-[1.02] font-semibold tracking-[-0.03em] text-balance">
-          Köp nu.
-          <br />
-          <span className="text-brand-light">Ångra sen.</span>
+          {isSolkast ? (
+            <>
+              Chase
+              <br />
+              <span className="text-brand-light">the light.</span>
+            </>
+          ) : (
+            <>
+              Köp nu.
+              <br />
+              <span className="text-brand-light">Ångra sen.</span>
+            </>
+          )}
         </h1>
         <div className="mt-8 small:mt-10 flex flex-col small:flex-row small:items-end gap-8 small:gap-14">
           <p className="max-w-sm text-sm small:text-base text-white/70 leading-relaxed">
-            Tröjor för dig som redan vet hur det slutar. Ekologisk bomull,
-            tryckt på beställning i EU — vi gör bara det någon faktiskt
-            beställt.
+            {isSolkast
+              ? "Graphic pieces in heavy organic cotton, printed to order in the EU. A short list, made properly, meant to outlast the season."
+              : "Tröjor för dig som redan vet hur det slutar. Ekologisk bomull, tryckt på beställning i EU — vi gör bara det någon faktiskt beställt."}
           </p>
           <div className="flex gap-3 shrink-0">
             <LocalizedClientLink
@@ -64,7 +77,7 @@ const Hero = () => {
               className="bg-white text-neutral-950 text-sm font-medium px-7 py-3.5 rounded-full hover:bg-neutral-200 transition-colors"
               data-testid="hero-shop-link"
             >
-              Handla allt
+              {isSolkast ? "Shop all" : "Handla allt"}
             </LocalizedClientLink>
             <LocalizedClientLink
               href="/collections/new-arrivals"

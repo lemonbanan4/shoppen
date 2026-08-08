@@ -20,10 +20,29 @@ module.exports = {
         padding: "padding-top padding-right padding-bottom padding-left",
       },
       colors: {
-        brand: {
-          DEFAULT: "#9A4B2E",
-          dark: "#7C3B23",
-          light: "#B9633F",
+        // Per brand, resolved at build time. NEXT_PUBLIC_BRAND is inlined
+        // during the build and each deployment builds separately, so a
+        // storefront only ever ships one palette.
+        brand:
+          process.env.NEXT_PUBLIC_BRAND === "solkast"
+            ? {
+                // Gold, taken from the artwork rather than picked in the
+                // abstract, so the site and the prints agree.
+                DEFAULT: "#D9A21B",
+                dark: "#A87A0F",
+                light: "#EFC04A",
+              }
+            : {
+                DEFAULT: "#9A4B2E",
+                dark: "#7C3B23",
+                light: "#B9633F",
+              },
+        // Solkast's ground. Slightly warm-shifted off pure black so the gold
+        // sits on it without vibrating, and so photography does not float.
+        ink: {
+          DEFAULT: "#0B0B0C",
+          soft: "#141416",
+          line: "#26262A",
         },
         grey: {
           0: "#FFFFFF",

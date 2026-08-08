@@ -8,12 +8,12 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import CartButton from "@modules/layout/components/cart-button"
 import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
-import { BRAND } from "@lib/brand"
+import { BRAND, isSolkast } from "@lib/brand"
 
 // A small capsule store: every link must land on a page with products on it.
 // The fit categories return when the catalogue does.
 const navLinksFor = (countryCode?: string) =>
-  countryCode === "se"
+  !isSolkast && countryCode === "se"
     ? [
         { label: "Handla allt", href: "/store" },
         { label: "Nyheter", href: "/collections/new-arrivals" },
@@ -46,12 +46,24 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
       <div className="bg-brand text-white text-[11px] tracking-[0.14em] uppercase text-center py-2 px-4">
         {/* Swedish shoppers buy in SEK with their own free-shipping
             threshold; everyone else keeps the EUR message. */}
-        {countryCode === "se"
+        {!isSolkast && countryCode === "se"
           ? "Fri frakt över 800 kr — enkel 30 dagars retur"
+          : countryCode === "se"
+          ? "Free shipping over 800 kr — easy 30-day returns"
           : "Free shipping on orders over €75 — easy 30-day returns"}
       </div>
-      <header className="relative h-16 mx-auto border-b duration-200 bg-white/95 backdrop-blur-md border-neutral-100">
-        <nav className="content-container text-sm text-neutral-500 flex items-center justify-between w-full h-full">
+      <header
+        className={`relative h-16 mx-auto border-b duration-200 backdrop-blur-md ${
+          isSolkast
+            ? "bg-ink/95 border-ink-line"
+            : "bg-white/95 border-neutral-100"
+        }`}
+      >
+        <nav
+          className={`content-container text-sm flex items-center justify-between w-full h-full ${
+            isSolkast ? "text-neutral-400" : "text-neutral-500"
+          }`}
+        >
           <div className="flex-1 basis-0 h-full flex items-center gap-x-6">
             <div className="h-full small:hidden flex items-center">
               <SideMenu
@@ -62,7 +74,9 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             </div>
             <LocalizedClientLink
               href="/"
-              className="flex items-center text-lg font-semibold tracking-[0.22em] text-neutral-950 uppercase"
+              className={`flex items-center text-lg font-semibold tracking-[0.22em] uppercase ${
+                isSolkast ? "text-neutral-50" : "text-neutral-950"
+              }`}
               data-testid="nav-store-link"
             >
               {BRAND.wordmark}
@@ -87,7 +101,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
               href="/account"
               data-testid="nav-account-link"
             >
-              {countryCode === "se" ? "Konto" : "Account"}
+              {!isSolkast && countryCode === "se" ? "Konto" : "Account"}
             </LocalizedClientLink>
             <Suspense
               fallback={
