@@ -4,6 +4,7 @@ import { listCollections } from "@lib/data/collections";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
 import LogoMark from "@modules/common/icons/logo-mark";
 import NewsletterForm from "./newsletter-form";
+import { BRAND } from "@lib/brand"
 
 export default async function Footer() {
   const { collections } = await listCollections({
@@ -21,7 +22,7 @@ export default async function Footer() {
               className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-white uppercase"
             >
               <LogoMark size="18" />
-              Ångerköp
+              {BRAND.wordmark}
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-6">
               Svenskt streetwear-märke för dig som redan vet hur det slutar.
@@ -104,7 +105,7 @@ export default async function Footer() {
                     className="hover:text-white transition-colors"
                     href="/content/about"
                   >
-                    About Ångerköp
+                    About {BRAND.name}
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -144,7 +145,7 @@ export default async function Footer() {
           </div>
         </div>
         <div className="flex w-full py-8 justify-between items-center border-t border-neutral-800 text-xs">
-          <p>© {new Date().getFullYear()} Ångerköp. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {BRAND.name}. All rights reserved.</p>
           <div className="flex items-center gap-4 flex-wrap">
             <p>Fri frakt över 800 kr · 30 dagars retur · Free EU shipping over €75</p>
             <ul

@@ -3,12 +3,13 @@ import { Metadata, Viewport } from "next"
 import { Toaster } from "sonner"
 import PostHogProvider from "@modules/common/components/analytics/posthog-provider"
 import "styles/globals.css"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: {
-    default: "Ångerköp — Köp nu. Ångra sen.",
-    template: "%s | Ångerköp",
+    default: `${BRAND.name} — ${BRAND.tagline}`,
+    template: `%s | ${BRAND.name}`,
   },
   description:
     "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta på beställning i EU. Buy now, regret later.",

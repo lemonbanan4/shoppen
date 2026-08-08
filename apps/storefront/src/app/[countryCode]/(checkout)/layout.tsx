@@ -2,6 +2,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import ChevronDown from "@modules/common/icons/chevron-down"
 import LogoMark from "@modules/common/icons/logo-mark"
 import MedusaCTA from "@modules/layout/components/medusa-cta"
+import { BRAND } from "@lib/brand"
 
 export default function CheckoutLayout({
   children,
@@ -31,7 +32,7 @@ export default function CheckoutLayout({
             data-testid="store-link"
           >
             <LogoMark size="16" />
-            Ångerköp
+            {BRAND.wordmark}
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>

@@ -7,10 +7,11 @@ import ProfileName from "@modules/account/components/profile-name"
 import { notFound } from "next/navigation"
 import { listRegions } from "@lib/data/regions"
 import { retrieveCustomer } from "@lib/data/customer"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   title: "Profile",
-  description: "View and edit your Ångerköp profile.",
+  description: `View and edit your ${BRAND.name} profile.`,
 }
 
 export default async function Profile() {

@@ -10,6 +10,7 @@ import { Fragment } from "react"
 import CountrySelect from "../country-select"
 import LanguageSelect from "../language-select"
 import { Locale } from "@lib/data/locales"
+import { BRAND } from "@lib/brand"
 
 
 const SideMenuItems = {
@@ -129,7 +130,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                         />
                       </div>
                       <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} Ångerköp. All rights
+                        © {new Date().getFullYear()} {BRAND.name}. All rights
                         reserved.
                       </Text>
                     </div>

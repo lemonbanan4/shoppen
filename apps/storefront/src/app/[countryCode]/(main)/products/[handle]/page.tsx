@@ -4,6 +4,7 @@ import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
+import { BRAND } from "@lib/brand"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -93,7 +94,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     ? product.description.trim().length > 160
       ? product.description.trim().slice(0, 157).replace(/\s+\S*$/, "") + "…"
       : product.description.trim()
-    : `${product.title} — printed to order by Ångerköp.`
+    : `${product.title} — printed to order by ${BRAND.name}.`
 
   return {
     title: `${product.title}`,

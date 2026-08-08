@@ -1,5 +1,6 @@
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
+import { BRAND } from "@lib/brand"
 
 /**
  * schema.org Product structured data — lets Google show price/availability
@@ -32,7 +33,7 @@ const ProductJsonLd = ({
     image: (product.images || []).map((i) => i.url).filter(Boolean),
     sku: product.variants?.[0]?.sku || product.id,
     url,
-    brand: { "@type": "Brand", name: "Ångerköp" },
+    brand: { "@type": "Brand", name: BRAND.name },
     offers: {
       "@type": "Offer",
       url,

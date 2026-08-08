@@ -1,10 +1,11 @@
 import { Metadata } from "next"
 
 import InteractiveLink from "@modules/common/components/interactive-link"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   title: "404",
-  description: "This page doesn't exist — browse the Ångerköp store instead.",
+  description: `This page doesn't exist — browse the ${BRAND.name} store instead.`,
 }
 
 export default function NotFound() {

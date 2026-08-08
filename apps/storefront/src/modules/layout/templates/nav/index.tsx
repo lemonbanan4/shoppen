@@ -8,6 +8,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import CartButton from "@modules/layout/components/cart-button"
 import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
+import { BRAND } from "@lib/brand"
 
 // A small capsule store: every link must land on a page with products on it.
 // The fit categories return when the catalogue does.
@@ -64,7 +65,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
               className="flex items-center text-lg font-semibold tracking-[0.22em] text-neutral-950 uppercase"
               data-testid="nav-store-link"
             >
-              Ångerköp
+              {BRAND.wordmark}
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-6 h-full ml-6">
               {navLinksFor(countryCode).map((link) => (

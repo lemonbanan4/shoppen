@@ -11,11 +11,12 @@ import Manifesto from "@modules/home/components/manifesto"
 import Marquee from "@modules/home/components/marquee"
 import SiteJsonLd from "@modules/common/components/site-jsonld"
 import UspBar from "@modules/home/components/usp-bar"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
-  // absolute: the root template would append "| Ångerköp" to a title
+  // absolute: the root template would append "| <brand>" to a title
   // that already leads with the brand.
-  title: { absolute: "Ångerköp — Köp nu. Ångra sen." },
+  title: { absolute: `${BRAND.name} — ${BRAND.tagline}` },
   description:
     "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta på beställning i EU. Buy now, regret later.",
 }
