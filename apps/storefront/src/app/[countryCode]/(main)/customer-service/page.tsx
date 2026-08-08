@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   title: "Customer service",
@@ -58,7 +59,7 @@ export default function CustomerServicePage() {
       <section>
         <h2>Contact</h2>
         <p>
-          Email us at <strong>hej@angerkop.se</strong> and we'll get back
+          Email us at <strong>{BRAND.email}</strong> and we'll get back
           to you within one business day.
         </p>
       </section>

@@ -1,13 +1,23 @@
 import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
+import { BRAND, isSolkast } from "@lib/brand"
+import AboutSolkast from "./page-solkast"
 
-export const metadata: Metadata = {
-  title: "Om Ångerköp",
-  description:
-    "Ångerköp är ett svenskt streetwear-märke. Tröjor för dig som redan vet hur det slutar — ekologisk bomull, tryckt på beställning i EU.",
-}
+export const metadata: Metadata = isSolkast
+  ? {
+      title: "About Solkast",
+      description:
+        "Solkast is a small Swedish label. Twelve pieces in organic cotton, printed to order in the EU.",
+    }
+  : {
+      title: "Om Ångerköp",
+      description:
+        "Ångerköp är ett svenskt streetwear-märke. Tröjor för dig som redan vet hur det slutar — ekologisk bomull, tryckt på beställning i EU.",
+    }
 
 export default function AboutPage() {
+  if (isSolkast) return <AboutSolkast />
+
   return (
     <ContentPage
       eyebrow="Om oss"
@@ -58,7 +68,7 @@ export default function AboutPage() {
         <h2>Säg hej</h2>
         <p>
           Frågor, idéer, eller en tröja du vill se finnas? Mejla{" "}
-          <strong>hej@angerkop.se</strong> — en människa läser det.
+          <strong>{BRAND.email}</strong> — en människa läser det.
         </p>
       </section>
     </ContentPage>

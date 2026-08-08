@@ -1,10 +1,11 @@
 import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   title: "Privacy policy",
   description:
-    "How Ångerköp, operated by CogCore LLC, collects, uses and protects your personal data under the GDPR.",
+    `How ${BRAND.name}, operated by CogCore LLC, collects, uses and protects your personal data under the GDPR.`,
 }
 
 // Reviewed 30 July 2026. Named processors are the ones actually wired up —
@@ -23,13 +24,13 @@ export default function PrivacyPolicyPage() {
       <section>
         <h2>Who we are</h2>
         <p>
-          Ångerköp is operated by <strong>CogCore LLC</strong>, 30 N Gould St
+          {BRAND.name} is operated by <strong>CogCore LLC</strong>, 30 N Gould St
           Ste R, Sheridan, WY 82801, United States. CogCore LLC is the data
-          controller for personal data collected through angerkop.se.
+          controller for personal data collected through {BRAND.domain}.
         </p>
         <p>
           For any privacy question, or to exercise the rights described below,
-          email <strong>hej@angerkop.se</strong>.
+          email <strong>{BRAND.email}</strong>.
         </p>
       </section>
 
@@ -155,7 +156,7 @@ export default function PrivacyPolicyPage() {
           If you are in the EU, EEA or UK, you have the right to access your
           data, correct it, delete it, restrict or object to its processing,
           withdraw consent, and receive your data in a portable format. Email{" "}
-          <strong>hej@angerkop.se</strong> and we will respond within one month.
+          <strong>{BRAND.email}</strong> and we will respond within one month.
         </p>
         <p>
           You also have the right to complain to your national data protection

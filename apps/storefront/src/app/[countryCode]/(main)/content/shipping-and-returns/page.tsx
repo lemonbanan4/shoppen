@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   title: "Shipping & returns",
@@ -31,7 +32,7 @@ export default function ShippingReturnsPage() {
           photo and we'll replace or refund immediately.
         </p>
         <p>
-          To start a return, email <strong>hej@angerkop.se</strong> with
+          To start a return, email <strong>{BRAND.email}</strong> with
           your order number. Refunds are issued to the original payment method
           within 5 business days of us receiving the return.
         </p>

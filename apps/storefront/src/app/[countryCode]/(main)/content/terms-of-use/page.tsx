@@ -1,10 +1,11 @@
 import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
+import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
   title: "Terms of use",
   description:
-    "The terms that apply when you shop with Ångerköp, operated by CogCore LLC.",
+    `The terms that apply when you shop with ${BRAND.name}, operated by CogCore LLC.`,
 }
 
 const LAST_UPDATED = "30 July 2026"
@@ -14,17 +15,17 @@ export default function TermsOfUsePage() {
     <ContentPage
       eyebrow="Legal"
       title="Terms of use"
-      intro="The plain-language version of what you agree to when ordering from Ångerköp — written to be read, not to hide things."
+      intro={`The plain-language version of what you agree to when ordering from ${BRAND.name} — written to be read, not to hide things.`}
     >
       <section>
         <h2>Who you are buying from</h2>
         <p>
-          Ångerköp is a trading name of <strong>CogCore LLC</strong>, 30 N Gould
+          {BRAND.name} is a trading name of <strong>CogCore LLC</strong>, 30 N Gould
           St Ste R, Sheridan, WY 82801, United States. Contact:{" "}
-          <strong>hej@angerkop.se</strong>.
+          <strong>{BRAND.email}</strong>.
         </p>
         <p>
-          These terms apply to every order placed through angerkop.se. Nothing
+          These terms apply to every order placed through {BRAND.domain}. Nothing
           here reduces the consumer rights you have under the law of the country
           you live in.
         </p>
@@ -70,7 +71,7 @@ export default function TermsOfUsePage() {
           You have <strong>30 days</strong> from delivery to return an unworn,
           unwashed item in its original condition — more than the 14-day
           statutory right of withdrawal that applies to EU consumers. Start a
-          return by emailing <strong>hej@angerkop.se</strong>.
+          return by emailing <strong>{BRAND.email}</strong>.
         </p>
         <p>
           We refund to your original payment method once the return arrives.
@@ -134,7 +135,7 @@ export default function TermsOfUsePage() {
       <section>
         <h2>Contact</h2>
         <p>
-          Questions about these terms: <strong>hej@angerkop.se</strong>.
+          Questions about these terms: <strong>{BRAND.email}</strong>.
         </p>
         <p>
           <em>Last updated: {LAST_UPDATED}.</em>
