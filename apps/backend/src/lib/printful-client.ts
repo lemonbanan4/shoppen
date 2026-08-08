@@ -33,6 +33,9 @@ export type PrintfulSyncVariant = {
   };
   files: PrintfulFile[];
   options: PrintfulSyncVariantOption[];
+  /** Present on apparel; absent on single-variant goods like totes and caps. */
+  size?: string;
+  color?: string;
 };
 
 export type PrintfulSyncProductSummary = {
