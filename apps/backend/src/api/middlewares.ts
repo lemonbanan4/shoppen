@@ -52,8 +52,14 @@ export default defineMiddlewares({
     {
       // Matches the payment-collection id segment; the session route is the
       // only place a storefront names a provider.
+      //
+      // `methods`, not `method`. The singular form is deprecated, and the
+      // router only reads the plural: with `method` set the registration
+      // falls into its `!route.methods` branch and never binds the verb the
+      // way it appears to. First attempt used it and the block silently did
+      // nothing in production.
       matcher: "/store/payment-collections/*/payment-sessions",
-      method: "POST",
+      methods: ["POST"],
       middlewares: [rejectManualPayment],
     },
   ],
