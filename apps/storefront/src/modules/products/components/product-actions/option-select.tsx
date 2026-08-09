@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { clx } from "@modules/common/components/ui"
 import React from "react"
+import { useCopy } from "@lib/use-copy"
 
 type OptionSelectProps = {
   option: HttpTypes.StoreProductOption
@@ -22,13 +23,14 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   disabled,
   availableValues,
 }) => {
+  const t = useCopy()
   const filteredOptions = (option.values ?? [])
     .map((v) => v.value)
     .filter((v) => !availableValues || availableValues.includes(v))
 
   return (
     <div className="flex flex-col gap-y-3">
-      <span className="text-sm">Select {title}</span>
+      <span className="text-sm">{t.selectOption(title)}</span>
       <div
         className="flex flex-wrap gap-2"
         data-testid={dataTestId}

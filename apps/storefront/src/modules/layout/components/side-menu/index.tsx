@@ -11,16 +11,19 @@ import CountrySelect from "../country-select"
 import LanguageSelect from "../language-select"
 import { Locale } from "@lib/data/locales"
 import { BRAND } from "@lib/brand"
+import { useCopy } from "@lib/use-copy"
+import type { UiCopy } from "@lib/copy"
 
-
-const SideMenuItems = {
-  Home: "/",
-  "Shop all": "/store",
-  "New arrivals": "/collections/new-arrivals",
-  Bestsellers: "/collections/bestsellers",
-  Account: "/account",
-  Cart: "/cart",
-}
+// key stays English and drives data-testid, so the selectors survive
+// translation; only label follows the visitor's language.
+const sideMenuItems = (t: UiCopy) => [
+  { key: "home", label: t.home, href: "/" },
+  { key: "shop all", label: t.shopAll, href: "/store" },
+  { key: "new arrivals", label: t.newArrivals, href: "/collections/new-arrivals" },
+  { key: "bestsellers", label: t.bestsellers, href: "/collections/bestsellers" },
+  { key: "account", label: t.account, href: "/account" },
+  { key: "cart", label: t.cart, href: "/cart" },
+]
 
 type SideMenuProps = {
   regions: HttpTypes.StoreRegion[] | null
@@ -29,6 +32,7 @@ type SideMenuProps = {
 }
 
 const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
+  const t = useCopy()
   const countryToggleState = useToggleState()
   const languageToggleState = useToggleState()
 
@@ -43,7 +47,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                   data-testid="nav-menu-button"
                   className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-ui-fg-base"
                 >
-                  Menu
+                  {t.menu}
                 </Popover.Button>
               </div>
 
@@ -76,16 +80,16 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                       </button>
                     </div>
                     <ul className="flex flex-col gap-6 items-start justify-start">
-                      {Object.entries(SideMenuItems).map(([name, href]) => {
+                      {sideMenuItems(t).map((item) => {
                         return (
-                          <li key={name}>
+                          <li key={item.key}>
                             <LocalizedClientLink
-                              href={href}
+                              href={item.href}
                               className="text-3xl leading-10 hover:text-ui-fg-disabled"
                               onClick={close}
-                              data-testid={`${name.toLowerCase()}-link`}
+                              data-testid={`${item.key}-link`}
                             >
-                              {name}
+                              {item.label}
                             </LocalizedClientLink>
                           </li>
                         )
@@ -130,8 +134,8 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                         />
                       </div>
                       <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} {BRAND.name}. All rights
-                        reserved.
+                        © {new Date().getFullYear()} {BRAND.name}.{" "}
+                        {t.rightsReserved}
                       </Text>
                     </div>
                   </div>

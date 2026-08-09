@@ -3,10 +3,13 @@ import { retrieveCustomer } from "@lib/data/customer"
 import CartTemplate from "@modules/cart/templates"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { copyFor } from "@lib/copy"
 
-export const metadata: Metadata = {
-  title: "Cart",
-  description: "View your cart",
+export async function generateMetadata(props: {
+  params: Promise<{ countryCode: string }>
+}): Promise<Metadata> {
+  const t = copyFor((await props.params).countryCode)
+  return { title: t.cartPageTitle, description: t.cartPageDescription }
 }
 
 export default async function Cart() {

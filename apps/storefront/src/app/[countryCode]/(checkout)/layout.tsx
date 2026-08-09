@@ -3,12 +3,16 @@ import ChevronDown from "@modules/common/icons/chevron-down"
 import LogoMark from "@modules/common/icons/logo-mark"
 import MedusaCTA from "@modules/layout/components/medusa-cta"
 import { BRAND } from "@lib/brand"
+import { copyFor } from "@lib/copy"
 
-export default function CheckoutLayout({
+export default async function CheckoutLayout({
   children,
+  params,
 }: {
   children: React.ReactNode
+  params: Promise<{ countryCode: string }>
 }) {
+  const t = copyFor((await params).countryCode)
   return (
     <div className="w-full bg-white relative small:min-h-screen">
       <div className="h-16 bg-white border-b ">
@@ -20,10 +24,10 @@ export default function CheckoutLayout({
           >
             <ChevronDown className="rotate-90" size={16} />
             <span className="mt-px hidden small:block txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base ">
-              Back to shopping cart
+              {t.backToCart}
             </span>
             <span className="mt-px block small:hidden txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base">
-              Back
+              {t.back}
             </span>
           </LocalizedClientLink>
           <LocalizedClientLink

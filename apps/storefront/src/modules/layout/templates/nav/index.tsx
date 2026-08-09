@@ -9,23 +9,21 @@ import CartButton from "@modules/layout/components/cart-button"
 import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
 import { BRAND, isSolkast } from "@lib/brand"
+import { copyFor } from "@lib/copy"
 
 // A small capsule store: every link must land on a page with products on it.
 // The fit categories return when the catalogue does.
-const navLinksFor = (countryCode?: string) =>
-  !isSolkast && countryCode === "se"
-    ? [
-        { label: "Handla allt", href: "/store" },
-        { label: "Nyheter", href: "/collections/new-arrivals" },
-        { label: "Om oss", href: "/content/about" },
-      ]
-    : [
-        { label: "Shop all", href: "/store" },
-        { label: "New arrivals", href: "/collections/new-arrivals" },
-        { label: "About", href: "/content/about" },
-      ]
+const navLinksFor = (countryCode?: string) => {
+  const t = copyFor(countryCode)
+  return [
+    { label: t.shopAll, href: "/store" },
+    { label: t.newArrivals, href: "/collections/new-arrivals" },
+    { label: t.about, href: "/content/about" },
+  ]
+}
 
 export default async function Nav({ countryCode }: { countryCode?: string }) {
+  const t = copyFor(countryCode)
   const [regions, locales, currentLocale] = await Promise.all([
     listRegions().then((regions: StoreRegion[]) => regions),
     listLocales(),
@@ -44,13 +42,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
   return (
     <div className="sticky top-0 inset-x-0 z-50 group">
       <div className="bg-brand text-white text-[11px] tracking-[0.14em] uppercase text-center py-2 px-4">
-        {/* Swedish shoppers buy in SEK with their own free-shipping
-            threshold; everyone else keeps the EUR message. */}
-        {!isSolkast && countryCode === "se"
-          ? "Fri frakt över 800 kr — enkel 30 dagars retur"
-          : countryCode === "se"
-          ? "Free shipping over 800 kr — easy 30-day returns"
-          : "Free shipping on orders over €75 — easy 30-day returns"}
+        {t.announcement}
       </div>
       <header
         className={`relative h-16 mx-auto border-b duration-200 backdrop-blur-md ${
@@ -101,7 +93,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
               href="/account"
               data-testid="nav-account-link"
             >
-              {!isSolkast && countryCode === "se" ? "Konto" : "Account"}
+              {t.account}
             </LocalizedClientLink>
             <Suspense
               fallback={
@@ -110,7 +102,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
                   href="/cart"
                   data-testid="nav-cart-link"
                 >
-                  Cart (0)
+                  {t.cartWithCount(0)}
                 </LocalizedClientLink>
               }
             >

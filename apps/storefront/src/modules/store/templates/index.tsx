@@ -5,6 +5,7 @@ import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-g
 import RefinementList from "@modules/store/components/refinement-list"
 import { listProductOptions } from "@lib/data/products"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import { copyFor } from "@lib/copy"
 
 import PaginatedProducts from "./paginated-products"
 
@@ -21,6 +22,7 @@ const StoreTemplate = async ({
   optionValueIds?: OptionValueIds
   searchQuery?: string
 }) => {
+  const t = copyFor(countryCode)
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
 
@@ -36,7 +38,7 @@ const StoreTemplate = async ({
             className="text-2xl small:text-3xl font-medium text-neutral-950"
             data-testid="store-page-title"
           >
-            {searchQuery ? `Results for “${searchQuery}”` : "All products"}
+            {searchQuery ? t.resultsFor(searchQuery) : t.allProducts}
           </h1>
         </div>
         <Suspense fallback={<SkeletonProductGrid />}>

@@ -1,15 +1,19 @@
+"use client"
+
 import { Container, Heading, Text } from "@modules/common/components/ui"
 
 import { isStripeLike, paymentInfoMap } from "@lib/constants"
 import Divider from "@modules/common/components/divider"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
+import { useCopy } from "@lib/use-copy"
 
 type PaymentDetailsProps = {
   order: HttpTypes.StoreOrder
 }
 
 const PaymentDetails = ({ order }: PaymentDetailsProps) => {
+  const t = useCopy()
   const payment = order.payment_collections?.[0].payments?.[0]
 
   return (
@@ -28,7 +32,10 @@ const PaymentDetails = ({ order }: PaymentDetailsProps) => {
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method"
               >
-                {paymentInfoMap[payment.provider_id].title}
+                {t.paymentTitle(
+                  payment.provider_id,
+                  paymentInfoMap[payment.provider_id].title
+                )}
               </Text>
             </div>
             <div className="flex flex-col w-2/3">

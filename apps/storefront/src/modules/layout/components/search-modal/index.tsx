@@ -7,6 +7,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useCopy } from "@lib/use-copy"
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
@@ -17,6 +18,7 @@ type SearchModalProps = {
 }
 
 export default function SearchModal({ regionMap }: SearchModalProps) {
+  const t = useCopy()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<HttpTypes.StoreProduct[]>([])
@@ -124,11 +126,11 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
         // -m-2 p-2 keeps the visual size while giving the icon a ~40px
         // touch area; a bare 16px icon is far below the usable minimum.
         className="flex items-center gap-x-1.5 hover:text-ui-fg-base transition-colors -m-2 p-2"
-        aria-label="Search products"
+        aria-label={t.searchAria}
         data-testid="nav-search-button"
       >
         <MagnifyingGlass className="w-4 h-4" />
-        <span className="hidden small:inline">Search</span>
+        <span className="hidden small:inline">{t.search}</span>
       </button>
 
       {open && (
@@ -149,7 +151,7 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search for products…"
+                  placeholder={t.searchPlaceholder}
                   className="flex-1 text-base outline-none placeholder:text-neutral-400 bg-transparent"
                   data-testid="search-input"
                 />
@@ -157,7 +159,7 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                   type="button"
                   onClick={close}
                   className="text-neutral-400 hover:text-neutral-900 transition-colors"
-                  aria-label="Close search"
+                  aria-label={t.searchClose}
                 >
                   <XMark className="w-5 h-5" />
                 </button>
@@ -172,7 +174,7 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
 
                 {!loading && searched && results.length === 0 && (
                   <p className="px-5 py-8 text-sm text-neutral-400 text-center">
-                    Nothing found for “{query}”
+                    {t.searchEmpty(query)}
                   </p>
                 )}
 
@@ -228,7 +230,7 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                   onClick={submit}
                   className="w-full border-t border-neutral-100 px-5 py-3 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors text-center"
                 >
-                  View all results for “{query}”
+                  {t.searchViewAll(query)}
                 </button>
               )}
             </div>

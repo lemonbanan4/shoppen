@@ -1,7 +1,12 @@
-// Swedish shoppers get their own threshold in SEK; everyone else keeps EUR,
-// matching the announcement bar in the nav.
+import { isSolkast } from "@lib/brand"
+
+// Two independent axes, and conflating them is what produced the mixed-up
+// chrome elsewhere. Language follows the brand+route (Solkast is English even
+// on /se); the shipping threshold follows the region alone, because 800 kr is
+// what the Swedish cart actually charges regardless of what language the
+// visitor reads.
 const uspsFor = (countryCode?: string) =>
-  countryCode === "se"
+  !isSolkast && countryCode === "se"
     ? [
         {
           title: "Ångerrätt, såklart",
@@ -22,7 +27,11 @@ const uspsFor = (countryCode?: string) =>
           title: "30-day returns",
           detail: "We are named after the feeling.",
         },
-        { title: "Free EU shipping", detail: "On orders over €75" },
+        // The SEK threshold is the one the Swedish cart actually applies, so
+        // an English-speaking visitor on /se must be quoted that, not €75.
+        countryCode === "se"
+          ? { title: "Free shipping", detail: "On orders over 800 kr" }
+          : { title: "Free EU shipping", detail: "On orders over €75" },
         { title: "Organic cotton", detail: "Stanley/Stella, GOTS certified." },
         { title: "Printed to order", detail: "No warehouse, no overproduction." },
       ]

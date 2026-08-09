@@ -3,10 +3,14 @@ import { Metadata } from "next"
 import { parseOptionValueIds } from "@lib/util/product-option-filters"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import StoreTemplate from "@modules/store/templates"
+import { copyFor } from "@lib/copy"
 
-export const metadata: Metadata = {
-  title: "Store",
-  description: "Explore all of our products.",
+// A static export cannot see the country code, so the tab title stayed English
+// on the Swedish route. generateMetadata gets the same params the page does.
+export async function generateMetadata(props: Params): Promise<Metadata> {
+  const { countryCode } = await props.params
+  const t = copyFor(countryCode)
+  return { title: t.storeTitle, description: t.storeDescription }
 }
 
 type StorePageSearchParams = Record<string, string | string[] | undefined> & {

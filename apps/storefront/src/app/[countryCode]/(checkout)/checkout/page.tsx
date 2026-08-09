@@ -6,9 +6,12 @@ import CheckoutSummary from "@modules/checkout/templates/checkout-summary"
 import CheckoutTracker from "@modules/checkout/components/checkout-tracker"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { copyFor } from "@lib/copy"
 
-export const metadata: Metadata = {
-  title: "Checkout",
+export async function generateMetadata(props: {
+  params: Promise<{ countryCode: string }>
+}): Promise<Metadata> {
+  return { title: copyFor((await props.params).countryCode).checkoutTitle }
 }
 
 export default async function Checkout() {

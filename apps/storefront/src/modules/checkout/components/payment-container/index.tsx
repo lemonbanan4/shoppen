@@ -10,6 +10,7 @@ import { CardElement } from "@stripe/react-stripe-js"
 import { StripeCardElementOptions } from "@stripe/stripe-js"
 import PaymentTest from "../payment-test"
 import { StripeContext } from "../payment-wrapper/stripe-wrapper"
+import { useCopy } from "@lib/use-copy"
 
 type PaymentContainerProps = {
   paymentProviderId: string
@@ -26,6 +27,7 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
   disabled = false,
   children,
 }) => {
+  const t = useCopy()
   const isDevelopment = process.env.NODE_ENV === "development"
 
   return (
@@ -45,7 +47,10 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
         <div className="flex items-center gap-x-4">
           <Radio checked={selectedPaymentOptionId === paymentProviderId} />
           <Text className="text-base-regular">
-            {paymentInfoMap[paymentProviderId]?.title || paymentProviderId}
+            {t.paymentTitle(
+              paymentProviderId,
+              paymentInfoMap[paymentProviderId]?.title || paymentProviderId
+            )}
           </Text>
           {isManual(paymentProviderId) && isDevelopment && (
             <PaymentTest className="hidden small:block" />
@@ -78,6 +83,7 @@ export const StripeCardContainer = ({
   setError: (error: string | null) => void
   setCardComplete: (complete: boolean) => void
 }) => {
+  const t = useCopy()
   const stripeReady = useContext(StripeContext)
 
   const useOptions: StripeCardElementOptions = useMemo(() => {
@@ -108,7 +114,7 @@ export const StripeCardContainer = ({
         (stripeReady ? (
           <div className="my-4 transition-all duration-150 ease-in-out">
             <Text className="txt-medium-plus text-ui-fg-base mb-1">
-              Enter your card details:
+              {t.cardDetails}
             </Text>
             <CardElement
               options={useOptions as StripeCardElementOptions}

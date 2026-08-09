@@ -7,6 +7,7 @@ import Refresh from "@modules/common/icons/refresh"
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
 import { splitDescription } from "@lib/util/product-description"
+import { useCopy } from "@lib/use-copy"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -32,23 +33,24 @@ const parseSizeGuide = (
 }
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
+  const t = useCopy()
   const sizeGuide = parseSizeGuide(product)
 
   const tabs = [
     {
-      label: "Details & fabric",
+      label: t.tabDetails,
       component: <ProductInfoTab product={product} />,
     },
     ...(sizeGuide
       ? [
           {
-            label: "Size Guide",
+            label: t.tabSizeGuide,
             component: <SizeGuideTab guide={sizeGuide} />,
           },
         ]
       : []),
     {
-      label: "Shipping & Returns",
+      label: t.tabShipping,
       component: <ShippingInfoTab />,
     },
   ]
@@ -72,6 +74,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 }
 
 const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
+  const t = useCopy()
   const sizes = guide.sizes.length
     ? guide.sizes
     : Array.from(new Set(guide.rows.flatMap((r) => Object.keys(r.values))))
@@ -82,7 +85,7 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
         <table className="w-full text-sm text-left">
           <thead>
             <tr className="border-b border-neutral-200 text-neutral-500">
-              <th className="py-2 pr-4 font-medium">Measurement ({guide.unit})</th>
+              <th className="py-2 pr-4 font-medium">{t.measurement(guide.unit)}</th>
               {sizes.map((s) => (
                 <th key={s} className="py-2 px-3 font-medium text-center">
                   {s}
@@ -105,14 +108,14 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
         </table>
       </div>
       <p className="mt-4 text-xs text-neutral-500">
-        Garment measurements, taken flat. Between sizes? Size up for the
-        intended oversized fit.
+        {t.sizeGuideNote}
       </p>
     </div>
   )
 }
 
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
+  const t = useCopy()
   // The spec bullets from the supplier's catalog copy. These carry the real
   // detail — fabric, weight, fit, certifications — where Medusa's own
   // material/weight/dimension fields are unset for print-on-demand products
@@ -120,12 +123,12 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
   const { bullets } = splitDescription(product.description)
 
   const attributes = [
-    ["Material", product.material],
-    ["Weight", product.weight ? `${product.weight} g` : null],
-    ["Country of origin", product.origin_country],
-    ["Type", product.type?.value],
+    [t.attrMaterial, product.material],
+    [t.attrWeight, product.weight ? `${product.weight} g` : null],
+    [t.attrOrigin, product.origin_country],
+    [t.attrType, product.type?.value],
     [
-      "Dimensions",
+      t.attrDimensions,
       product.length && product.width && product.height
         ? `${product.length}L x ${product.width}W x ${product.height}H`
         : null,
@@ -136,7 +139,7 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
     return (
       <div className="text-small-regular py-8">
         <p className="text-ui-fg-subtle">
-          Full details for this piece are on their way.
+          {t.detailsPending}
         </p>
       </div>
     )
@@ -169,37 +172,34 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
 }
 
 const ShippingInfoTab = () => {
+  const t = useCopy()
   return (
     <div className="text-small-regular py-8">
       <div className="grid grid-cols-1 gap-y-8">
         <div className="flex items-start gap-x-2">
           <FastDelivery />
           <div>
-            <span className="font-semibold">Fast delivery</span>
+            <span className="font-semibold">{t.shipFastTitle}</span>
             <p className="max-w-sm">
-              Your package will arrive in 3-5 business days at your pick up
-              location or in the comfort of your home.
+              {t.shipFastBody}
             </p>
           </div>
         </div>
         <div className="flex items-start gap-x-2">
           <Refresh />
           <div>
-            <span className="font-semibold">Simple exchanges</span>
+            <span className="font-semibold">{t.shipExchangeTitle}</span>
             <p className="max-w-sm">
-              Is the fit not quite right? No worries - we&apos;ll exchange your
-              product for a new one.
+              {t.shipExchangeBody}
             </p>
           </div>
         </div>
         <div className="flex items-start gap-x-2">
           <Back />
           <div>
-            <span className="font-semibold">Easy returns</span>
+            <span className="font-semibold">{t.shipReturnTitle}</span>
             <p className="max-w-sm">
-              Just return your product and we&apos;ll refund your money. No
-              questions asked – we&apos;ll do our best to make sure your return
-              is hassle-free.
+              {t.shipReturnBody}
             </p>
           </div>
         </div>

@@ -5,8 +5,10 @@ import { Heading, Text, clx } from "@modules/common/components/ui"
 import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
+import { useCopy } from "@lib/use-copy"
 
 const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
+  const t = useCopy()
   const searchParams = useSearchParams()
 
   const isOpen = searchParams.get("step") === "review"
@@ -32,7 +34,7 @@ const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
             }
           )}
         >
-          Review
+          {t.review}
         </Heading>
       </div>
       {isOpen && previousStepsCompleted && (
