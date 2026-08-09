@@ -38,8 +38,30 @@ import { displayTitle, toHandle } from "../lib/product-naming";
  */
 
 // Curated by hand, not filtered by rule: the distinction between "quiet" and
-// "joke" is editorial and there is no field in Printful that encodes it.
+// "joke" is editorial and there is no field in Printful that encodes it. The
+// archive holds 33 products; these are the twelve that fit the brand, plus
+// the fourteen new graphic tees.
 const CURATED: Record<string, string> = {
+  // Graphic tees — Stanley/Stella Blaster 2.0, 499 kr, created from the
+  // hosted print files by scripts/create-solkast-products.py.
+  "454889326": "Chase the Light Tee",
+  "454889327": "Shine Anyway Tee",
+  "454889337": "The Light Reveals Tee",
+  "454889339": "Made by the Sun Tee",
+  "454889346": "Outshine Tee",
+  "454889365": "No Permission Tee",
+  "454889370": "Solar Tee",
+  "454889372": "Elevate Tee",
+  "454889375": "Ascend Tee",
+  "454889376": "Leave Your Mark Tee",
+  "454889399": "Taiyo Tee",
+  "454889407": "Rise Above Tee",
+  "454889415": "Discipline Builds Freedom Tee",
+  "454889419": "Sol Drives Tee",
+
+  // Archive pieces kept from the original Solkast catalogue. The Touching
+  // Grass tote used to be here and was deleted upstream in Printful, so it
+  // 404s rather than syncing — removed rather than left to warn on every run.
   "452551732": "Defragmenting Hoodie",
   "452525158": "Asphalt Up Hoodie",
   "452525155": "Asphalt Up Sweatshirt",
@@ -48,7 +70,6 @@ const CURATED: Record<string, string> = {
   "451936716": "Defragment Tee",
   "452538608": "Touching Grass Tee",
   "452542677": "Touching Grass Hoodie",
-  "452543180": "Touching Grass Tote",
   "451913956": "Solkast Beanie",
   "451903997": "Solkast Cap",
   "451903742": "Explorers Club Tee",
@@ -136,7 +157,9 @@ export default async function syncSolkastProducts({
     logger.error("No Solkast products could be fetched. Nothing to do.");
     return;
   }
-  logger.info(`Fetched ${details.length}/12 curated Solkast products.`);
+  logger.info(
+    `Fetched ${details.length}/${Object.keys(CURATED).length} curated Solkast products.`
+  );
 
   const psychologicalRounding =
     process.env.PRINTFUL_PSYCHOLOGICAL_ROUNDING !== "false";
