@@ -34,7 +34,9 @@ from reel_common import (
     wrap,
 )
 
-HANDLE = "@angerkop"
+# The shop is live now; the end card is the only place a viewer is told
+# where to go, so it carries the domain rather than the handle.
+HANDLE = "angerkop.se"
 
 # Written to be recognised, not admired: each names a specific moment rather
 # than a mood. "När du" openers put the viewer in it immediately.
