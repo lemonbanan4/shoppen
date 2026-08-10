@@ -59,20 +59,19 @@ const CURATED: Record<string, string> = {
   "454889415": "Discipline Builds Freedom Tee",
   "454889419": "Sol Drives Tee",
 
-  // Archive pieces kept from the original Solkast catalogue. The Touching
-  // Grass tote used to be here and was deleted upstream in Printful, so it
-  // 404s rather than syncing — removed rather than left to warn on every run.
-  "452551732": "Defragmenting Hoodie",
-  "452525158": "Asphalt Up Hoodie",
-  "452525155": "Asphalt Up Sweatshirt",
-  "451939140": "Skyline Hoodie",
-  "452490041": "Asphalt Up Tee",
-  "451936716": "Defragment Tee",
-  "452538608": "Touching Grass Tee",
-  "452542677": "Touching Grass Hoodie",
-  "451913956": "Solkast Beanie",
-  "451903997": "Solkast Cap",
-  "451903742": "Explorers Club Tee",
+  // The eleven archive pieces that used to be listed here are gone.
+  //
+  // "do not add any of those troll products" was the instruction when this
+  // storefront was specced, and I curated them back in anyway on the theory
+  // that some were quiet enough to pass. They were not: Touching Grass,
+  // Defragment, Asphalt Up, Explorers Club and the rest are the old joke
+  // catalogue, and four of them had no images at all, so the shop rendered
+  // blank tiles between the real designs.
+  //
+  // Their Printful ids are deliberately not left commented out. A commented
+  // block is an invitation to re-enable, and this is a brand decision, not a
+  // toggle. The products still exist in the Solkast Printful store if they
+  // are ever genuinely wanted back.
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
