@@ -1,5 +1,6 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
+import { isSolkast } from "@lib/brand"
 
 // A split panel, not a full-bleed photo. All our imagery is studio mockups on
 // white, so stretching one behind text gives washed-out grey margins and puts
@@ -11,6 +12,15 @@ export default function EditorialBanner({
   countryCode?: string
 }) {
   const isSv = countryCode === "se"
+
+  // This panel is a spotlight on one specific garment — the ORKAR INTE hoodie.
+  // Solkast's catalogue is fourteen tees and no hoodie, so on that storefront
+  // the banner showed another brand's product and linked to a handle that 404s
+  // on its own channel. Nothing here generalises, so it simply does not run:
+  // an honest gap beats a fabricated spotlight.
+  if (isSolkast) {
+    return null
+  }
 
   return (
     <section className="content-container py-12 small:py-16">

@@ -1,6 +1,7 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 import { isSolkast } from "@lib/brand"
+import { featuredTiles, type FeaturedTile } from "@modules/home/featured"
 
 // Our own generated mockups, not stock photography of someone else's clothes.
 const MOCKUPS =
@@ -38,7 +39,14 @@ const STRIP = [
   },
 ]
 
-const Hero = () => {
+const Hero = async ({ countryCode }: { countryCode: string }) => {
+  // Ångerköp's strip is hand-picked, one line of copy per design. Solkast has
+  // no per-piece writing, so its tiles come from the catalogue — hardcoding
+  // them is exactly how this hero ended up showing another brand's shirts.
+  const strip: FeaturedTile[] = isSolkast
+    ? await featuredTiles(countryCode, 4)
+    : STRIP
+
   return (
     <section className="bg-neutral-950 text-white">
       <div className="content-container pt-16 pb-12 small:pt-24 small:pb-16">
@@ -83,7 +91,7 @@ const Hero = () => {
               href="/collections/new-arrivals"
               className="border border-white/30 text-white text-sm font-medium px-7 py-3.5 rounded-full hover:bg-white/10 transition-colors"
             >
-              Nyheter
+              {isSolkast ? "New arrivals" : "Nyheter"}
             </LocalizedClientLink>
           </div>
         </div>
@@ -93,7 +101,7 @@ const Hero = () => {
           real product page. */}
       <div className="content-container pb-16 small:pb-20">
         <div className="grid grid-cols-2 small:grid-cols-4 gap-3 small:gap-4">
-          {STRIP.map((item, i) => (
+          {strip.map((item, i) => (
             <LocalizedClientLink
               key={item.href}
               href={item.href}

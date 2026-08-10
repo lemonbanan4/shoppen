@@ -226,14 +226,38 @@ export default async function syncSolkastProducts({
     if (colors.length > 1) options.push({ title: "Color", values: colors as string[] });
     if (!options.length) options.push({ title: "Style", values: ["Standard"] });
 
+    // One image per variant, preferring the "preview" file and falling back to
+    // "mockup".
+    //
+    // Filtering on "preview" alone is why every one of these products shipped
+    // with no picture at all: Printful returns the generated mockup under
+    // whichever of the two names suits how the product was made, and products
+    // created through the API — which all fourteen of these were — come back
+    // carrying "front" and "mockup", never "preview". The filter matched
+    // nothing, images was an empty array, and the storefront rendered blank
+    // tiles. The Ångerköp sync already falls back this way; this one never got
+    // the fix.
+    //
+    // Taken per variant rather than flattened across all of them so the
+    // colourways stay in variant order instead of arriving in whatever order
+    // the files happen to be listed.
     const images = [
       ...new Set(
         variants
-          .flatMap((v) => v.files || [])
-          .filter((f) => f.type === "preview" && f.preview_url)
-          .map((f) => f.preview_url as string)
+          .map(
+            (v) =>
+              v.files?.find((f) => f.type === "preview")?.preview_url ||
+              v.files?.find((f) => f.type === "mockup")?.preview_url
+          )
+          .filter(Boolean) as string[]
       ),
     ].slice(0, MAX_IMAGES);
+
+    if (!images.length) {
+      logger.warn(
+        `  ! ${name} has no usable mockup — it will render as a blank tile.`
+      );
+    }
 
     const productInput = {
       title: name,

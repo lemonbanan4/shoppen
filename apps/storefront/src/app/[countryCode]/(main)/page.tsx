@@ -73,10 +73,10 @@ export default async function Home(props: {
   return (
     <>
       <SiteJsonLd countryCode={countryCode} />
-      <Hero />
+      <Hero countryCode={countryCode} />
       <Marquee />
       <UspBar countryCode={countryCode} />
-      <DesignsGrid />
+      <DesignsGrid countryCode={countryCode} />
       <EditorialBanner countryCode={countryCode} />
       {rails[0] && (
         <ProductRail
