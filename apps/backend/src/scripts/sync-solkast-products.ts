@@ -42,36 +42,24 @@ import { displayTitle, toHandle } from "../lib/product-naming";
 // archive holds 33 products; these are the twelve that fit the brand, plus
 // the fourteen new graphic tees.
 const CURATED: Record<string, string> = {
-  // Graphic tees — Stanley/Stella Blaster 2.0, 499 kr, created from the
-  // hosted print files by scripts/create-solkast-products.py.
-  "454889326": "Chase the Light Tee",
-  "454889327": "Shine Anyway Tee",
-  "454889337": "The Light Reveals Tee",
-  "454889339": "Made by the Sun Tee",
-  "454889346": "Outshine Tee",
-  "454889365": "No Permission Tee",
-  "454889370": "Solar Tee",
-  "454889372": "Elevate Tee",
-  "454889375": "Ascend Tee",
-  "454889376": "Leave Your Mark Tee",
-  "454889399": "Taiyo Tee",
-  "454889407": "Rise Above Tee",
-  "454889415": "Discipline Builds Freedom Tee",
-  "454889419": "Sol Drives Tee",
-
-  // The eleven archive pieces that used to be listed here are gone.
+  // The launch ten. Colourways come from the rendered mockups rather than the
+  // ink measurements — the metric is a decent screen for "will this vanish
+  // entirely" and a poor verdict on anything else, having under-called three
+  // designs in this set that the composites got right.
   //
-  // "do not add any of those troll products" was the instruction when this
-  // storefront was specced, and I curated them back in anyway on the theory
-  // that some were quiet enough to pass. They were not: Touching Grass,
-  // Defragment, Asphalt Up, Explorers Club and the rest are the old joke
-  // catalogue, and four of them had no images at all, so the shop rendered
-  // blank tiles between the real designs.
-  //
-  // Their Printful ids are deliberately not left commented out. A commented
-  // block is an invitation to re-enable, and this is a brand decision, not a
-  // toggle. The products still exist in the Solkast Printful store if they
-  // are ever genuinely wanted back.
+  // The previous fourteen are deliberately gone. They were the first pass and
+  // several were quiet enough to lose at thumbnail size, which is the size
+  // that matters when the traffic arrives from a video.
+  "455299292": "From Shadow Tee",
+  "455299311": "Solar Crown Tee",
+  "455299319": "Rose Sun Tee",
+  "455299326": "Total Eclipse Tee",
+  "455299329": "Built in Sunlight Tee",
+  "455299333": "Driven by Light Tee",
+  "455299343": "City Angel Tee",
+  "455299390": "Late Bloom Tee",
+  "455299399": "Nebula Tee",
+  "455299401": "Solkast Mark Tee",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
