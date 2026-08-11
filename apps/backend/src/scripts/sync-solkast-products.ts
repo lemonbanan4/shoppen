@@ -78,6 +78,14 @@ const CURATED: Record<string, string> = {
   "455305688": "Total Eclipse Print",
   "455305730": "Nebula Print",
   "455305734": "Built in Sunlight Print",
+
+  // Front logo, back graphic — the streetwear format, and the reason the v3
+  // logo marks were worth generating. A second placement costs roughly 5-9
+  // USD per unit, hence the 599 tier and hence only three of them: if every
+  // piece is front-and-back, none of them is.
+  "455308822": "From Shadow Tee — Back Print",
+  "455308859": "Solar Crown Tee — Back Print",
+  "455308887": "Total Eclipse Tee — Back Print",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
