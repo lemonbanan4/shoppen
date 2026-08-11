@@ -9,6 +9,7 @@ import {
   createSalesChannelsWorkflow,
   deleteProductsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
+  linkSalesChannelsToStockLocationWorkflow,
 } from "@medusajs/medusa/core-flows";
 import {
   PrintfulClient,
@@ -130,6 +131,37 @@ export default async function syncSolkastProducts({
     logger.info(`Created publishable key for ${SALES_CHANNEL_NAME}.`);
   }
   logger.info(`Solkast publishable key: ${apiKey!.token}`);
+
+  // ——— Stock location ———
+  // Medusa resolves shipping options through cart -> sales channel -> stock
+  // location -> fulfilment set -> service zone. A channel with no location
+  // breaks that chain silently: products list, prices calculate, the cart
+  // accepts an address, and then checkout offers no shipping method at all.
+  //
+  // This channel shipped without the link and nothing caught it, because the
+  // Ångerköp funnel was the one being tested end to end and it runs on the
+  // default channel, which the seed had already linked. Solkast could never
+  // have taken an order.
+  const { data: locations } = await query.graph({
+    entity: "stock_location",
+    fields: ["id", "name", "sales_channels.id"],
+  });
+  const location = locations[0];
+  if (!location) {
+    logger.error("No stock location exists — cannot sell from this channel.");
+  } else {
+    const linked = (location.sales_channels || []).some(
+      (c) => (c as { id?: string } | null)?.id === channel!.id
+    );
+    if (linked) {
+      logger.info(`Sales channel already served by "${location.name}".`);
+    } else {
+      await linkSalesChannelsToStockLocationWorkflow(container).run({
+        input: { id: location.id, add: [channel!.id] },
+      });
+      logger.info(`Linked "${SALES_CHANNEL_NAME}" to stock location "${location.name}".`);
+    }
+  }
 
   // ——— Fetch the curated products ———
   const details: PrintfulSyncProductDetail[] = [];
