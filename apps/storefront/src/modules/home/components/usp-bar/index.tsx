@@ -1,4 +1,5 @@
 import { isSolkast } from "@lib/brand"
+import { SHIPPING_PROMISE, shippingRegionFor } from "@lib/copy"
 
 // Two independent axes, and conflating them is what produced the mixed-up
 // chrome elsewhere. Language follows the brand+route (Solkast is English even
@@ -27,11 +28,14 @@ const uspsFor = (countryCode?: string) =>
           title: "30-day returns",
           detail: "We are named after the feeling.",
         },
-        // The SEK threshold is the one the Swedish cart actually applies, so
-        // an English-speaking visitor on /se must be quoted that, not €75.
-        countryCode === "se"
-          ? { title: "Free shipping", detail: "On orders over 800 kr" }
-          : { title: "Free EU shipping", detail: "On orders over €75" },
+        // Shared with the announcement bar rather than written out again: the
+        // two ladders had already diverged, which is how a dollar storefront
+        // ended up quoting €75 and 41 Rest-of-World countries were promised a
+        // threshold their cart has no option to reach.
+        {
+          title: SHIPPING_PROMISE[shippingRegionFor(countryCode)].uspTitle,
+          detail: SHIPPING_PROMISE[shippingRegionFor(countryCode)].uspDetail,
+        },
         { title: "Organic cotton", detail: "Stanley/Stella, GOTS certified." },
         { title: "Printed to order", detail: "No warehouse, no overproduction." },
       ]

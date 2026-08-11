@@ -1,24 +1,31 @@
 import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
 import { BRAND } from "@lib/brand"
+import { SHIPPING_RATES, shippingRegionFor } from "@lib/copy"
 
 export const metadata: Metadata = {
   title: "Shipping & returns",
   description: "Shipping times, costs and our 30-day return policy.",
 }
 
-export default function ShippingReturnsPage() {
+export default async function ShippingReturnsPage(props: {
+  params: Promise<{ countryCode: string }>
+}) {
+  // The page previously stated the EU rate card as universal fact, so a US or
+  // Rest-of-World visitor was quoted euro prices and a free-shipping threshold
+  // their region does not have. Rates now follow the route, matching the
+  // shipping options their cart will actually offer.
+  const { countryCode } = await props.params
+  const rates = SHIPPING_RATES[shippingRegionFor(countryCode)]
+
   return (
-    <ContentPage
-      eyebrow="Help"
-      title="Shipping & returns"
-      intro="The short version: fast shipping, free over €75, and 30 days to change your mind."
-    >
+    <ContentPage eyebrow="Help" title="Shipping & returns" intro={rates.intro}>
       <section>
         <h2>Shipping</h2>
         <ul>
-          <li>Standard shipping — €10, free on orders over €75. 2–5 business days within the EU.</li>
-          <li>Express shipping — €19. 1–2 business days.</li>
+          {rates.lines.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
           <li>Made-to-order items add 2–4 days of production before dispatch.</li>
           <li>You'll get tracking by email the moment your parcel ships.</li>
         </ul>

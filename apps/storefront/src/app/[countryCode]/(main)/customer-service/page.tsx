@@ -2,13 +2,19 @@ import { Metadata } from "next"
 import ContentPage from "@modules/common/components/content-page"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { BRAND } from "@lib/brand"
+import { SHIPPING_RATES, shippingRegionFor } from "@lib/copy"
 
 export const metadata: Metadata = {
   title: "Customer service",
   description: "Answers to common questions about orders, shipping and returns.",
 }
 
-export default function CustomerServicePage() {
+export default async function CustomerServicePage(props: {
+  params: Promise<{ countryCode: string }>
+}) {
+  const { countryCode } = await props.params
+  const rates = SHIPPING_RATES[shippingRegionFor(countryCode)]
+
   return (
     <ContentPage
       eyebrow="Help"
@@ -29,11 +35,15 @@ export default function CustomerServicePage() {
       </section>
       <section>
         <h2>How long does shipping take?</h2>
-        <p>
-          Standard shipping takes 2–5 business days within the EU and is free on
-          orders over €75 (€10 otherwise). Express shipping (€19) arrives in 1–2
-          business days. Made-to-order items can add 2–4 days of production time.
-        </p>
+        {/* Quoted from the same table as the shipping page, so the two cannot
+            state different prices — and so no region is told about a
+            free-shipping threshold its cart does not offer. */}
+        <ul>
+          {rates.lines.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+          <li>Made-to-order items can add 2–4 days of production time.</li>
+        </ul>
       </section>
       <section>
         <h2>What is your return policy?</h2>

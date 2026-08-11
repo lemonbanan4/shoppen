@@ -520,21 +520,149 @@ const EN: UiCopy = {
 }
 
 /**
+ * Countries in the backend's Europe region, which prices in EUR and is the
+ * only region whose free-shipping threshold is €75.
+ *
+ * Duplicated from the backend rather than fetched because copyFor is sync and
+ * runs in the announcement bar on every render. The cost of that duplication
+ * is drift, so the fallback below is the conservative one: a country this list
+ * has not heard of gets no threshold claim at all.
+ */
+const EUR_COUNTRIES = new Set([
+  "at", "be", "bg", "ch", "cy", "cz", "de", "dk", "ee", "es", "fi", "fr",
+  "gb", "gr", "hr", "hu", "ie", "is", "it", "li", "lt", "lu", "lv", "mt",
+  "nl", "no", "pl", "pt", "ro", "si", "sk",
+])
+
+/**
  * For server components, which receive countryCode from route params.
  *
- * The two shipping strings are picked by region, not by language. Sweden has
- * its own threshold in SEK, so a Swede shopping Solkast in English must still
- * be told "over 800 kr" — quoting €75 to them would be a promise the cart
- * does not keep. Everything else follows the language.
+ * The two shipping strings are picked by region, not by language, because
+ * they quote a number the cart has to honour. Each region carries its own
+ * threshold, set as a conditional 0-amount price on its standard shipping
+ * option:
+ *
+ *   Sweden          free over 800 kr
+ *   Europe (EUR)    free over €75
+ *   United States   free over $85
+ *   Rest of World   no free shipping at all
+ *
+ * That last row is why this is not simply a currency-symbol swap. Rest of
+ * World covers 41 countries and its only options are International
+ * Standard/Express at a flat 15/29 USD — there is no conditional price to
+ * reach. Every one of those visitors was being shown "free shipping on orders
+ * over €75": the wrong currency, the wrong number, and a threshold that does
+ * not exist. They get a claim the cart can keep instead.
+ *
+ * A Swede shopping Solkast in English still reads "800 kr", because the
+ * threshold follows their cart, not the language it is described in.
  */
-export function copyFor(countryCode?: string): UiCopy {
-  const se = countryCode?.toLowerCase() === "se"
-  const base = !isSolkast && se ? SV : EN
-  if (base === SV || !se) return base
+export type ShippingRegion = "se" | "eu" | "us" | "world"
 
+/** Which backend region's shipping terms apply to this route. */
+export function shippingRegionFor(countryCode?: string): ShippingRegion {
+  const cc = countryCode?.toLowerCase()
+  if (cc === "se") return "se"
+  if (cc === "us") return "us"
+  if (cc && EUR_COUNTRIES.has(cc)) return "eu"
+  return "world"
+}
+
+/**
+ * The one shipping claim, in every place that makes it.
+ *
+ * Exported so the USP bar and the announcement bar cannot drift apart — they
+ * already had two separate hand-written ladders, which is how "€75" survived
+ * on a dollar storefront.
+ */
+export const SHIPPING_PROMISE: Record<
+  ShippingRegion,
+  { announcement: string; note: string; uspTitle: string; uspDetail: string }
+> = {
+  se: {
+    announcement: "Free shipping over 800 kr — easy 30-day returns",
+    note: "Free shipping over 800 kr · 30-day returns",
+    uspTitle: "Free shipping",
+    uspDetail: "On orders over 800 kr",
+  },
+  eu: {
+    announcement: "Free shipping on orders over €75 — easy 30-day returns",
+    note: "Free EU shipping over €75 · 30-day returns",
+    uspTitle: "Free EU shipping",
+    uspDetail: "On orders over €75",
+  },
+  us: {
+    announcement: "Free shipping on orders over $85 — easy 30-day returns",
+    note: "Free US shipping over $85 · 30-day returns",
+    uspTitle: "Free US shipping",
+    uspDetail: "On orders over $85",
+  },
+  world: {
+    announcement: "Worldwide shipping — easy 30-day returns",
+    note: "Worldwide shipping · 30-day returns",
+    uspTitle: "Worldwide shipping",
+    uspDetail: "Flat rate, tracked, 30-day returns.",
+  },
+}
+
+/**
+ * The rates the help pages quote, per region.
+ *
+ * These have to match the shipping options in the backend exactly, because a
+ * customer who reads "€10" and is charged $15 at checkout has been misled even
+ * if the difference is small. Kept beside SHIPPING_PROMISE so the two cannot
+ * be updated independently.
+ */
+export const SHIPPING_RATES: Record<
+  ShippingRegion,
+  { intro: string; lines: string[] }
+> = {
+  se: {
+    intro:
+      "The short version: fast shipping, free over 800 kr, and 30 days to change your mind.",
+    lines: [
+      "Standard shipping — 69 kr, free on orders over 800 kr. 2–5 business days.",
+      "Express shipping — 129 kr. 1–2 business days.",
+    ],
+  },
+  eu: {
+    intro:
+      "The short version: fast shipping, free over €75, and 30 days to change your mind.",
+    lines: [
+      "Standard shipping — €10, free on orders over €75. 2–5 business days within the EU.",
+      "Express shipping — €19. 1–2 business days.",
+    ],
+  },
+  us: {
+    intro:
+      "The short version: fast shipping, free over $85, and 30 days to change your mind.",
+    lines: [
+      "Standard shipping — $12, free on orders over $85. 3–7 business days.",
+      "Express shipping — $22. 2–3 business days.",
+    ],
+  },
+  world: {
+    intro:
+      "The short version: tracked worldwide shipping, and 30 days to change your mind.",
+    lines: [
+      "International standard — $15. 7–14 business days, tracked.",
+      "International express — $29. 3–6 business days, tracked.",
+      "Parcels ship from the EU and may attract local duties on arrival.",
+    ],
+  },
+}
+
+export function copyFor(countryCode?: string): UiCopy {
+  const cc = countryCode?.toLowerCase()
+  const base = !isSolkast && cc === "se" ? SV : EN
+
+  // Swedish copy already quotes 800 kr throughout.
+  if (base === SV) return base
+
+  const promise = SHIPPING_PROMISE[shippingRegionFor(cc)]
   return {
     ...EN,
-    announcement: "Free shipping over 800 kr — easy 30-day returns",
-    shippingNote: "Free shipping over 800 kr · 30-day returns",
+    announcement: promise.announcement,
+    shippingNote: promise.note,
   }
 }
