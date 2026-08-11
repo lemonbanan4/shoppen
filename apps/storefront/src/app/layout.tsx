@@ -5,14 +5,47 @@ import PostHogProvider from "@modules/common/components/analytics/posthog-provid
 import "styles/globals.css"
 import { BRAND, isSolkast } from "@lib/brand"
 
+const title = `${BRAND.name} — ${BRAND.tagline}`
+
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: {
-    default: `${BRAND.name} — ${BRAND.tagline}`,
+    default: title,
     template: `%s | ${BRAND.name}`,
   },
   description: BRAND.description,
-  manifest: "/manifest.json",
+  // Both the icon and the share card used to be static files under src/app,
+  // which the two deployments necessarily shared: Solkast served Ångerköp's Å
+  // as its favicon, and both shops served the untouched Medusa starter card —
+  // a stock desk lamp captioned "Next.js Starter Template" — as their Open
+  // Graph image. That card is the most-seen asset either brand has, since it
+  // is what renders in every WhatsApp, iMessage, Slack and Discord share and
+  // behind every bio link.
+  icons: {
+    icon: `/brand/icon-${BRAND.id}.svg`,
+    apple: `/brand/icon-${BRAND.id}.svg`,
+  },
+  openGraph: {
+    type: "website",
+    siteName: BRAND.name,
+    title,
+    description: BRAND.description,
+    url: `https://${BRAND.domain}`,
+    images: [
+      {
+        url: `/brand/og-${BRAND.id}.jpg`,
+        width: 1200,
+        height: 630,
+        alt: `${BRAND.name} — ${BRAND.tagline}`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description: BRAND.description,
+    images: [`/brand/og-${BRAND.id}.jpg`],
+  },
 }
 
 export const viewport: Viewport = {

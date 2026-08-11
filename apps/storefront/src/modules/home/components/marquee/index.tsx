@@ -1,7 +1,13 @@
+import { isSolkast } from "@lib/brand"
+
 // The capsule's lines, running as a ticker. It does the job a hero tagline
 // can't: shows the whole joke at a glance, so a first-time visitor learns the
 // brand's register in one pass rather than one product at a time.
-const PHRASES = [
+//
+// Which means it has to be the *right* capsule. Solkast was running Ångerköp's
+// Swedish punchlines — an English shop scrolling "UTBRÄND MEN MYSIG" past a
+// visitor in Toronto, in a voice that belongs to a different company.
+const ANGERKOP_PHRASES = [
   "ORKAR INTE",
   "VARNING: IMPULSKÖP",
   "LAGOM DELULU",
@@ -9,6 +15,20 @@ const PHRASES = [
   "UTBRÄND MEN MYSIG",
   "CAN'T EVEN",
 ]
+
+// Solkast's own designs, in its own register. Same trick, different joke:
+// these are the actual pieces in the shop, so the ticker doubles as a
+// contents page.
+const SOLKAST_PHRASES = [
+  "CHASE THE LIGHT",
+  "BUILT IN SUNLIGHT",
+  "FROM SHADOW",
+  "DRIVEN BY LIGHT",
+  "TOTAL ECLIPSE",
+  "LATE BLOOM",
+]
+
+const PHRASES = isSolkast ? SOLKAST_PHRASES : ANGERKOP_PHRASES
 
 export default function Marquee() {
   // Rendered twice back to back: the track is translated by exactly -50%, so

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+  <g transform="translate(32,32) scale(0.235) translate(-100,-100)">
+    <circle cx="100" cy="100" r="42" fill="#E8B93F"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(0 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(45 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(90 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(135 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(180 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(225 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(270 100 100)"/>
+    <path d="M 100 36 L 100 12" stroke="#E8B93F" stroke-width="20" stroke-linecap="round" fill="none" transform="rotate(315 100 100)"/>
+  </g>
+</svg>
