@@ -61,6 +61,23 @@ const CURATED: Record<string, string> = {
   "455299390": "Late Bloom Tee",
   "455299399": "Nebula Tee",
   "455299401": "Solkast Mark Tee",
+
+  // Hoodies. Slammer 2.0 carries Black and French Navy only — the blank has
+  // no Stone, so the light-garment designs have no hoodie and are not forced
+  // onto one.
+  "455305623": "From Shadow Hoodie",
+  "455305628": "Solar Crown Hoodie",
+  "455305637": "Built in Sunlight Hoodie",
+
+  // Prints. The artwork is 2:3, which is exactly poster ratio, so these are
+  // the only products in the shop with no fit risk, no underbase and no size
+  // chart — and the only ones whose print quality is not a question mark
+  // until a sample arrives.
+  "455305659": "From Shadow Print",
+  "455305665": "Solar Crown Print",
+  "455305688": "Total Eclipse Print",
+  "455305730": "Nebula Print",
+  "455305734": "Built in Sunlight Print",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
