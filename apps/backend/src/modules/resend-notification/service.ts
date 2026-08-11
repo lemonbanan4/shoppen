@@ -65,11 +65,18 @@ export default class ResendNotificationProviderService extends AbstractNotificat
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // The fallback is a last resort, not a default worth relying on:
-        // resend.dev is a shared sandbox sender, so mail from it is
-        // unauthenticated for our domain and lands in spam. Set
-        // RESEND_FROM_EMAIL to a verified angerkop.se address.
-        from: this.options_.from || "Ångerköp <hej@angerkop.se>",
+        // Per-notification `from` first: one backend serves two brands, and
+        // the configured default can only name one of them. Subscribers that
+        // know which storefront an order came from set it; anything that
+        // cannot tell falls back here rather than guessing.
+        //
+        // The final fallback is a last resort, not a default worth relying
+        // on: resend.dev is a shared sandbox sender, so mail from it is
+        // unauthenticated for our domain and lands in spam.
+        from:
+          notification.from ||
+          this.options_.from ||
+          "Ångerköp <hej@angerkop.se>",
         to: [notification.to],
         subject,
         html,

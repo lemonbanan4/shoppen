@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { channelNameForOrder, senderForChannelName, storefrontForChannelName } from "../lib/brand-sender";
 
 const STOREFRONT_URL = process.env.STOREFRONT_URL || "http://localhost:8000";
 
@@ -39,13 +40,20 @@ export default async function orderTransferRequestedHandler({
     return;
   }
 
+  const channelName = await channelNameForOrder(
+    container,
+    orderChange.order_id as string
+  );
+  const origin = storefrontForChannelName(channelName) || STOREFRONT_URL;
+
   await notificationModuleService.createNotifications({
     to: email,
     channel: "email",
     template: "order-transfer-requested",
+    from: senderForChannelName(channelName),
     data: {
       order: { display_id: (orderChange as any).order.display_id },
-      transfer_url: `${STOREFRONT_URL}/order/${orderChange.order_id}/transfer/${token}`,
+      transfer_url: `${origin}/order/${orderChange.order_id}/transfer/${token}`,
     },
   });
 }

@@ -1,5 +1,6 @@
 import { MedusaContainer } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { senderForChannelName, storefrontForChannelName } from "../lib/brand-sender";
 
 /**
  * Emails customers who left items in their cart and never checked out.
@@ -37,6 +38,11 @@ export default async function abandonedCartRecoveryJob(
       "items.quantity",
       "region.countries.iso_2",
       "customer.email",
+      // Which storefront this cart belongs to. Without it the recovery link
+      // and the sender both default to one brand, so a Solkast shopper is
+      // emailed by Ångerköp and sent to angerkop.se to finish a cart that
+      // does not exist there.
+      "sales_channel.name",
     ],
     filters: {
       completed_at: null,
@@ -66,13 +72,17 @@ export default async function abandonedCartRecoveryJob(
 
     const countryCode =
       cart.region?.countries?.[0]?.iso_2?.toLowerCase() || "us";
-    const recoveryUrl = `${storefrontUrl}/${countryCode}/cart?cart_id=${cart.id}`;
+    const channelName = (cart as { sales_channel?: { name?: string } })
+      .sales_channel?.name;
+    const origin = storefrontForChannelName(channelName) || storefrontUrl;
+    const recoveryUrl = `${origin}/${countryCode}/cart?cart_id=${cart.id}`;
 
     try {
       await notificationModuleService.createNotifications({
         to: email,
         channel: "email",
         template: "cart-recovery",
+        from: senderForChannelName(channelName),
         data: {
           items: items.map((i: any) => ({
             title: i.title,

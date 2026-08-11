@@ -1,6 +1,7 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows";
+import { senderForOrder } from "../lib/brand-sender";
 
 export default async function orderPlacedHandler({
   event: { data },
@@ -38,6 +39,7 @@ export default async function orderPlacedHandler({
     to: order.email,
     channel: "email",
     template: "order-placed",
+    from: await senderForOrder(container, data.id),
     data: { order },
   });
 }
