@@ -17,8 +17,7 @@ export const metadata: Metadata = {
   // absolute: the root template would append "| <brand>" to a title
   // that already leads with the brand.
   title: { absolute: `${BRAND.name} — ${BRAND.tagline}` },
-  description:
-    "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta på beställning i EU. Buy now, regret later.",
+  description: BRAND.description,
 }
 
 // Collection titles live in the database in English, so each rail carries its

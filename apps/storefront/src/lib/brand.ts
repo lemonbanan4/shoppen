@@ -22,6 +22,16 @@ export type Brand = {
   /** Wordmark casing — Ångerköp letterspaces uppercase, Solkast does too. */
   wordmark: string
   tagline: string
+  /**
+   * The meta description, and the one in the JSON-LD.
+   *
+   * Brand-level rather than route-level because the root layout has no
+   * country code to switch on. Ångerköp therefore serves Swedish metadata
+   * on /dk and /de even though the UI there is English — worth knowing, but
+   * far better than what this replaced, which was Solkast serving Ångerköp's
+   * Swedish copy to every search engine and link preview.
+   */
+  description: string
   domain: string
   email: string
   /** Drives copy language on shared chrome. Solkast trades in English. */
@@ -35,6 +45,9 @@ const ANGERKOP: Brand = {
   name: "Ångerköp",
   wordmark: "Ångerköp",
   tagline: "Köp nu. Ångra sen.",
+  description:
+    "Svenskt streetwear-märke. Grafiska tröjor i ekologisk bomull, tryckta " +
+    "på beställning i EU. Buy now, regret later.",
   domain: "angerkop.se",
   email: "hej@angerkop.se",
   lang: "sv",
@@ -46,8 +59,11 @@ const SOLKAST: Brand = {
   name: "Solkast",
   wordmark: "Solkast",
   tagline: "Considered goods.",
+  description:
+    "Graphic pieces in heavy organic cotton, printed to order in the EU. " +
+    "A short list, made properly, meant to outlast the season.",
   domain: "solkast.com",
-  email: "hej@solkast.com",
+  email: "hello@solkast.com",
   lang: "en",
   htmlLang: "en",
 }

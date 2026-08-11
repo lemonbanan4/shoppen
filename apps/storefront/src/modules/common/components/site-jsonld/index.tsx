@@ -19,8 +19,7 @@ const SiteJsonLd = ({ countryCode }: { countryCode: string }) => {
     name: BRAND.name,
     url: `${baseUrl}/${countryCode}`,
     logo: `${baseUrl}/icon.svg`,
-    description:
-      "Svenskt streetwear-märke. Tröjor för dig som redan vet hur det slutar — ekologisk bomull, tryckt på beställning i EU.",
+    description: BRAND.description,
     email: BRAND.email,
   }
 
