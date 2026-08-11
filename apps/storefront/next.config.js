@@ -28,6 +28,20 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Next serves everything in public/ as max-age=0, which is right for a
+        // favicon and wrong for a 900 KB hero video: without this, every
+        // homepage visit re-downloads the whole clip.
+        //
+        // Thirty days rather than a year with `immutable`, because these
+        // filenames carry no content hash. `immutable` would mean a replaced
+        // hero is ignored by returning visitors until the URL changes, and the
+        // point of the env-var indirection is being able to swap the clip.
+        source: "/video/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=2592000" },
+        ],
+      },
+      {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
