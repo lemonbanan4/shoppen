@@ -2,6 +2,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Image from "next/image"
 import { isSolkast } from "@lib/brand"
 import { featuredTiles, type FeaturedTile } from "@modules/home/featured"
+import HeroVideo from "@modules/home/components/hero-video"
 
 // Our own generated mockups, not stock photography of someone else's clothes.
 const MOCKUPS =
@@ -47,9 +48,16 @@ const Hero = async ({ countryCode }: { countryCode: string }) => {
     ? await featuredTiles(countryCode, 4)
     : STRIP
 
+  // Opt-in, not a hardcoded path: an unset variable leaves the existing
+  // typographic hero exactly as it is, rather than a black hole where a video
+  // was meant to be.
+  const videoSrc = process.env.NEXT_PUBLIC_HERO_VIDEO_URL
+  const videoPoster = process.env.NEXT_PUBLIC_HERO_VIDEO_POSTER
+
   return (
-    <section className="bg-neutral-950 text-white">
-      <div className="content-container pt-16 pb-12 small:pt-24 small:pb-16">
+    <section className="relative bg-neutral-950 text-white">
+      {videoSrc && <HeroVideo src={videoSrc} poster={videoPoster} />}
+      <div className="relative content-container pt-16 pb-12 small:pt-24 small:pb-16">
         <p className="text-[11px] small:text-xs tracking-[0.28em] uppercase text-brand-light">
           {isSolkast
             ? "Chase the light. Become the standard."
@@ -99,7 +107,7 @@ const Hero = async ({ countryCode }: { countryCode: string }) => {
 
       {/* A shoppable strip rather than a decorative collage — every tile is a
           real product page. */}
-      <div className="content-container pb-16 small:pb-20">
+      <div className="relative content-container pb-16 small:pb-20">
         <div className="grid grid-cols-2 small:grid-cols-4 gap-3 small:gap-4">
           {strip.map((item, i) => (
             <LocalizedClientLink
