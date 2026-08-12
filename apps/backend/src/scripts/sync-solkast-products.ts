@@ -138,6 +138,26 @@ const CURATED: Record<string, string> = {
   // thread instead, at 15.4:1.
   "455459500": "Solkast Cap — Amber",
   "455459505": "Solkast Cap — Oyster",
+
+  // The Mono capsule: one-colour reductions on Heather Grey, the only
+  // colourway the range had never used.
+  //
+  // The reason it went unused was never the colour. Every other design has its
+  // background keyed against black or white, so on a mid-tone the garment
+  // shows through wherever that field used to be — the same washed-out result
+  // French Navy was retired for. A binarised silhouette carries its own
+  // contrast and sits on anything: black ink reads 9.7:1 on #b0b0b0.
+  //
+  // Four rather than six. Structure and Molecule are both molecular diagrams
+  // and would have read as one design printed twice; Liberty carries its form
+  // in hue rather than luminance, so reducing it left an illegible mass.
+  //
+  // Full price, not a discount line — a one-colour print on heather is a more
+  // expensive-looking garment than a full-colour one, not a cheaper one.
+  "455581874": "Tuned Sun Mono Tee",
+  "455581907": "Sun Face Mono Tee",
+  "455581920": "Statue Dawn Mono Tee",
+  "455581943": "Solkast Mono Tee",
 };
 
 /**
