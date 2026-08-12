@@ -140,6 +140,23 @@ const CURATED: Record<string, string> = {
   "455459505": "Solkast Cap — Oyster",
 };
 
+/**
+ * Colourways withheld from the shop, whatever Printful still lists.
+ *
+ * French Navy is wrong for every design currently in the range, and the reason
+ * is the keying rather than the garment. Each design has its background
+ * removed against the colour it was generated on, so wherever black used to be
+ * the garment now shows through. On Black that is invisible and intended; on
+ * French Navy the artwork reads navy exactly where it assumed black, which is
+ * the washed-out look these prints have on it.
+ *
+ * Filtered at sync rather than deleted in Printful: the variants stay there,
+ * costing nothing, and come back by removing a line here once there is
+ * artwork built for a mid-tone garment. Deleting them would mean rebuilding
+ * every product to get the colour back.
+ */
+const RETIRED_COLOURS = new Set(["French Navy"]);
+
 const SALES_CHANNEL_NAME = "Solkast";
 const API_KEY_TITLE = "Solkast Storefront";
 const MAX_IMAGES = 6;
@@ -309,7 +326,9 @@ export default async function syncSolkastProducts({
   let created = 0;
   for (const detail of details) {
     const p = detail.sync_product;
-    const variants = detail.sync_variants;
+    const variants = detail.sync_variants.filter(
+      (v) => !RETIRED_COLOURS.has((v.color || "").trim())
+    );
     if (!variants.length) continue;
 
     const name = displayTitle(p.name);
