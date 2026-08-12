@@ -232,7 +232,12 @@ function FreeShippingPopup({
         </Button>
       </div>
 
-      <div className="w-[400px] bg-black text-white p-6 rounded-lg ">
+      {/* 400px is wider than a phone. Anchored at right-5 on a 390px viewport
+          the card started at x=-30, so the "U" of "Unlock" and the whole
+          "View cart" button hung off the left edge. The max-width keeps the
+          fixed size wherever it fits and clamps it to the viewport minus both
+          20px margins where it does not. */}
+      <div className="w-[400px] max-w-[calc(100vw-2.5rem)] bg-black text-white p-6 rounded-lg">
         <div className="pb-4">
           <div className="space-y-3">
             <div className="flex justify-between text-[15px] text-neutral-400">
