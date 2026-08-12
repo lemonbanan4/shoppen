@@ -44,7 +44,15 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
                 "border text-small-regular h-10 rounded-lg px-4 min-w-[3rem] transition-all ease-in-out duration-150",
                 {
                   "border-neutral-950 bg-neutral-950 text-white": v === current,
-                  "border-neutral-200 bg-white hover:border-neutral-400":
+                  // text-neutral-950 is not optional here. The unselected
+                  // state sets an explicit white background and used to leave
+                  // the text colour to inherit — fine on Ångerköp's white
+                  // page, invisible on Solkast's dark one, where body text is
+                  // near-white and every size button rendered white-on-white.
+                  // Selecting one made it readable, because the selected state
+                  // does set a colour, which is exactly how it hid: the sizes
+                  // appeared once you had already guessed where to click.
+                  "border-neutral-200 bg-white text-neutral-950 hover:border-neutral-400":
                     v !== current,
                 }
               )}
