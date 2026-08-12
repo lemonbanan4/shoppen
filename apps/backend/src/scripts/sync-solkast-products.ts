@@ -127,9 +127,7 @@ const CURATED: Record<string, string> = {
   // White thread: Printful's embroidery palette holds fifteen colours and the
   // brand gold is not one of them.
   "455458157": "Solkast Cap",
-  "455458163": "Solkast Cap — Sunburst",
   "455458168": "Solkast Beanie",
-  "455458172": "Solkast Beanie — Sunburst",
 
   // Colourways. Amber sits on the black cap rather than the light one:
   // Printful's palette holds exactly one amber, #A67843, and against Oyster
@@ -158,6 +156,17 @@ const CURATED: Record<string, string> = {
   "455581907": "Sun Face Mono Tee",
   "455581920": "Statue Dawn Mono Tee",
   "455581943": "Solkast Mono Tee",
+
+  // Mono on fleece. The Slammer front placement is 1875x1875 square rather
+  // than the tee's portrait, so these carry their own printfiles fitted to
+  // 78% of it — a hoodie has a pouch pocket across the lower third and a
+  // tee-sized print runs straight into it.
+  //
+  // Three, not four: Statue Dawn is the most delicate of the set and the
+  // least suited to heavier fleece.
+  "455583328": "Tuned Sun Mono Hoodie",
+  "455583331": "Sun Face Mono Hoodie",
+  "455583334": "Solkast Mono Hoodie",
 };
 
 /**
