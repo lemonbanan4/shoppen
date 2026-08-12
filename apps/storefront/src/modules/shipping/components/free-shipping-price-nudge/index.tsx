@@ -204,7 +204,18 @@ function FreeShippingPopup({
   return (
     <div
       className={clx(
-        "fixed bottom-5 right-5 flex flex-col items-end gap-2 transition-all duration-500 ease-in-out z-10",
+        // Sits above the mobile buy bar rather than under it.
+        //
+        // A product page below lg renders a fixed action bar along the bottom
+        // at z-50, roughly 109px tall. This popup was pinned at bottom-5 with
+        // z-10, so the two overlapped by ~89px and the bar won — covering this
+        // popup's own "View cart" and "View products" buttons and making them
+        // unclickable. On a phone, which is where the buy bar exists and where
+        // the traffic will land.
+        //
+        // bottom-32 (128px) clears the bar with room to spare below lg;
+        // desktop has no bar, so it returns to bottom-5 there.
+        "fixed bottom-32 lg:bottom-5 right-5 flex flex-col items-end gap-2 transition-all duration-500 ease-in-out z-10",
         {
           "opacity-0 invisible delay-1000": price.target_reached,
           "opacity-0 invisible": isClosed,
