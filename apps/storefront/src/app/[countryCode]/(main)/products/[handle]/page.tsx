@@ -99,10 +99,21 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   return {
     title: `${product.title}`,
     description: summary,
+    // Two kinds of duplicate collapse here.
+    //
     // Selecting a colour adds ?v_id=..., which would otherwise look like a
-    // separate page with duplicate content. Point them all at the clean URL.
+    // separate page. And every one of the ~74 country codes renders the same
+    // English page — the routes exist so a visitor lands in their own
+    // currency, not because the content differs.
+    //
+    // This used to canonicalise to `params.countryCode`, which meant each of
+    // the 74 declared *itself* authoritative and nothing consolidated. Pinning
+    // to the default region gathers them onto one URL, which is what the
+    // sitemap now submits.
     alternates: {
-      canonical: `/${params.countryCode}/products/${handle}`,
+      canonical: `/${
+        process.env.NEXT_PUBLIC_DEFAULT_REGION || params.countryCode
+      }/products/${handle}`,
     },
     openGraph: {
       title: `${product.title}`,

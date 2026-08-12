@@ -62,8 +62,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // to static pages only rather than failing the whole build.
   }
 
+  // Submit one locale, not all of them.
+  //
+  // Every country code renders the same English page — the routes exist so a
+  // visitor lands in their own currency, not because the content differs. The
+  // nested loop below therefore produced 38 pages x 74 countries = 2812 URLs,
+  // of which 38 are distinct, and none carried a canonical or an hreflang to
+  // say so. For a new domain that splits crawl budget seventy-four ways and
+  // sets the duplicates competing with each other.
+  //
+  // The other locales still work for visitors and still resolve; they are just
+  // not submitted for indexing. Products carry a canonical pointing here, so
+  // any that are found directly consolidate onto this one.
+  const primary =
+    countryCodes.find((c) => c === (process.env.NEXT_PUBLIC_DEFAULT_REGION || "")) ||
+    countryCodes[0]
+
   const entries: MetadataRoute.Sitemap = []
-  for (const cc of countryCodes) {
+  for (const cc of [primary]) {
     for (const path of STATIC_PATHS) {
       entries.push({
         url: `${BASE_URL}/${cc}${path}`,
