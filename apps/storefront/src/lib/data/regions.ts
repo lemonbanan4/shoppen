@@ -3,7 +3,16 @@
 import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
 import { getCacheOptions } from "./cookies"
+import { servesRegion } from "@lib/serves-region"
 
+/**
+ * Every region the backend has, minus the ones this brand may not sell into.
+ *
+ * The single chokepoint: getRegion, the country selector and every
+ * generateStaticParams read through here, so filtering once covers all of
+ * them. The middleware has to repeat the filter because it runs on the Edge
+ * and cannot import this module.
+ */
 export const listRegions = async () => {
   const next = {
     ...(await getCacheOptions("regions")),
@@ -15,7 +24,7 @@ export const listRegions = async () => {
       next,
       cache: "force-cache",
     })
-    .then(({ regions }) => regions)
+    .then(({ regions }) => regions.filter((r) => servesRegion(r.name)))
 }
 
 export const retrieveRegion = async (id: string) => {

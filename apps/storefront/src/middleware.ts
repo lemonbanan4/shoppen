@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { NextRequest, NextResponse } from "next/server"
+import { servesRegion } from "@lib/serves-region"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
@@ -50,11 +51,20 @@ async function getRegionMap(cacheId: string) {
     }
 
     // Create a map of country codes to regions.
-    regions.forEach((region: HttpTypes.StoreRegion) => {
-      region.countries?.forEach((c) => {
-        regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+    //
+    // Regions this brand must not sell into are dropped here, so their
+    // countries never enter the map at all. A Swedish visitor to Solkast
+    // therefore has no /se route to be sent to and falls through to the
+    // default region below, exactly as a visitor from an unlisted country
+    // does. Filtering later — in the data layer alone — would still have let
+    // the middleware route them into a region the shop refuses to serve.
+    regions
+      .filter((region: HttpTypes.StoreRegion) => servesRegion(region.name))
+      .forEach((region: HttpTypes.StoreRegion) => {
+        region.countries?.forEach((c) => {
+          regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+        })
       })
-    })
 
     regionMapCache.regionMapUpdated = Date.now()
   }
