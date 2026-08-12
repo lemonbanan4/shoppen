@@ -109,6 +109,21 @@ const CURATED: Record<string, string> = {
   // placement that needed its own printfile rather than a letterboxed garment
   // one.
   "455433340": "Solkast Mark Tote",
+
+  // Embroidered headwear, on organic blanks. The blank choice is not
+  // decoration: the shop's claim is organic cotton printed to order, and a
+  // conventional-cotton cap beside it undercuts the only thing the brand says
+  // about itself.
+  //
+  // The artwork is drawn, not derived. None of the v3 or v4 logos can be
+  // embroidered — they are AI rasters made of dry-brush texture, internal line
+  // shading and tapered points, all of which sit under the ~1.2mm a satin
+  // column can hold at a 2in placement. White thread, because Printful's
+  // embroidery palette has fifteen colours and the brand gold is not one of
+  // them; white also matches the site's nav wordmark, which is the identity a
+  // cap should carry.
+  "455442093": "Solkast Cap",
+  "455442096": "Solkast Beanie",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
