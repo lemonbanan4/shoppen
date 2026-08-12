@@ -360,7 +360,12 @@ export default async function syncSolkastProducts({
       title: name,
       handle: toHandle(name, p.id, takenHandles),
       status: ProductStatus.PUBLISHED,
-      description: `${name} — Solkast. Printed to order in the EU on organic cotton.`,
+      // No origin named. A product description is stored once and served to
+      // every region, so "in the EU" was being shown to a US shopper whose
+      // order prints in the US — and the EU is no longer sold to at all. The
+      // region-aware wording lives in the storefront copy layer, which knows
+      // the country; this string cannot.
+      description: `${name} — Solkast. Printed to order on heavyweight organic cotton.`,
       shipping_profile_id: profiles[0]?.id,
       images: images.map((url) => ({ url })),
       options,
