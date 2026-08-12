@@ -60,8 +60,10 @@ export default function TermsOfUsePage() {
         <h2>Delivery</h2>
         <p>
           Estimated delivery times are shown at checkout and in our Shipping
-          &amp; returns policy. We ship from within the EU. Risk passes to you
-          when the goods are delivered.
+          &amp; returns policy. Items are made to order and dispatched from the
+          production facility closest to your delivery address, which may be
+          inside or outside the EU. Risk passes to you when the goods are
+          delivered.
         </p>
       </section>
 

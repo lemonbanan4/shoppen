@@ -59,8 +59,13 @@ const SOLKAST: Brand = {
   name: "Solkast",
   wordmark: "Solkast",
   tagline: "Considered goods.",
+  // No country named here, unlike the on-page copy. This is the site-wide meta
+  // description and the root layout has no country code to switch on, so it is
+  // served to a US visitor and an EU one alike — and orders are printed in
+  // whichever region they ship to. See FULFILMENT in copy.ts for the
+  // region-aware wording used on the page itself.
   description:
-    "Graphic pieces in heavy organic cotton, printed to order in the EU. " +
+    "Graphic pieces in heavy organic cotton, printed to order. " +
     "A short list, made properly, meant to outlast the season.",
   domain: "solkast.com",
   email: "hello@solkast.com",

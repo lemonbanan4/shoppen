@@ -606,6 +606,58 @@ export const SHIPPING_PROMISE: Record<
 }
 
 /**
+ * Where an order is actually printed, per region.
+ *
+ * Printful routes every order to its nearest production facility, which is
+ * verifiable rather than assumed: a one-item quote to Los Angeles comes back
+ * at 5.37 USD delivered in 4–6 days, and nothing crosses the Atlantic in four
+ * days for five dollars. Stockholm quotes 3–4 days from the EU.
+ *
+ * So "printed to order in the EU" — which the footer, hero, about page and
+ * terms all stated as fact — is simply untrue on the US storefront. It also
+ * sold the shop short: printed-in-your-own-country is the better claim for a
+ * US buyer, and it is the true one.
+ *
+ * Rest of World names no country on purpose. Routing there depends on the
+ * destination and Printful does not commit to an origin, so naming one would
+ * be inventing a fact to fill a sentence — the same mistake in the other
+ * direction.
+ */
+export const FULFILMENT: Record<
+  ShippingRegion,
+  { printedIn: string; shipFastTitle: string; shipFastBody: string }
+> = {
+  se: {
+    printedIn: "printed to order in the EU",
+    shipFastTitle: "Ships from the EU",
+    shipFastBody:
+      "Printed to order and shipped within the EU. Expect 2–7 working days " +
+      "once printing is done.",
+  },
+  eu: {
+    printedIn: "printed to order in the EU",
+    shipFastTitle: "Ships from the EU",
+    shipFastBody:
+      "Printed to order and shipped within the EU. Expect 2–7 working days " +
+      "once printing is done.",
+  },
+  us: {
+    printedIn: "printed to order in the US",
+    shipFastTitle: "Ships from the US",
+    shipFastBody:
+      "Printed to order at our US facility and shipped domestically. Expect " +
+      "3–7 working days once printing is done.",
+  },
+  world: {
+    printedIn: "printed to order",
+    shipFastTitle: "Ships worldwide",
+    shipFastBody:
+      "Printed to order at the facility closest to you, then shipped tracked. " +
+      "Expect 7–14 working days once printing is done.",
+  },
+}
+
+/**
  * The rates the help pages quote, per region.
  *
  * These have to match the shipping options in the backend exactly, because a
@@ -647,7 +699,7 @@ export const SHIPPING_RATES: Record<
     lines: [
       "International standard — $15. 7–14 business days, tracked.",
       "International express — $29. 3–6 business days, tracked.",
-      "Parcels ship from the EU and may attract local duties on arrival.",
+      "Duties or import taxes may apply on arrival, depending on your country.",
     ],
   },
 }
@@ -659,10 +711,20 @@ export function copyFor(countryCode?: string): UiCopy {
   // Swedish copy already quotes 800 kr throughout.
   if (base === SV) return base
 
-  const promise = SHIPPING_PROMISE[shippingRegionFor(cc)]
+  const region = shippingRegionFor(cc)
+  const promise = SHIPPING_PROMISE[region]
+  const fulfilment = FULFILMENT[region]
+
   return {
     ...EN,
     announcement: promise.announcement,
     shippingNote: promise.note,
+    footerBlurb: isSolkast
+      ? `Considered graphics on organic cotton, ${fulfilment.printedIn}. ` +
+        "No warehouse, no overproduction."
+      : "Swedish streetwear for people who already know how it ends. " +
+        `Organic cotton, ${fulfilment.printedIn}. Buy now, regret later.`,
+    shipFastTitle: fulfilment.shipFastTitle,
+    shipFastBody: fulfilment.shipFastBody,
   }
 }

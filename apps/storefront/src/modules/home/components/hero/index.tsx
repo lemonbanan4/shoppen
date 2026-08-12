@@ -1,6 +1,7 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 import { isSolkast } from "@lib/brand"
+import { FULFILMENT, shippingRegionFor } from "@lib/copy"
 import { featuredTiles, type FeaturedTile } from "@modules/home/featured"
 import HeroVideo from "@modules/home/components/hero-video"
 
@@ -84,7 +85,9 @@ const Hero = async ({ countryCode }: { countryCode: string }) => {
         <div className="mt-8 small:mt-10 flex flex-col small:flex-row small:items-end gap-8 small:gap-14">
           <p className="max-w-sm text-sm small:text-base text-white/70 leading-relaxed">
             {isSolkast
-              ? "Graphic pieces in heavy organic cotton, printed to order in the EU. A short list, made properly, meant to outlast the season."
+              ? `Graphic pieces in heavy organic cotton, ${
+                  FULFILMENT[shippingRegionFor(countryCode)].printedIn
+                }. A short list, made properly, meant to outlast the season.`
               : "Tröjor för dig som redan vet hur det slutar. Ekologisk bomull, tryckt på beställning i EU — vi gör bara det någon faktiskt beställt."}
           </p>
           <div className="flex gap-3 shrink-0">

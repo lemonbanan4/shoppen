@@ -16,7 +16,7 @@ export default function AboutSolkast() {
     <ContentPage
       eyebrow="About"
       title="Clothes that are meant to last longer than a season."
-      intro="Solkast is a small Swedish label. We make a short list of pieces in organic cotton, print them to order in the EU, and stop there."
+      intro="Solkast is a small Swedish label. We make a short list of pieces in organic cotton, print each one only once it is ordered, and stop there."
     >
       <section>
         <h2>The name</h2>

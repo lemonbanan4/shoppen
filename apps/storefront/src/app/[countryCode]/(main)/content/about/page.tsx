@@ -6,8 +6,11 @@ import AboutSolkast from "./page-solkast"
 export const metadata: Metadata = isSolkast
   ? {
       title: "About Solkast",
+      // No count and no country. "Twelve pieces" went stale the moment the
+      // catalogue reached twenty-one, and orders are printed in whichever
+      // region they ship to, not always the EU.
       description:
-        "Solkast is a small Swedish label. Twelve pieces in organic cotton, printed to order in the EU.",
+        "Solkast is a small Swedish label. A short list of pieces in organic cotton, printed to order.",
     }
   : {
       title: "Om Ångerköp",
