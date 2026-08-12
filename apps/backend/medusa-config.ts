@@ -31,6 +31,21 @@ module.exports = defineConfig({
                   options: {
                     apiKey: process.env.STRIPE_API_KEY,
                     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+                    // Take the money, don't just reserve it.
+                    //
+                    // The provider defaults to authorise-only: a sandbox order
+                    // placed successfully and came back capture_method=manual,
+                    // status=requires_capture, amount_received=0. The customer
+                    // sees a completed checkout and a pending charge, the
+                    // subscriber sends the job to Printful, and nothing is
+                    // ever collected — card authorisations expire after about
+                    // a week, so the garment ships and the money goes back.
+                    //
+                    // Capture on authorisation is right for print-on-demand
+                    // specifically: production starts immediately and cannot
+                    // be recalled, so there is no window in which holding the
+                    // funds uncaptured protects anything.
+                    capture: true,
                   },
                 },
               ],
