@@ -46,14 +46,26 @@ THREAD = "#FFFFFF"
 # The option key is placement-specific — thread_colors for a plain front,
 # thread_colors_front_large for the cap's wide front — and a mismatch fails
 # with the same error as an unknown colour.
+# The artwork is the v3 brush logos put through
+# salvage-logo-for-embroidery.py, not a drawn mark. An earlier version used a
+# clean geometric sun: perfectly stitchable and wrong, because it read as a
+# weather icon rather than as Solkast. These carry the lettering already on the
+# tees, so a cap matches the shirts.
+#
 # (name, catalog id, variant id, placement, option key, file, w, h, price)
 PRODUCTS = [
     ("Solkast Cap", 491, 12689, "embroidery_front_large",
      "thread_colors_front_large",
-     f"{EMB}/solkast-cap-front-lockup.png", 1650, 600, "399.00"),
+     f"{EMB}/solkast-cap-front-logo01.png", 1650, 600, "399.00"),
+    ("Solkast Cap — Sunburst", 491, 12689, "embroidery_front_large",
+     "thread_colors_front_large",
+     f"{EMB}/solkast-cap-front-logo02.png", 1650, 600, "399.00"),
     ("Solkast Beanie", 449, 11706, "embroidery_front",
      "thread_colors",
-     f"{EMB}/solkast-beanie-front-lockup.png", 1500, 525, "349.00"),
+     f"{EMB}/solkast-beanie-front-logo01.png", 1500, 525, "349.00"),
+    ("Solkast Beanie — Sunburst", 449, 11706, "embroidery_front",
+     "thread_colors",
+     f"{EMB}/solkast-beanie-front-logo02.png", 1500, 525, "349.00"),
 ]
 
 

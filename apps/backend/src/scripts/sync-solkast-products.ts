@@ -110,14 +110,26 @@ const CURATED: Record<string, string> = {
   // one.
   "455433340": "Solkast Mark Tote",
 
-  // No headwear. A cap and beanie were built on a drawn geometric lockup —
-  // technically sound, correctly stitchable, and wrong for the brand: the mark
-  // was a generic sun that looked like a weather icon rather than anything
-  // Solkast owns. Removed rather than left to sit in the range.
+  // Embroidered headwear, on organic blanks — the blank matters, because the
+  // shop's claim is organic cotton and a conventional-cotton cap beside it
+  // undercuts the only thing the brand says about itself.
   //
-  // Headwear returns when there is a mark worth embroidering. See
-  // scripts/build-embroidery-lockups.py for the placement sizes and the
-  // 1.2mm stitch floor any candidate has to clear.
+  // These carry the v3 brush logos already printed on the tees, put through
+  // salvage-logo-for-embroidery.py: binarised to a silhouette, every blob
+  // smaller than one stitch dropped, hairline gaps closed. The dry-brush
+  // speckle is lost, which was never going to sew; the letterforms survive,
+  // which are the part that is the brand.
+  //
+  // A first attempt used a drawn geometric sun instead. It stitched perfectly
+  // and was wrong — a weather icon rather than Solkast — which is why the
+  // salvage route is worth the extra step.
+  //
+  // White thread: Printful's embroidery palette holds fifteen colours and the
+  // brand gold is not one of them.
+  "455458157": "Solkast Cap",
+  "455458163": "Solkast Cap — Sunburst",
+  "455458168": "Solkast Beanie",
+  "455458172": "Solkast Beanie — Sunburst",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
