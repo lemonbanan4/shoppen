@@ -111,6 +111,34 @@ export class PrintfulClient {
     return new PrintfulClient(token, process.env.PRINTFUL_STORE_ID || undefined);
   }
 
+  /**
+   * The Printful store that fulfils a given brand.
+   *
+   * One backend serves two shops, and each has its own Printful store holding
+   * its own sync variants. fromEnv() always returns Ångerköp's, so routing a
+   * Solkast order through it submits variant ids that store has never heard
+   * of: the order fails at the vendor, after the customer has paid and been
+   * told it worked.
+   *
+   * Nothing has broken yet only because Solkast has taken no orders. It would
+   * have broken on the first one.
+   *
+   * Same resolution as brand-sender.ts — the sales channel is the only thing
+   * on an order that records which storefront it came from — and the same
+   * fallback rule: an unknown channel gets the default store rather than
+   * nothing, because a misrouted order can be corrected and a dropped one is
+   * discovered by the customer.
+   */
+  static forChannelName(name?: string | null): PrintfulClient | null {
+    const key = name?.trim().toLowerCase();
+    if (key === "solkast") {
+      const token = process.env.PRINTFUL_SOLKAST_API_TOKEN;
+      const store = process.env.PRINTFUL_SOLKAST_STORE_ID;
+      if (token) return new PrintfulClient(token, store || undefined);
+    }
+    return PrintfulClient.fromEnv();
+  }
+
   private async request<T>(
     path: string,
     method: "GET" | "POST" | "PUT" = "GET",

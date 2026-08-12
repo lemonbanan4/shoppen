@@ -2,6 +2,7 @@ import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows";
 import { PrintfulClient } from "../lib/printful-client";
+import { channelNameForOrder } from "../lib/brand-sender";
 
 export default async function orderPlacedPrintfulHandler({
   event: { data },
@@ -9,7 +10,11 @@ export default async function orderPlacedPrintfulHandler({
 }: SubscriberArgs<{ id: string }>) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 
-  const client = PrintfulClient.fromEnv();
+  // Which shop sold this decides which Printful store fulfils it. Each brand
+  // has its own store holding its own sync variants, so sending a Solkast
+  // order to Ångerköp's store submits ids that store has never seen.
+  const channel = await channelNameForOrder(container, data.id);
+  const client = PrintfulClient.forChannelName(channel);
   if (!client) {
     return;
   }
