@@ -149,7 +149,6 @@ def key_only(src, dst, kind, fuzz_override=None):
 def fit_only(src, dst):
     """Size an already-keyed image to the placement."""
     r = sh(["magick", str(src),
-            "-channel", "A", "-morphology", "Erode", "Disk:1.5", "+channel",
             "-resize", f"{PW}x{PH}", "-background", "none",
             "-gravity", "center", "-extent", f"{PW}x{PH}", str(dst)])
     if not dst.exists():
@@ -188,10 +187,20 @@ def key_and_fit(src, dst, kind, fuzz_override=None):
     # regions by artwork that reaches the edge.
     for pt in (f"+0+0", f"+{w-1}+0", f"+0+{h-1}", f"+{w-1}+{h-1}"):
         cmd += ["-floodfill", pt, seed]
-    # Pull the alpha in slightly, killing the fringe left where an anti-aliased
-    # edge was blended against the old background.
-    cmd += ["-channel", "A", "-morphology", "Erode", "Disk:1.5", "+channel"]
-    # Only now size it to the placement.
+    # No alpha erosion here, deliberately.
+    #
+    # An earlier version eroded the alpha by 1.5px to swallow the fringe left
+    # where an anti-aliased edge had been blended against the old background.
+    # That is harmless on a large shape and ruinous on type: these designs set
+    # body text at 1-2px stroke weight, so a 1.5px bite from each side thinned
+    # every letterform to a grey ghost and deleted the dry-brush speckle inside
+    # the wordmarks entirely. The output looked plausible at thumbnail size and
+    # was visibly degraded at 100%.
+    #
+    # It was also solving a problem that no longer exists. Dark designs print on
+    # Black and light ones on White, so whatever fringe survives is the colour
+    # of the garment behind it.
+    # Size it to the placement.
     cmd += ["-resize", f"{PW}x{PH}", "-background", "none",
             "-gravity", "center", "-extent", f"{PW}x{PH}", str(dst)]
     r = sh(cmd)
