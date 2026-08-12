@@ -163,6 +163,41 @@ def fit_only(src, dst):
         raise RuntimeError(f"fit failed for {src.name}: {r.stderr[-300:]}")
 
 
+def unmat(path, kind):
+    """Take the old background back out of the anti-aliased edge.
+
+    The flood fill sets matched pixels fully transparent but leaves their RGB
+    alone, and the resize that follows then blends those pixels into their
+    neighbours — so every edge pixel ends up part artwork, part background,
+    at partial alpha. On the garment the design was keyed against this is
+    invisible, which is why it survived: black bleeding into an edge does not
+    show on a black shirt. On anything else it is a fringe, and it is why the
+    dark discs in these designs let grey through when previewed on another
+    colour.
+
+    An edge pixel is observed = a*F + (1-a)*bg, so F = (C - (1-a)*bg)/a. For a
+    black field that reduces to C/a — a straight divide by the alpha channel.
+    For a white field, negating first turns it into the same black-field
+    problem, so: negate, divide, negate back.
+
+    Between 1.5% and 5% of each design is partial alpha, so this is a thin band
+    — and a thin band of the wrong colour is exactly what reads as a halo.
+    """
+    a = BUILD / "_unmat_a.png"
+    c = BUILD / "_unmat_c.png"
+    d = BUILD / "_unmat_d.png"
+    sh(["magick", str(path), "-alpha", "extract", str(a)])
+    pre = ["-negate"] if kind == "light" else []
+    sh(["magick", str(path), "-alpha", "off", *pre, str(c)])
+    sh(["magick", str(c), str(a), "-compose", "Divide", "-composite", str(d)])
+    post = ["-negate"] if kind == "light" else []
+    r = sh(["magick", str(d), *post, str(a), "-alpha", "off",
+            "-compose", "CopyOpacity", "-composite", str(path)])
+    for tmp in (a, c, d):
+        tmp.unlink(missing_ok=True)
+    return r
+
+
 def poster_fit(src, dst):
     """Full-bleed, background intact. For designs where the field is the art."""
     r = sh(["magick", str(src), "-alpha", "off",
@@ -292,6 +327,8 @@ def main():
             fit_only(up, out)
         else:
             key_and_fit(up, out, kind, FUZZ_OVERRIDE.get(key))
+        # Last, after the resize that introduced the contamination.
+        unmat(out, kind)
         cov = coverage(out)
         sw, sh_ = map(int, sh(["magick", str(up), "-format", "%w %h",
                                "info:"]).stdout.split())
