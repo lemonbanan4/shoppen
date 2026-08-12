@@ -86,6 +86,29 @@ const CURATED: Record<string, string> = {
   "455308822": "From Shadow Tee — Back Print",
   "455308859": "Solar Crown Tee — Back Print",
   "455308887": "Total Eclipse Tee — Back Print",
+
+  // Sweatshirts, on Raddler 2.0 — the crewneck sibling of the Blaster 2.0 tee,
+  // so the range reads as one collection rather than a catalogue. Its front
+  // placement is 1800x2400 at 150dpi, identical to the tee, so these reuse the
+  // existing printfiles with nothing re-rendered.
+  //
+  // Only the three designs that already have a tee, a hoodie and a poster.
+  // Widening the shop by form rather than by graphic is the point: twenty-one
+  // products across three product types was wide on artwork and narrow on
+  // everything else, which is backwards for a label selling a short list.
+  //
+  // 799 sits between the tee at 499 and the hoodie at 899, where a crewneck
+  // belongs. The unused sweatshirt already in the Printful store was priced at
+  // 949, above the hoodie.
+  "455433316": "From Shadow Sweatshirt",
+  "455433319": "Solar Crown Sweatshirt",
+  "455433329": "Built in Sunlight Sweatshirt",
+
+  // The tote is the only non-garment here and the cheapest way into the brand
+  // at 299. Organic denim, one size, one colour, and a 1500x1500 square
+  // placement that needed its own printfile rather than a letterboxed garment
+  // one.
+  "455433340": "Solkast Mark Tote",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";

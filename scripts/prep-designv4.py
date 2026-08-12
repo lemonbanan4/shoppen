@@ -72,7 +72,15 @@ FUZZ_OVERRIDE = {"B01": "2%"}
 # the figure still gets eaten. Firefly's original black is flat to within a
 # hundredth, so the fill is unambiguous there. Upscayl carries the alpha
 # through afterwards.
-KEY_FIRST = {"B01"}
+#
+# T06 is the same failure with a different cause. Firefly baked its
+# transparency in as a literal checkerboard, whose two tones are 20 levels
+# apart. Crisp in the original, the fill crosses both and clears the field to
+# alpha 0 exactly. Upscaled first, every square acquires a soft border that
+# falls outside tolerance, and the fill leaves a faint grid behind at up to 23%
+# opacity — invisible on screen against white, and a ghost pattern once printed
+# on a denim tote.
+KEY_FIRST = {"B01", "T06"}
 
 # Designs that cannot be keyed at all, and why.
 #
