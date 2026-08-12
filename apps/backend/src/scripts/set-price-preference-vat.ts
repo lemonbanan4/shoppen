@@ -68,9 +68,11 @@ export default async function setPricePreferenceVat({
   );
 
   if (existing.length) {
-    await pricing.updatePricePreferences([
-      { id: existing[0].id, is_tax_inclusive: true } as any,
-    ]);
+    // (id, data) — not an array. createPricePreferences takes a list and
+    // update does not, which is easy to mirror by eye and does not compile.
+    await pricing.updatePricePreferences(existing[0].id, {
+      is_tax_inclusive: true,
+    } as any);
     logger.info("Updated preference to tax-inclusive.");
   } else {
     await pricing.createPricePreferences([

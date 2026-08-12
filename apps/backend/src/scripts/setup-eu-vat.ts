@@ -179,9 +179,10 @@ export default async function setupEuVat({
       value: r.id,
     });
     if (prefs.length) {
-      await pricing.updatePricePreferences([
-        { id: prefs[0].id, is_tax_inclusive: true } as any,
-      ]);
+      // (id, data) — not an array, unlike create just below it.
+      await pricing.updatePricePreferences(prefs[0].id, {
+        is_tax_inclusive: true,
+      } as any);
     } else {
       await pricing.createPricePreferences([
         { attribute: "region_id", value: r.id, is_tax_inclusive: true } as any,
