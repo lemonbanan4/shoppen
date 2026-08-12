@@ -66,7 +66,24 @@ PRODUCTS = [
     ("Solkast Beanie — Sunburst", 449, 11706, "embroidery_front",
      "thread_colors",
      f"{EMB}/solkast-beanie-front-logo02.png", 1500, 525, "349.00"),
+
+    # Colourways. Amber goes on black, not on the light cap: Printful's palette
+    # holds exactly one amber, #A67843, and against Oyster cream it measures
+    # 2.9:1 — under the ~3:1 embroidery needs, and visibly washed out. On black
+    # it is 4.5:1 and reads warm. The light cap takes black thread at 15.4:1.
+    ("Solkast Cap — Amber", 491, 12689, "embroidery_front_large",
+     "thread_colors_front_large",
+     f"{EMB}/solkast-cap-front-logo01-amber.png", 1650, 600, "399.00"),
+    ("Solkast Cap — Oyster", 491, 12692, "embroidery_front_large",
+     "thread_colors_front_large",
+     f"{EMB}/solkast-cap-front-logo01-black.png", 1650, 600, "399.00"),
 ]
+
+# Thread colour per product, since these no longer all use white.
+THREAD_FOR = {
+    "Solkast Cap — Amber": "#A67843",
+    "Solkast Cap — Oyster": "#000000",
+}
 
 
 def request(path, token, store, body=None, attempts=6):
@@ -95,6 +112,11 @@ def request(path, token, store, body=None, attempts=6):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    # Printful has no upsert, so a plain re-run duplicates everything already
+    # in the store. --only lets a later colourway be added without touching
+    # what is already live.
+    ap.add_argument("--only", action="append", default=None,
+                    help="substring of the product name; repeatable")
     args = ap.parse_args()
 
     token = os.environ.get("PRINTFUL_SOLKAST_API_TOKEN")
@@ -106,19 +128,22 @@ def main():
 
     created = {}
     for name, cat, vid, place, opt_key, url, w, h, price in PRODUCTS:
+        if args.only and not any(s.lower() in name.lower() for s in args.only):
+            continue
         # The embroidery file fills its placement exactly, so the position is
         # the whole area — no insetting, which on a cap front would push the
         # lockup off the panel's centre seam.
         position = {"area_width": w, "area_height": h,
                     "width": w, "height": h, "top": 0, "left": 0}
+        thread = THREAD_FOR.get(name, THREAD)
         variants = [{
             "variant_id": vid, "retail_price": price,
             "files": [{"type": place, "url": url, "position": position}],
-            "options": [{"id": opt_key, "value": [THREAD]}],
+            "options": [{"id": opt_key, "value": [thread]}],
         }]
         if args.dry_run:
-            print(f"  {name:<18} catalog {cat}  variant {vid}  "
-                  f"{place}  {w}x{h}  {opt_key}={THREAD}  {price} SEK")
+            print(f"  {name:<26} catalog {cat}  variant {vid}  "
+                  f"{place}  {opt_key}={thread}  {price} SEK")
             continue
         try:
             res = request("/store/products", token, store,

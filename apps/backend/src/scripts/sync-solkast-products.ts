@@ -130,6 +130,14 @@ const CURATED: Record<string, string> = {
   "455458163": "Solkast Cap — Sunburst",
   "455458168": "Solkast Beanie",
   "455458172": "Solkast Beanie — Sunburst",
+
+  // Colourways. Amber sits on the black cap rather than the light one:
+  // Printful's palette holds exactly one amber, #A67843, and against Oyster
+  // cream it measures 2.9:1 — under the ~3:1 embroidery needs and visibly
+  // washed out. On black it is 4.5:1 and reads warm. The light cap takes black
+  // thread instead, at 15.4:1.
+  "455459500": "Solkast Cap — Amber",
+  "455459505": "Solkast Cap — Oyster",
 };
 
 const SALES_CHANNEL_NAME = "Solkast";
