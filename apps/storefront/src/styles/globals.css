@@ -130,8 +130,20 @@
   background-color: #f4f2ee;
 }
 
-/* Headings tighten to sit closer to the artwork's condensed lettering. */
+/* Headings tighten to sit closer to the artwork's condensed lettering.
+ *
+ * They also have to be legible. Several were written as text-neutral-950 back
+ * when this codebase served one shop on a white page; on Solkast's dark body
+ * that renders rgb(10,10,10) on rgb(11,11,12) — a contrast ratio of about
+ * 1:1. The store page's "All products" heading was not dim, it was invisible.
+ *
+ * Scoped to h1/h2 rather than to the utility class, for the reason given
+ * above: .text-neutral-950 is also correct on the white pill buttons and the
+ * newsletter input, and a blanket override would invert those instead. No
+ * heading in this brand sits on a light field, so the element selector is
+ * both safe and self-maintaining — a new page inherits the fix. */
 [data-brand="solkast"] h1,
 [data-brand="solkast"] h2 {
   letter-spacing: -0.03em;
+  color: #fafafa;
 }
