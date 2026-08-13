@@ -161,17 +161,37 @@ def main():
     spec = PRODUCTS[args.product]
     d = OUT / args.product
     d.mkdir(parents=True, exist_ok=True)
+    bad = 0
     for name, (pw, ph) in spec["placements"].items():
-        # Scale the tile so it repeats the requested number of times across
-        # the panel, then tile it out to fill.
+        # Scale the tile so it repeats the requested number of times across the
+        # panel, then fill the panel with it.
+        #
+        # Done in two explicit steps through an mpr: register rather than with
+        # a `tile:file[WxH]` read-modifier. That shorthand silently ignored the
+        # canvas size for some inputs and wrote a single scaled tile — a
+        # 1052x1100 file where a 6600x6900 panel was wanted.
         cell = int(pw / args.repeat)
         dst = d / f"{name}.png"
-        r = sh(["magick", "-size", f"{pw}x{ph}",
-                f"tile:{tile}[{cell}x{cell}]", str(dst)])
+        r = sh(["magick", str(tile), "-resize", f"{cell}x{cell}!",
+                "-write", "mpr:t", "+delete",
+                "-size", f"{pw}x{ph}", "tile:mpr:t", str(dst)])
         if not dst.exists():
             print(f"  {name}: {r.stderr[-200:]}", file=sys.stderr)
+            bad += 1
             continue
-        print(f"  {args.product}/{name}.png  {pw}x{ph}")
+        # Check what was actually written, not what was asked for. The previous
+        # version printed the intended size from its own config and called it
+        # done, which is how the wrong file size went unnoticed.
+        aw, ah = int(fx(dst, "%w")), int(fx(dst, "%h"))
+        ok = (aw, ah) == (pw, ph)
+        if not ok:
+            bad += 1
+        print(f"  {args.product}/{name}.png  {aw}x{ah}"
+              f"{'' if ok else f'  ** expected {pw}x{ph} **'}")
+
+    if bad:
+        print(f"\n  {bad} placement(s) came out the wrong size.", file=sys.stderr)
+        return 1
     print(f"\n  placements in {d}")
     return 0
 
