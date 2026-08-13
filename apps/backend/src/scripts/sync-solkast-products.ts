@@ -225,6 +225,15 @@ const RETIRED_COLOURS = new Set(["French Navy"]);
  * make it lie.
  */
 const MATERIALS: Record<number, string> = {
+  // Not a garment at all. These five were the sharpest case for reading the
+  // material off the blank: the old constant told anyone buying a paper poster
+  // it was heavyweight organic cotton, and had done since the day they were
+  // listed. They were missed on the first pass of this table because
+  // /store/products pages at 20 by default and the survey was written without
+  // an offset — so the products existed, the survey did not see them, and the
+  // fallback quietly covered for it.
+  1: "Printed to order on heavyweight matte paper.",
+
   400: "Cut and sewn from recycled polyester, printed before assembly.",
   801: "Cut and sewn from recycled polyester, printed before assembly.",
   449: "Knitted from organic cotton.",
