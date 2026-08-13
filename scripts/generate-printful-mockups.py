@@ -239,17 +239,30 @@ def generate(catalog_product_id, variant_ids, files_by_placement, option_group=N
         print("    no usable placements")
         return []
 
-    res = call(f"/mockup-generator/create-task/{catalog_product_id}", "POST",
-               {
-                   "variant_ids": variant_ids[:6],
-                   "format": "jpg",
-                   "files": req_files,
-                   # On-model shots plus clean flat views. Restricting
-                   # `options` as well collapsed most products to a single
-                   # image, so let each group return its own angles.
-                   **({"option_groups": [option_group, "Ghost"]}
-                      if option_group else {}),
-               })
+    body = {
+        "variant_ids": variant_ids[:6],
+        "format": "jpg",
+        "files": req_files,
+        # On-model shots plus clean flat views. Restricting `options` as well
+        # collapsed most products to a single image, so let each group return
+        # its own angles.
+        **({"option_groups": [option_group, "Ghost"]} if option_group else {}),
+    }
+    res = call(f"/mockup-generator/create-task/{catalog_product_id}", "POST", body)
+
+    # Retry unfiltered when the option groups match nothing.
+    #
+    # Those groups are the on-model and ghost-mannequin styles, which only
+    # exist for garments. Asking for them on a paper poster or a tote makes the
+    # filter exclude every variant, and Printful answers "No variants to
+    # generate" — a 400 that reads like a broken request and is really "this
+    # product has no models to put it on". Six products sat on Printful's
+    # single stock preview because of it.
+    if not res and "option_groups" in body:
+        print("    no mockups for those option groups — retrying unfiltered")
+        body.pop("option_groups")
+        res = call(f"/mockup-generator/create-task/{catalog_product_id}",
+                   "POST", body)
     if not res:
         return []
     key = res["result"]["task_key"]
