@@ -80,6 +80,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("wordmark")
     ap.add_argument("--slug", required=True)
+    # A wordmark drawn for a dark garment is invisible on a pale one. All three
+    # of these measure 7:1 on Black and 1.1:1 on Stone — not faint, gone. The
+    # letterforms live in the alpha channel, so a dark version is a recolour
+    # rather than a re-render.
+    ap.add_argument("--ink", help="recolour the letterforms, e.g. '#141414'")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -114,6 +119,19 @@ def main():
     keyed = OUT / f"_{args.slug}-keyed.png"
     p4.key_only(src, keyed, kind)
     p4.unmat(keyed, kind)
+
+    if args.ink:
+        # Recolour through the alpha, not by tinting the pixels: the
+        # letterforms are the alpha channel, and colorizing the RGB would tint
+        # the transparent surround along with them.
+        r = sh(["magick", "(", str(keyed), "-alpha", "extract", ")",
+                "(", "+clone", "-fill", args.ink, "-colorize", "100%", ")",
+                "+swap", "-alpha", "off", "-compose", "CopyOpacity",
+                "-composite", str(keyed)])
+        if r.returncode:
+            print(f"  recolour failed: {r.stderr[-200:]}", file=sys.stderr)
+            return 1
+        print(f"  recoloured to {args.ink}")
 
     rc = 0
     for name, size, rot in targets:

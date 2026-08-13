@@ -262,6 +262,23 @@ const CURATED: Record<string, string> = {
   // Rose Sun failure, which is fixed a few lines above.
   "455595267": "Chemistry of Light Tee",
   "455595274": "From Matter Tee",
+
+  // v6, and the first products here that print anywhere but the chest: a small
+  // geometric wordmark on the left sleeve. A second placement costs roughly
+  // 5-9 USD a unit, which is why it is one wordmark rather than a second
+  // graphic, and why these sit at 599 against a front-only tee's 499.
+  //
+  // The sleeve exists in two inks. As drawn it is cream — 7.2:1 on Black and
+  // 1.1:1 on Stone, which is gone rather than faint — so the pale colourway
+  // takes a dark recolour measuring 12.7:1. Same rule as the front artwork,
+  // one placement further down.
+  //
+  // Chase the Light leads on French Navy because it was composed on navy,
+  // which is only sellable at all because the navy retirement was tested and
+  // reversed a few hours before these were made.
+  "455671194": "Glow Different Tee",
+  "455671199": "Chase the Light Tee",
+  "455671241": "Stay Golden Tee",
 };
 
 /**
