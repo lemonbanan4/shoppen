@@ -279,6 +279,22 @@ const CURATED: Record<string, string> = {
   "455671194": "Glow Different Tee",
   "455671199": "Chase the Light Tee",
   "455671241": "Stay Golden Tee",
+
+  // v7, and the only pure logotype tee in the range: the arched blackletter
+  // wordmark with no illustration behind it.
+  //
+  // One of three tints rather than all three. They measure 6.3, 5.9 and 5.6 to
+  // one on Black and are otherwise the same drawing — three products would be
+  // three near-duplicates, which is what the previous fourteen were dropped
+  // for. The other two are built and pushed if this one earns a colourway.
+  //
+  // Black and navy only. At 1.3-1.7:1 on Stone and White the wordmark is gone
+  // rather than faint, which is the same measurement that placed every other
+  // design in this shop.
+  //
+  // 499 rather than 599: front only, so it does not carry the price of the
+  // second placement the v6 tees pay for.
+  "455739447": "Solkast Arch Tee",
 };
 
 /**

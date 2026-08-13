@@ -33,6 +33,7 @@ import urllib.request
 
 RAW = "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main"
 V6 = f"{RAW}/solkast-v6"
+V7 = f"{RAW}/solkast-v7"
 SLEEVES = f"{RAW}/solkast-sleeves"
 
 CATALOG = 823
@@ -75,6 +76,25 @@ PRODUCTS = [
      ["Stone", "White"], SLEEVE_DARK_INK),
 ]
 
+# v7: the arch logotype, front only.
+#
+# One of three tints rather than all three. They measure 6.3, 5.9 and 5.6 to 1
+# on Black and are otherwise the same wordmark — listing three would pad the
+# shop with near-duplicates, which is what got the previous fourteen dropped.
+# The other two are built and pushed if this one sells.
+#
+# Black and navy only: at 1.3-1.7:1 on Stone and White this artwork is gone on
+# a pale garment, the same measurement that decides every other placement here.
+# 499, not the 599 the v6 tees carry. That tier exists because they print a
+# second placement on the sleeve, which costs 5-9 USD a unit; this one is front
+# only and should not inherit the price of a cost it does not have.
+V7_RETAIL = "499.00"
+
+V7_PRODUCTS = [
+    ("Solkast Arch Tee", f"{V7}/solkast-v7-arch-amber.png",
+     ["Black", "French Navy"], None),
+]
+
 
 def request(path, token, store, body=None, attempts=6):
     for attempt in range(attempts):
@@ -113,6 +133,8 @@ def reachable(url):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--v7", action="store_true",
+                    help="create the v7 arch logotype tee instead")
     args = ap.parse_args()
 
     token = os.environ.get("PRINTFUL_SOLKAST_API_TOKEN")
@@ -125,7 +147,8 @@ def main():
     # Printful caches a file by URL the moment it first fetches it, so a bad
     # URL is not just a failed create — it can poison every later reference.
     for url in [SLEEVE_LIGHT_INK, SLEEVE_DARK_INK] + \
-               [f"{V6}/{a}" for _, a, _, _ in PRODUCTS]:
+               [f"{V6}/{a}" for _, a, _, _ in PRODUCTS] + \
+               [a for _, a, _, _ in V7_PRODUCTS]:
         size = reachable(url)
         if size is None:
             print(f"  unreachable: {url}", file=sys.stderr)
@@ -133,20 +156,24 @@ def main():
         print(f"  ok {url.rsplit('/', 1)[-1]:<38} {size/1e6:.1f} MB")
 
     created = {}
-    for name, art, colours, sleeve_art in PRODUCTS:
-        files = [
-            {"type": "front", "url": f"{V6}/{art}", "position": FRONT},
-            {"type": "sleeve_left", "url": sleeve_art, "position": SLEEVE},
-        ]
+    wanted = PRODUCTS if not args.v7 else V7_PRODUCTS
+    for name, art, colours, sleeve_art in wanted:
+        url = art if art.startswith("http") else f"{V6}/{art}"
+        files = [{"type": "front", "url": url, "position": FRONT}]
+        if sleeve_art:
+            files.append({"type": "sleeve_left", "url": sleeve_art,
+                          "position": SLEEVE})
+        retail = V7_RETAIL if args.v7 else RETAIL
         variants = [
-            {"variant_id": vid, "retail_price": RETAIL, "files": files}
+            {"variant_id": vid, "retail_price": retail, "files": files}
             for c in colours for vid in COLOURS[c].values()
         ]
         if args.dry_run:
             print(f"\n  {name}  {'/'.join(colours)}")
-            print(f"    {len(variants)} variants @ {RETAIL}")
-            print(f"    front  {art}")
-            print(f"    sleeve {sleeve_art.rsplit('/', 1)[-1]} (left)")
+            print(f"    {len(variants)} variants @ {retail}")
+            print(f"    front  {url.rsplit('/', 1)[-1]}")
+            if sleeve_art:
+                print(f"    sleeve {sleeve_art.rsplit('/', 1)[-1]} (left)")
             continue
         try:
             res = request("/store/products", token, store,

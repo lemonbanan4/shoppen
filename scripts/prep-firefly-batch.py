@@ -56,6 +56,26 @@ def load_pipeline(build, print_dir, up, size):
     return mod
 
 
+def _report(p4, dst, pw, ph, sw, sh_, seed):
+    """Verify a written printfile and print the result. Returns True if ok."""
+    got = p4.sh(["magick", str(dst), "-format", "%wx%h", "info:"]).stdout
+    opaque = float(p4.sh(["magick", str(dst), "-alpha", "extract",
+                          "-format", "%[fx:mean]", "info:"]).stdout or 0)
+    # The corner test, not a coverage band. A coverage number cannot tell
+    # "background removed" from "background intact" — a 2:3 source in a 3:4
+    # placement reads about 89% either way, because the letterboxing accounts
+    # for the rest. Using a band here let two files through with their
+    # backgrounds fully intact: a navy rectangle and a ghost checkerboard.
+    cleared = p4.background_gone(dst, sw, sh_)
+    ok = got == f"{pw}x{ph}" and cleared and opaque > 0.02
+    print(f"  {'ok ' if ok else '** '}{dst.name}  {got}  ink {opaque*100:.1f}%"
+          f"  background {'cleared' if cleared else 'STILL THERE'}")
+    if not ok:
+        print(f"     the artwork's own corner is still opaque — the fill seed "
+              f"({seed}) did not match this background.", file=sys.stderr)
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True)
@@ -114,17 +134,54 @@ def main():
         sw, sh_ = map(int, p4.sh(["magick", str(src), "-format", "%w %h",
                                   "info:"]).stdout.split())
 
-        if d.get("key_first"):
-            # Key at the source's own size, then upscale the keyed result.
-            # Needed when the background is a baked-in checkerboard: crisp in
-            # the original its two tones fall inside one fuzz, but upscaled
-            # first every square gains a soft border that falls outside, and
-            # the fill leaves a ghost grid behind.
-            print(f"  {slug}: keying ({kind}) before upscale...", flush=True)
+        # A global key, for artwork whose enclosed shapes are holes.
+        #
+        # The corner flood fill only removes background connected to the
+        # border, which is deliberate: it protects a black-robed figure or a
+        # dark disc that is genuinely part of the design. On a logotype it does
+        # the wrong thing — the counters inside an O or an A are enclosed by
+        # their own letterform, so the fill cannot reach them and they print as
+        # solid ink. Invisible on a black garment, and on Stone they came out
+        # as black bars through the letters.
+        #
+        # Only correct when the design has no legitimate element in the
+        # background colour, so it is opt-in per design rather than a default.
+        if d.get("key") == "global":
+            print(f"  {slug}: global key on {seed} ({kind})...", flush=True)
+            keyed = up / f"{slug}-keyed.png"
+            p4.sh(["magick", str(src), "-alpha", "set",
+                   "-fuzz", d.get("fuzz", "18%"), "-transparent", seed,
+                   str(keyed)])
+            p4.fit_only(keyed, dst)
+            p4.unmat(dst, kind)
+            _report(p4, dst, pw, ph, sw, sh_, seed)
+            continue
+
+        # Skip the upscale when the source already exceeds the placement.
+        #
+        # Real-ESRGAN at 4x is minutes of GPU per file and exists to reconstruct
+        # detail that is not there. A 4096px logotype going into an 1800x2400
+        # print area is being scaled DOWN either way, so upscaling it to 16384
+        # first buys nothing and costs the wait.
+        big_enough = sw >= pw and sh_ >= ph or max(sw, sh_) >= max(pw, ph)
+
+        if d.get("key_first") or (big_enough and not d.get("force_upscale")):
+            # Key at the source's own size, then fit.
+            #
+            # Also the path a baked-in checkerboard needs: crisp in the original
+            # its two tones fall inside one fuzz, but upscaled first every
+            # square gains a soft border that falls outside, and the fill leaves
+            # a ghost grid behind.
             keyed = up / f"{slug}-keyed.png"
             p4.key_only(src, keyed, kind, d.get("fuzz"), seed)
-            p4.upscale(keyed, up / f"{slug}-4x.png")
-            p4.fit_only(up / f"{slug}-4x.png", dst)
+            if big_enough and not d.get("force_upscale"):
+                print(f"  {slug}: keying ({kind}), already {sw}x{sh_} "
+                      f"— no upscale needed", flush=True)
+                p4.fit_only(keyed, dst)
+            else:
+                print(f"  {slug}: keying ({kind}) before upscale...", flush=True)
+                p4.upscale(keyed, up / f"{slug}-4x.png")
+                p4.fit_only(up / f"{slug}-4x.png", dst)
         else:
             print(f"  {slug}: upscaling...", flush=True)
             p4.upscale(src, up / f"{slug}-4x.png")

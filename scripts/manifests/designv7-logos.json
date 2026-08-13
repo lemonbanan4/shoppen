@@ -1,0 +1,23 @@
+[
+  {
+    "source": "logo/ambercream.png",
+    "slug": "solkast-v7-arch-amber",
+    "field": "dark",
+    "key": "global",
+    "fuzz": "20%"
+  },
+  {
+    "source": "logo/orangecream.png",
+    "slug": "solkast-v7-arch-orange",
+    "field": "dark",
+    "key": "global",
+    "fuzz": "20%"
+  },
+  {
+    "source": "logo/warmorangeamber.png",
+    "slug": "solkast-v7-arch-warm",
+    "field": "dark",
+    "key": "global",
+    "fuzz": "20%"
+  }
+]
