@@ -56,6 +56,33 @@ def load_pipeline(build, print_dir, up, size):
     return mod
 
 
+def _place(p4, src, dst, size, spec):
+    """Size and position artwork inside the print area explicitly.
+
+    Fitting centred is right for a tee, whose print area is a 12x16 rectangle
+    starting below the collar. It is wrong for a hoodie: that area is a 12.5in
+    square and a pouch pocket crosses its lower third, so centred artwork lands
+    on the pocket seam. Reusing the tee file there also shrinks the logo from
+    11 inches to 8.6, because a 3:4 file fitted into a square is limited by its
+    height.
+
+    `width_frac` is the artwork's width as a fraction of the area, `center_y`
+    where its middle sits from the top.
+    """
+    aw, ah = size
+    tw = int(aw * spec.get("width_frac", 0.9))
+    tmp = dst.parent / f"_placed_{dst.stem}.png"
+    p4.sh(["magick", str(src), "-trim", "+repage", "-resize", f"{tw}x",
+           str(tmp)])
+    th = int(p4.sh(["magick", str(tmp), "-format", "%h", "info:"]).stdout or 0)
+    top = int(ah * spec.get("center_y", 0.5)) - th // 2
+    left = (aw - tw) // 2
+    p4.sh(["magick", "-size", f"{aw}x{ah}", "xc:none",
+           "(", str(tmp), ")", "-geometry", f"+{left}+{max(0, top)}",
+           "-composite", str(dst)])
+    tmp.unlink(missing_ok=True)
+
+
 def _report(p4, dst, pw, ph, sw, sh_, seed):
     """Verify a written printfile and print the result. Returns True if ok."""
     got = p4.sh(["magick", str(dst), "-format", "%wx%h", "info:"]).stdout
@@ -152,7 +179,10 @@ def main():
             p4.sh(["magick", str(src), "-alpha", "set",
                    "-fuzz", d.get("fuzz", "18%"), "-transparent", seed,
                    str(keyed)])
-            p4.fit_only(keyed, dst)
+            if d.get("place"):
+                _place(p4, keyed, dst, size, d["place"])
+            else:
+                p4.fit_only(keyed, dst)
             p4.unmat(dst, kind)
             _report(p4, dst, pw, ph, sw, sh_, seed)
             continue

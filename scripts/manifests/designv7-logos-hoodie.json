@@ -1,0 +1,5 @@
+[
+  {"source": "logo/ambercream.png", "slug": "solkast-v7-arch-amber-hoodie",
+   "field": "dark", "key": "global", "fuzz": "20%",
+   "place": {"width_frac": 0.88, "center_y": 0.33}}
+]
