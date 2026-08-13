@@ -7,13 +7,33 @@
   {
     "source": "Firefly_Generate a gorgeous streetwear art design,  some text, ready to print on a shirt, nav 155925.png",
     "slug": "solkast-v6-chase-the-light",
-    "field": "dark"
+    "field": "dark",
+    "extra_seeds": [
+      [
+        270,
+        206
+      ],
+      [
+        655,
+        265
+      ]
+    ]
   },
   {
     "source": "Firefly_Generate a gorgeous streetwear art design,  some text, ready to print on a shirt, tra 155925.png",
     "slug": "solkast-v6-stay-golden",
     "field": "light",
     "key_first": true,
-    "fuzz": "22%"
+    "fuzz": "22%",
+    "extra_seeds": [
+      [
+        270,
+        206
+      ],
+      [
+        655,
+        265
+      ]
+    ]
   }
 ]

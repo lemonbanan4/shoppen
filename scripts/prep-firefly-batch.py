@@ -179,6 +179,19 @@ def main():
             p4.sh(["magick", str(src), "-alpha", "set",
                    "-fuzz", d.get("fuzz", "18%"), "-transparent", seed,
                    str(keyed)])
+            # extra_seeds still apply here even though most of the background
+            # is already gone globally: a global key removes every pixel
+            # matching the colour, but an enclosed island whose fill differs
+            # from the flat seed (a gradient, a slightly off tone) can survive
+            # it the same way it survives a border-connected fill.
+            extra = d.get("extra_seeds")
+            if extra:
+                cmd = ["magick", str(keyed), "-fuzz", d.get("fuzz", "18%"),
+                       "-fill", "none"]
+                for x, y in p4._verified_seeds(src, extra, kind):
+                    cmd += ["-floodfill", f"+{x}+{y}", seed]
+                cmd += [str(keyed)]
+                p4.sh(cmd)
             if d.get("place"):
                 _place(p4, keyed, dst, size, d["place"])
             else:
@@ -203,7 +216,8 @@ def main():
             # square gains a soft border that falls outside, and the fill leaves
             # a ghost grid behind.
             keyed = up / f"{slug}-keyed.png"
-            p4.key_only(src, keyed, kind, d.get("fuzz"), seed)
+            p4.key_only(src, keyed, kind, d.get("fuzz"), seed,
+                       d.get("extra_seeds"))
             if big_enough and not d.get("force_upscale"):
                 print(f"  {slug}: keying ({kind}), already {sw}x{sh_} "
                       f"— no upscale needed", flush=True)
@@ -214,9 +228,20 @@ def main():
                 p4.fit_only(up / f"{slug}-4x.png", dst)
         else:
             print(f"  {slug}: upscaling...", flush=True)
-            p4.upscale(src, up / f"{slug}-4x.png")
+            up4 = up / f"{slug}-4x.png"
+            p4.upscale(src, up4)
             print(f"  {slug}: keying ({kind}) and fitting...", flush=True)
-            p4.key_and_fit(up / f"{slug}-4x.png", dst, kind, d.get("fuzz"), seed)
+            # extra_seeds are given in source-image coordinates; the artwork
+            # this actually keys is the 4x upscale, so the points scale with
+            # it — a seed found by eye on the original and used unscaled here
+            # would land nowhere near the hole it was meant to fill.
+            extra = d.get("extra_seeds")
+            if extra:
+                uw, uh_ = map(int, p4.sh(["magick", str(up4), "-format",
+                                          "%w %h", "info:"]).stdout.split())
+                fx_, fy_ = uw / sw, uh_ / sh_
+                extra = [(round(x * fx_), round(y * fy_)) for x, y in extra]
+            p4.key_and_fit(up4, dst, kind, d.get("fuzz"), seed, extra)
         p4.unmat(dst, kind)
 
         got = p4.sh(["magick", str(dst), "-format", "%wx%h", "info:"]).stdout

@@ -151,8 +151,22 @@ def corner_colour(src):
     return p if p else None
 
 
-def key_only(src, dst, kind, fuzz_override=None, seed_override=None):
-    """Flood-fill the background away, at the source's own size."""
+def key_only(src, dst, kind, fuzz_override=None, seed_override=None,
+             extra_seeds=None):
+    """Flood-fill the background away, at the source's own size.
+
+    extra_seeds are (x, y) points to flood-fill from in addition to the four
+    corners — for background-coloured islands enclosed by the artwork itself
+    and so unreachable from the border. A decorative star drawn inside the
+    counter of an "O" is exactly this: the flood fill correctly leaves it
+    alone because it cannot tell "enclosed background" from "an intentional
+    dark shape", and a star sitting on a patch of the original field prints as
+    a solid block of that colour, or Firefly's literal checkerboard where the
+    field was meant to be transparent. Each extra seed is checked first and
+    skipped with a warning if it no longer lands on the seed colour — the
+    interior of a design shifts if the artwork upstream of it changes, and a
+    seed that lands on ink instead of background would delete part of the art.
+    """
     seed = seed_override or ("black" if kind == "dark" else "white")
     fuzz = fuzz_override or ("18%" if kind == "light" else "12%")
     w, h = map(int, sh(["magick", str(src), "-format", "%w %h",
@@ -160,10 +174,40 @@ def key_only(src, dst, kind, fuzz_override=None, seed_override=None):
     cmd = ["magick", str(src), "-alpha", "set", "-fuzz", fuzz, "-fill", "none"]
     for pt in (f"+0+0", f"+{w-1}+0", f"+0+{h-1}", f"+{w-1}+{h-1}"):
         cmd += ["-floodfill", pt, seed]
+    for x, y in _verified_seeds(src, extra_seeds, kind):
+        cmd += ["-floodfill", f"+{x}+{y}", seed]
     cmd += [str(dst)]
     r = sh(cmd)
     if not dst.exists():
         raise RuntimeError(f"key_only failed for {src.name}: {r.stderr[-300:]}")
+
+
+def _verified_seeds(src, extra_seeds, kind):
+    """Extra seed points, kept only if they still land on background.
+
+    -floodfill takes its match colour from the pixel AT the seed, not from a
+    fixed target — so a seed that has drifted onto ink would flood-fill that
+    ink's own connected region instead of doing nothing. Checked here rather
+    than trusted, because the failure mode is not "no effect" but "deletes
+    part of the artwork".
+    """
+    if not extra_seeds:
+        return []
+    ok = []
+    for x, y in extra_seeds:
+        p = pixel(src, x, y)
+        nums = p[p.find("(") + 1:p.find(")")].split(",")[:3]
+        try:
+            lum = sum(float(n) for n in nums) / (3 * 255)
+        except ValueError:
+            lum = 0.5
+        background_like = lum < 0.25 if kind == "dark" else lum > 0.75
+        if background_like:
+            ok.append((x, y))
+        else:
+            print(f"  seed ({x},{y}) is not background-coloured ({p}) — "
+                  f"skipped rather than risk flood-filling artwork")
+    return ok
 
 
 def fit_only(src, dst):
@@ -219,7 +263,8 @@ def poster_fit(src, dst):
         raise RuntimeError(f"poster fit failed for {src.name}: {r.stderr[-300:]}")
 
 
-def key_and_fit(src, dst, kind, fuzz_override=None, seed_override=None):
+def key_and_fit(src, dst, kind, fuzz_override=None, seed_override=None,
+                 extra_seeds=None):
     """Remove the border-connected background, THEN fit to the placement.
 
     Order matters and getting it wrong fails silently. Extending the canvas
@@ -227,6 +272,10 @@ def key_and_fit(src, dst, kind, fuzz_override=None, seed_override=None):
     that padding, matches nothing, and returns an untouched image with a fully
     opaque background — which still looks like a plausible result and would
     have gone to Printful as a black ink panel on a black shirt.
+
+    extra_seeds are in the coordinate space of `src` — the caller's job to
+    scale, since src here is post-upscale on the default path. See key_only
+    for why an enclosed background island needs this at all.
     """
     seed = seed_override or ("black" if kind == "dark" else "white")
     # Fuzz is generous for light backgrounds (Firefly's white is not flat, it
@@ -242,6 +291,8 @@ def key_and_fit(src, dst, kind, fuzz_override=None, seed_override=None):
     # regions by artwork that reaches the edge.
     for pt in (f"+0+0", f"+{w-1}+0", f"+0+{h-1}", f"+{w-1}+{h-1}"):
         cmd += ["-floodfill", pt, seed]
+    for x, y in _verified_seeds(src, extra_seeds, kind):
+        cmd += ["-floodfill", f"+{x}+{y}", seed]
     # No alpha erosion here, deliberately.
     #
     # An earlier version eroded the alpha by 1.5px to swallow the fringe left
