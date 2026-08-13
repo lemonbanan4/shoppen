@@ -297,7 +297,13 @@ def retired_colours():
         return set()
     with open(path) as f:
         src = f.read()
-    m = re.search(r"const RETIRED_COLOURS = new Set\(\[(.*?)\]\)", src, re.S)
+    # The optional <string> matters: annotating the empty set as
+    # `new Set<string>([])` broke a pattern that only allowed `new Set([...])`,
+    # and the whole run stopped. That it stopped rather than quietly returning
+    # "nothing is retired" is the behaviour this function was written for, so
+    # the pattern widens rather than the guard softening.
+    m = re.search(r"const RETIRED_COLOURS = new Set(?:<[^>]*>)?\(\[(.*?)\]\)",
+                  src, re.S)
     if not m:
         raise SystemExit(
             f"Could not find RETIRED_COLOURS in {path}. Mockups would be "
