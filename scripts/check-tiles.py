@@ -14,8 +14,13 @@ makes that one command instead of eight.
 Same metric as tile-for-aop.py, which is the point — a candidate that clears
 this will clear the gate that refuses to build placements.
 
-    python3 scripts/check-tiles.py ~/development/shoppen/designv7
-    python3 scripts/check-tiles.py <dir> --keep-dir ~/tiles/passed
+One caveat the score cannot cover: mirror-tiled artwork passes, because
+mirroring genuinely wraps. It also reverses everything on one axis, so any
+tile containing the word SOLKAST will have it backwards on half the repeats.
+That is a look, not a measurement, and stays a human check.
+
+    python3 scripts/check-tiles.py <folder-of-pattern-candidates>
+    python3 scripts/check-tiles.py <folder> --log --keep-dir ~/tiles/passed
 """
 import argparse
 import pathlib
@@ -92,10 +97,37 @@ def score(path):
     return w, h, v_edge / v_base, h_edge / h_base, activity
 
 
+def log_results(path, rows, marks):
+    """Append this run to a running record, so a week of tries accumulates.
+
+    The filename is the record. Firefly names an export after its prompt, which
+    is the only reason it was possible to establish that asking for a "seamless
+    repeating tile pattern" produced the worst tile of eight — the candidate
+    that actually passed had been renamed, and took its prompt with it.
+
+    Truncated at 100 characters including the prefix and trailing id, so about
+    85 characters of prompt survive and the tail is lost. Worth putting the
+    part you are varying at the FRONT of the prompt if you want it recorded.
+    """
+    new = not path.exists()
+    with path.open("a") as f:
+        if new:
+            f.write("date\tworst\tacross\tdown\tsize\tverdict\tfilename\n")
+        stamp = subprocess.run(["date", "+%Y-%m-%d %H:%M"],
+                               capture_output=True, text=True).stdout.strip()
+        for (worst, sv, shz, w, h, _act, src), mark in zip(rows, marks):
+            f.write(f"{stamp}\t{worst:.2f}\t{sv:.2f}\t{shz:.2f}\t"
+                    f"{w}x{h}\t{mark}\t{src.name}\n")
+    return path
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("directory")
     ap.add_argument("--keep-dir", help="copy the passing tiles here")
+    ap.add_argument("--log", nargs="?", const="tile-log.tsv",
+                    help="append results to a running tab-separated record "
+                         "(default tile-log.tsv in the checked directory)")
     args = ap.parse_args()
 
     d = pathlib.Path(args.directory).expanduser()
@@ -120,6 +152,7 @@ def main():
         rows.append((max(sv, shz), sv, shz, w, h, act, f))
 
     rows.sort()
+    marks = []
     print(f"\n  {len(rows)} candidate(s), best first\n")
     print(f"  {'worst':>6}  {'across':>6} {'down':>6}  {'size':>11}  name")
     passed = []
@@ -136,6 +169,7 @@ def main():
             passed.append(f)
         else:
             mark = "seam"
+        marks.append(mark)
         print(f"  {worst:6.2f}  {sv:6.2f} {shz:6.2f}  {w:>5}x{h:<5}  "
               f"{f.name[:44]:<46} {mark}")
 
@@ -144,6 +178,13 @@ def main():
     if not passed:
         print("  Generate more. Roughly one in eight has passed historically, "
               "and the prompt wording did not predict which.")
+
+    if args.log:
+        log = pathlib.Path(args.log).expanduser()
+        if not log.is_absolute() and log.name == args.log:
+            log = d / log
+        log_results(log, rows, marks)
+        print(f"  logged to {log}")
 
     if args.keep_dir and passed:
         keep = pathlib.Path(args.keep_dir).expanduser()
