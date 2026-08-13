@@ -686,8 +686,35 @@ export default async function syncSolkastProducts({
     entity: "product",
     fields: ["handle"],
   });
+  // Products on their way out do not own their handle.
+  //
+  // Retirement happens at the end of the run, which is right — it is what
+  // stops the catalogue disappearing mid-sync. But it means a product being
+  // replaced still holds its slug while its replacement is created, so the new
+  // one collides and falls back to `<slug>-<printfulId>`. That is exactly what
+  // happened re-listing Rose Sun: the clean /rose-sun-tee was freed seconds
+  // later by the retirement and nothing was left holding it.
+  //
+  // Which products are leaving is known before the loop starts, so exclude
+  // them here rather than discovering the collision after the fact.
+  const retiringHandles = new Set(
+    mine
+      .filter(
+        (p) =>
+          !CURATED[
+            String(
+              (p.metadata as Record<string, unknown> | null)
+                ?.printful_product_id
+            )
+          ]
+      )
+      .map((p) => p.handle as string)
+      .filter(Boolean)
+  );
   const takenHandles = new Set<string>(
-    handleRows.map((r) => r.handle).filter(Boolean) as string[]
+    (handleRows.map((r) => r.handle).filter(Boolean) as string[]).filter(
+      (h) => !retiringHandles.has(h)
+    )
   );
 
   let created = 0;
@@ -848,6 +875,27 @@ export default async function syncSolkastProducts({
       // every saved link the moment a product is renamed.
       const { handle: _discard, options: _keep, variants: _v, ...fields } =
         productInput;
+
+      // Reclaim a clean handle if this product is sitting on the collision
+      // fallback and the clean one is now free.
+      //
+      // Narrow on purpose. Handles are otherwise never rewritten, because a
+      // handle is the product's URL and rewriting one breaks every saved link.
+      // The only form reclaimed is `<slug>-<printfulId>`, which nothing but
+      // this script's own collision fallback produces — so this un-does a
+      // machine-made ugly URL and cannot touch a deliberate one.
+      // Compared against the handle toHandle just computed, not against
+      // takenHandles. toHandle registers whatever it returns, so by this point
+      // the clean slug is in that set — claimed by this very product — and
+      // asking whether it is free answers "no" for the wrong reason.
+      const suffix = `-${p.id}`;
+      const currentHandle = existing.handle as string;
+      const idealHandle = productInput.handle;
+      if (currentHandle?.endsWith(suffix) && !idealHandle.endsWith(suffix)) {
+        takenHandles.delete(currentHandle);
+        (fields as Record<string, unknown>).handle = idealHandle;
+        logger.info(`      handle: ${currentHandle} -> ${idealHandle}`);
+      }
       await updateProductsWorkflow(container).run({
         input: { products: [{ id: existing.id, ...fields } as never] },
       });
