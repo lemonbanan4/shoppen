@@ -36,8 +36,14 @@ export default async function ProductPreview({
               Hoodie" down to "Coffee Run ...". Side by side from the
               small breakpoint, where there is room for both. */}
           <div className="flex flex-col small:flex-row small:items-baseline small:justify-between small:gap-x-4">
+            {/* neutral-50, not neutral-900. The card sits on the dark page
+                background, where near-black text measures about 1.1:1 — the
+                product name was effectively invisible on every grid in the
+                shop, with only the price legible beside it. Same leftover as
+                the white-on-white option buttons: light-theme utility classes
+                on a component that only ever renders dark. */}
             <p
-              className="text-sm font-medium text-neutral-900 small:truncate"
+              className="text-sm font-medium text-neutral-50 small:truncate"
               data-testid="product-title"
             >
               {product.title}
@@ -45,7 +51,7 @@ export default async function ProductPreview({
             {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
           </div>
           {product.subtitle && (
-            <p className="text-xs text-neutral-500 truncate">
+            <p className="text-xs text-neutral-400 truncate">
               {product.subtitle}
             </p>
           )}
