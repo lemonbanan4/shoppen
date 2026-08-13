@@ -126,6 +126,77 @@ def classify_fit(product_name, catalog_title):
     return "unisex"
 
 
+def resolve_placement(file_type, accepted):
+    """Map a stored file's `type` onto a placement the generator accepts.
+
+    Three things make this not a lookup by name:
+
+    Printful files a single-placement upload under the generic type "default"
+    rather than the placement it was sent as.
+
+    It also renames some placements between endpoints. Joggers are created with
+    `leg_left`/`leg_right`, which is what /mockup-generator/printfiles lists,
+    and come back from /store/products as `left_leg`/`right_leg` — the same
+    placement with the words the other way round.
+
+    And the last-resort fallback has to skip the label placements. They are
+    accepted placements and `label_inside` sorts first alphabetically, so
+    picking the first accepted name put a garment's artwork on its neck label.
+    """
+    if file_type in accepted:
+        return file_type
+    swapped = PLACEMENT_ALIASES.get(file_type)
+    if swapped in accepted:
+        return swapped
+    if file_type != "default":
+        return None
+    artwork = sorted(p for p in accepted if not p.startswith("label_"))
+    return next((p for p in DEFAULT_PLACEMENT_PREFERENCE if p in accepted),
+                artwork[0] if artwork else None)
+
+
+# Placements Printful reports under a different name than it accepts.
+PLACEMENT_ALIASES = {
+    "left_leg": "leg_left", "right_leg": "leg_right",
+    "leg_left": "left_leg", "leg_right": "right_leg",
+}
+
+
+def exact_fit(catalog_product_id, variant_ids, files):
+    """True when every artwork file already matches its print area exactly.
+
+    The re-fit in generate() scales artwork to fit the panel and centres it.
+    For a normal garment that is what you want. For a cut-and-sew one it moves
+    the design relative to the seams, so the mockup shows the print somewhere
+    it will not be. When the sheet was authored at the panel's own dimensions
+    the scale factor is 1 and the offsets are 0, and the mockup is truthful.
+
+    Anything unknown — a file with no dimensions reported, a placement with no
+    printfile — counts as not exact, because the point is to be sure.
+    """
+    info = printfile_info(catalog_product_id)
+    if not info:
+        return False
+    by_id, var_placements = info
+    ref = next((v for v in variant_ids if v in var_placements), None)
+    if ref is None:
+        return False
+    accepted = var_placements[ref]
+    checked = 0
+    for f in files:
+        if f["type"] in SKIP_FILE_TYPES:
+            continue
+        placement = resolve_placement(f["type"], accepted)
+        pf_id = accepted.get(placement) if placement else None
+        if pf_id is None or pf_id not in by_id:
+            return False
+        p = by_id[pf_id]
+        if (f.get("width"), f.get("height")) != (p["width"], p["height"]):
+            return False
+        checked += 1
+    return checked > 0
+
+
 def generate(catalog_product_id, variant_ids, files_by_placement, option_group=None):
     info = printfile_info(catalog_product_id)
     if not info:
@@ -251,12 +322,26 @@ def main():
 
         print(f"[{idx+1}/{len(products)}] {sp['name']}  (catalog {catalog_product_id})")
 
-        # All-over-print garments are assembled from per-panel print files;
-        # re-fitting the artwork slices the design across seams and produces
-        # mockups that misrepresent the product. Printful's own preview file
-        # (used by the sync's image fallback chain) is the correct imagery.
-        if catalog_type(catalog_product_id) == "CUT-SEW":
-            print("    cut-and-sew (all-over print) — skipping, preview file is authoritative")
+        # All-over-print garments are assembled from per-panel print files, and
+        # the danger with them is the re-fit below: artwork that is not already
+        # the exact size of the panel gets scaled and centred, which slides the
+        # design relative to the seams and produces mockups that misrepresent
+        # where the print actually lands.
+        #
+        # That is a property of the artwork, not of the product type. A sheet
+        # authored at the printfile's own dimensions re-fits by a factor of
+        # exactly 1 — nothing moves — and those garments are the ones that most
+        # need more than one image, being the most expensive things here and
+        # the hardest to picture from a flat preview.
+        #
+        # So the check is now "would this be rescaled?" rather than "is this
+        # cut-and-sew?". Anything that would move still falls back to
+        # Printful's own preview file, which remains authoritative.
+        if catalog_type(catalog_product_id) == "CUT-SEW" and not exact_fit(
+            catalog_product_id, variant_ids, variants[0]["files"]
+        ):
+            print("    cut-and-sew with rescaled artwork — skipping, "
+                  "preview file is authoritative")
             continue
 
         # Placement names vary by product type ("front"/"back" on tees,
@@ -282,15 +367,9 @@ def main():
             if t in SKIP_FILE_TYPES or not f.get("preview_url"):
                 continue
             src = (f["url"] or f["preview_url"], f.get("width"), f.get("height"))
-            if t in accepted:
-                files_by_placement[t] = src
-            elif t == "default":
-                target = next(
-                    (p for p in DEFAULT_PLACEMENT_PREFERENCE if p in accepted),
-                    next(iter(sorted(accepted)), None),
-                )
-                if target:
-                    files_by_placement[target] = src
+            target = resolve_placement(t, accepted)
+            if target:
+                files_by_placement[target] = src
 
         if not files_by_placement:
             have = [f["type"] for f in variants[0]["files"]]
@@ -320,14 +399,36 @@ def main():
         manifest[str(pid)] = {"name": sp["name"], "images": hosted}
 
 
-    # Drop entries for products that no longer exist upstream. A targeted run
-    # only ever adds to the manifest it seeded from, so without this a deleted
-    # product's mockups linger forever and get re-applied by the sync.
-    live_ids = {str(p["id"]) for p in call("/store/products?limit=100")["result"]}
-    removed = [k for k in manifest if k not in live_ids]
-    for k in removed:
-        print(f"pruning {k} ({manifest[k].get('name','?')}) — gone from Printful")
-        del manifest[k]
+    # Tag what this run produced with the store it came from, so a later run
+    # against a different store can tell "this product was deleted" apart from
+    # "this product was never mine". The manifest is shared across brands.
+    for pid in list(manifest):
+        if str(pid) in {str(p["id"]) for p in products}:
+            manifest[pid]["store"] = str(STORE)
+
+    # Drop entries for products that no longer exist upstream, so a deleted
+    # product's mockups do not linger and get re-applied by the sync.
+    #
+    # Scoped two ways, both learned the hard way. A targeted run does not prune
+    # at all: ONLY_IDS means "regenerate these two", and inferring catalogue-wide
+    # deletions from it is not something the caller asked for. And a full run
+    # only prunes entries belonging to the store it just queried — running this
+    # for the second brand once declared all ten of the first brand's products
+    # gone, because they were absent from a product list they were never in.
+    if only:
+        print("ONLY_IDS set — not pruning (a targeted run cannot see deletions)")
+    else:
+        live_ids = {str(p["id"]) for p in products}
+        removed = [
+            k for k, v in manifest.items()
+            if k not in live_ids and str(v.get("store", STORE)) == str(STORE)
+        ]
+        for k in removed:
+            print(f"pruning {k} ({manifest[k].get('name','?')}) — gone from Printful")
+            del manifest[k]
+        kept = len(manifest) - len(live_ids & set(manifest))
+        if kept:
+            print(f"kept {kept} entry(s) belonging to other stores")
 
     # Write every location the sync looks in. These had drifted into two
     # copies once already, and because the sync takes the first candidate it

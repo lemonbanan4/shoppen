@@ -102,5 +102,25 @@
       "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-453013477-4.jpg",
       "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-453013477-5.jpg"
     ]
+  },
+  "455589012": {
+    "name": "Solstice Track Jacket",
+    "images": [
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589012-0.jpg",
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589012-1.jpg",
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589012-2.jpg",
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589012-3.jpg"
+    ],
+    "store": "18510270"
+  },
+  "455589016": {
+    "name": "Solstice Joggers",
+    "images": [
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589016-0.jpg",
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589016-1.jpg",
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589016-2.jpg",
+      "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups/pf-455589016-3.jpg"
+    ],
+    "store": "18510270"
   }
 }
