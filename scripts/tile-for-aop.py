@@ -56,6 +56,34 @@ PRODUCTS = {
         "placements": {"default": (4200, 5400), "back": (4200, 5400),
                        "sleeve_left": (3000, 1800), "sleeve_right": (3000, 1800)},
     },
+    "zip-hoodie": {
+        "id": 717,
+        "placements": {"front": (5250, 6000), "back": (5250, 6000),
+                       "sleeve_left": (5250, 6000), "sleeve_right": (5250, 6000),
+                       "hood": (5250, 6000), "pocket": (5250, 3750),
+                       "label_panel": (5250, 3750)},
+    },
+    "baseball-jersey": {
+        "id": 792,
+        "placements": {"front": (5700, 6900), "back": (5700, 6900),
+                       "details": (5700, 6900),
+                       "sleeve_left": (5700, 2250), "sleeve_right": (5700, 2250)},
+    },
+    "bucket-hat": {
+        "id": 654,
+        "placements": {"outside_front": (2700, 3150), "outside_back": (2700, 3150),
+                       "inside_front": (2700, 3150), "inside_back": (2700, 3150)},
+    },
+    "duffle": {
+        "id": 465,
+        "placements": {"front": (4050, 2700), "back": (4050, 2700),
+                       "sides": (4050, 2700), "top": (4050, 2700),
+                       "bottom": (4050, 2700), "pocket": (4050, 2700)},
+    },
+    "bandana": {
+        "id": 630,
+        "placements": {"front": (4125, 4125)},
+    },
 }
 
 
@@ -130,6 +158,9 @@ def main():
     ap.add_argument("--product", choices=sorted(PRODUCTS))
     ap.add_argument("--repeat", type=float, default=3.0,
                     help="times the tile repeats across the panel width")
+    ap.add_argument("--cell", type=int,
+                    help="px per tile repeat; overrides --repeat and keeps the "
+                         "motif the same physical size on every product")
     args = ap.parse_args()
 
     tile = pathlib.Path(args.tile).expanduser()
@@ -170,7 +201,15 @@ def main():
         # a `tile:file[WxH]` read-modifier. That shorthand silently ignored the
         # canvas size for some inputs and wrote a single scaled tile — a
         # 1052x1100 file where a 6600x6900 panel was wanted.
-        cell = int(pw / args.repeat)
+        # A fixed cell, not a fixed number of repeats.
+        #
+        # --repeat scales the motif to the panel, which silently changes how
+        # big a sun is depending on what it is printed on: six repeats across
+        # a 6600px jacket front gives a 7.3in motif, and six across a 2700px
+        # bucket hat gives a 3in one. The pattern would read as a different
+        # pattern on every product. A monogram is the same size on the bag as
+        # on the coat, and that is most of why it reads as one.
+        cell = args.cell or int(pw / args.repeat)
         dst = d / f"{name}.png"
         r = sh(["magick", str(tile), "-resize", f"{cell}x{cell}!",
                 "-write", "mpr:t", "+delete",

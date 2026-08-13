@@ -59,7 +59,17 @@ const CURATED: Record<string, string> = {
   // that matters when the traffic arrives from a video.
   "455299292": "From Shadow Tee",
   "455299311": "Solar Crown Tee",
-  "455299319": "Rose Sun Tee",
+  // Re-listed on Stone and White. This prints solkast-v2-light-18, one of the
+  // "light" set drawn for a pale garment with the wordmark in near-black, and
+  // it had been listed on Black and French Navy — wordmark black on black,
+  // reading as a misprint rather than a design. Its two siblings from the same
+  // set, Late Bloom and City Angel, were always on Stone and White; this one
+  // got the dark blank and nothing about the artwork differs.
+  //
+  // Same failure as French Navy, which RETIRED_COLOURS already filters:
+  // artwork keyed against one background, sold on another. A filter could not
+  // fix this one, because a sync variant's colour is fixed at creation.
+  "455594667": "Rose Sun Tee",
   "455299326": "Total Eclipse Tee",
   "455299329": "Built in Sunlight Tee",
   "455299333": "Driven by Light Tee",
@@ -189,6 +199,37 @@ const CURATED: Record<string, string> = {
   // costs, not how much artwork is on it.
   "455589012": "Solstice Track Jacket",
   "455589016": "Solstice Joggers",
+
+  // The rest of the Solstice range. Outerwear because the tracksuit needed a
+  // third piece, and accessories because that is where a monogram actually
+  // sells — the houses built on one move far more bags and hats than coats,
+  // and a duffle has one size, so a bag that does not fit is not a return.
+  //
+  // Every sheet is tiled at the same 1100px cell, so a sun is the same size on
+  // the bandana as on the jacket. Scaling the repeat to each panel instead
+  // would have made it a different pattern on every product.
+  //
+  // The bandana at 299 is the cheapest way into the pattern and the duffle at
+  // 1499 the most expensive thing in the shop, which is the spread a monogram
+  // wants: the point of entry has to be reachable or the pattern never gets
+  // seen on anyone.
+  "455595147": "Solstice Zip Hoodie",
+  "455595154": "Solstice Baseball Jersey",
+  "455595166": "Solstice Bucket Hat",
+  "455595175": "Solstice Duffle",
+  "455595180": "Solstice Bandana",
+
+  // v5, and the reason they exist: the same sun-ringed-by-molecular-bonds
+  // vocabulary as the all-over pattern, at chest scale. The graphic tees and
+  // the AOP pieces should read as one range seen at two sizes rather than two
+  // unrelated drops.
+  //
+  // Split by field, not by preference. The dark artwork carries white and
+  // silver and goes on Black; the light artwork has its wordmark in near-black
+  // and goes on Stone and White. Listing either on the other garment is the
+  // Rose Sun failure, which is fixed a few lines above.
+  "455595267": "Chemistry of Light Tee",
+  "455595274": "From Matter Tee",
 };
 
 /**
@@ -236,6 +277,21 @@ const MATERIALS: Record<number, string> = {
 
   400: "Cut and sewn from recycled polyester, printed before assembly.",
   801: "Cut and sewn from recycled polyester, printed before assembly.",
+  717: "Cut and sewn from recycled polyester, printed before assembly.",
+  792: "Cut and sewn from recycled polyester, printed before assembly.",
+
+  // Plain polyester, and said so. These three are the accessories in the same
+  // range as the recycled garments above, and it would be easy to let the
+  // sentence carry across — which is exactly the habit that had paper posters
+  // describing themselves as organic cotton.
+  //
+  // The bandana is the one worth spelling out: Printful lists it as 65%
+  // recycled polyester *in the EU* and plain polyester elsewhere. The shop
+  // ships from the US, so the recycled claim does not hold for what a customer
+  // here actually receives.
+  654: "Cut and sewn from polyester, printed before assembly.",
+  465: "Cut and sewn from polyester, printed before assembly.",
+  630: "Cut and sewn from polyester, printed before assembly.",
   449: "Knitted from organic cotton.",
   491: "Organic cotton twill, embroidered to order.",
   528: "Organic cotton denim.",
