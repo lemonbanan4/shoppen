@@ -4,6 +4,9 @@
 // those plainly is the closest thing to social proof available.
 import { FULFILMENT, shippingRegionFor } from "@lib/copy"
 
+const sentenceCase = (s: string) =>
+  s.charAt(0).toUpperCase() + s.slice(1)
+
 const stepsFor = (isSv: boolean, countryCode?: string) =>
   isSv
     ? [
@@ -40,9 +43,14 @@ const stepsFor = (isSv: boolean, countryCode?: string) =>
           // contradicting the hero, the footer and every product page, which
           // all say the US. Reads from the same region-aware copy layer as
           // those, so there is now one place that can be wrong.
-          body: `Made to order ${
+          //
+          // Used as the whole clause, not prefixed. printedIn already carries
+          // the verb — "printed to order in the US" — and a first attempt at
+          // "Made to order ${printedIn}" shipped "Made to order printed to
+          // order in the US" to the live homepage.
+          body: `${sentenceCase(
             FULFILMENT[shippingRegionFor(countryCode)].printedIn
-          }. No warehouse, no unsold boxes, no overproduction.`,
+          )}. No warehouse, no unsold boxes, no overproduction.`,
         },
         {
           n: "03",

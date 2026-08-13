@@ -47,7 +47,7 @@ export default function Manifesto({ countryCode }: { countryCode?: string }) {
 
         <p className="mt-7 max-w-xl text-sm small:text-base text-white/65 leading-relaxed">
           {isSolkast
-            ? "The long shadow at four in the afternoon, the shape a thing makes when the light hits it sideways. A short list, organic cotton, " +
+            ? "The long shadow at four in the afternoon, the shape a thing makes when the light hits it sideways. A short list, made properly, " +
               `${FULFILMENT[shippingRegionFor(countryCode)].printedIn}. ` +
               "Made to be worn for years rather than noticed for a season."
             : isSv
