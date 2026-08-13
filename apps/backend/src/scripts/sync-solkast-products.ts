@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { MedusaContainer } from "@medusajs/framework";
 import {
   ContainerRegistrationKeys,
@@ -231,6 +233,44 @@ const MATERIALS: Record<number, string> = {
 
 const MATERIAL_FALLBACK = "Made to order.";
 
+type MockupManifest = Record<string, { name: string; images: string[] }>;
+
+/**
+ * Multi-view mockups produced by scripts/generate-printful-mockups.py.
+ *
+ * Optional by design: a missing manifest means every product falls back to
+ * Printful's own per-variant preview, which is what the shop ran on before
+ * these existed. It is not an error and must not stop a sync.
+ *
+ * The path list mirrors apply-printful-mockups.ts because `railway run` does
+ * not reliably forward ad-hoc env vars into the command it spawns, so the
+ * checked-in file has to be findable from more than one working directory.
+ */
+function loadMockups(logger: { info: (m: string) => void }): MockupManifest {
+  const candidates = [
+    process.env.MOCKUP_MANIFEST,
+    path.resolve(process.cwd(), "mockups.json"),
+    path.resolve(__dirname, "../../mockups.json"),
+    path.resolve(process.cwd(), "apps/backend/mockups.json"),
+  ].filter(Boolean) as string[];
+
+  const found = candidates.find((p) => fs.existsSync(p));
+  if (!found) {
+    logger.info("No mockup manifest found — using Printful preview images.");
+    return {};
+  }
+  try {
+    const m = JSON.parse(fs.readFileSync(found, "utf8")) as MockupManifest;
+    const withImages = Object.values(m).filter((v) => v.images?.length).length;
+    logger.info(`Mockup manifest: ${found} (${withImages} product(s) with views)`);
+    return m;
+  } catch (e: any) {
+    // A corrupt manifest should cost the extra angles, not the catalogue.
+    logger.info(`Mockup manifest unreadable (${e.message}) — using previews.`);
+    return {};
+  }
+}
+
 /** The material sentence for a product, from the blank its variants sit on. */
 function materialFor(variants: PrintfulSyncVariant[]): string {
   const ids = new Set(
@@ -255,6 +295,7 @@ export default async function syncSolkastProducts({
 }) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
+  const mockups = loadMockups(logger);
 
   const token = process.env.PRINTFUL_SOLKAST_API_TOKEN;
   const storeId = process.env.PRINTFUL_SOLKAST_STORE_ID;
@@ -444,17 +485,30 @@ export default async function syncSolkastProducts({
     // Taken per variant rather than flattened across all of them so the
     // colourways stay in variant order instead of arriving in whatever order
     // the files happen to be listed.
-    const images = [
-      ...new Set(
-        variants
-          .map(
-            (v) =>
-              v.files?.find((f) => f.type === "preview")?.preview_url ||
-              v.files?.find((f) => f.type === "mockup")?.preview_url
-          )
-          .filter(Boolean) as string[]
-      ),
-    ].slice(0, MAX_IMAGES);
+    // Generated multi-view mockups win when there are any. Printful's sync API
+    // exposes one front view per variant, which is all a plain graphic tee
+    // needs and nowhere near enough for a garment printed edge to edge — the
+    // whole claim about those is what happens around the back and down the
+    // sleeve, and a single front shot is the one angle that cannot show it.
+    //
+    // Read here rather than applied afterwards by apply-printful-mockups.ts.
+    // This sync replaces its products on every run, so anything written after
+    // it survives exactly until the next one.
+    const images = (
+      mockups[String(p.id)]?.images?.length
+        ? mockups[String(p.id)].images
+        : [
+            ...new Set(
+              variants
+                .map(
+                  (v) =>
+                    v.files?.find((f) => f.type === "preview")?.preview_url ||
+                    v.files?.find((f) => f.type === "mockup")?.preview_url
+                )
+                .filter(Boolean) as string[]
+            ),
+          ]
+    ).slice(0, MAX_IMAGES);
 
     if (!images.length) {
       logger.warn(
