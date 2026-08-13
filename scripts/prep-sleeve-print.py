@@ -58,22 +58,56 @@ def load_v4(build_dir):
     return mod
 
 
-def fit(src, dst, size, rotate=0):
-    """Fit inside the placement, centred, on transparency.
+def fit(src, dst, size, rotate=0, repeat=1, gap=0.35):
+    """Place the wordmark in the print area, once or repeated down it.
 
-    Fitted rather than filled: a wordmark stretched to a print area is a
-    different wordmark. The unused space is transparent, so the garment shows
-    through and the type sits where it was drawn.
+    Fitted rather than stretched: a wordmark pulled to fill a print area is a
+    different wordmark. Unused space stays transparent so the garment shows
+    through.
+
+    Repeating matters on the long sleeve. A single mark fitted into the
+    450x1800 strip lands at roughly 0.7 x 3.7 inches with about seventy percent
+    of a twelve-inch sleeve left empty — technically correct and visually a
+    small logo adrift. Streetwear sleeve type is a taped stripe: the same mark
+    over and over down the arm. That needs no all-over print; the strip is an
+    ordinary DTG area and this simply fills it.
+
+    `gap` is the space between marks as a fraction of one mark's height.
     """
     w, h = size
-    cmd = ["magick", str(src)]
-    if rotate:
-        cmd += ["-background", "none", "-rotate", str(rotate)]
-    cmd += ["-resize", f"{w}x{h}", "-background", "none",
-            "-gravity", "center", "-extent", f"{w}x{h}", str(dst)]
+    rot = ["-background", "none", "-rotate", str(rotate)] if rotate else []
+
+    if repeat <= 1:
+        r = sh(["magick", str(src), *rot, "-resize", f"{w}x{h}",
+                "-background", "none", "-gravity", "center",
+                "-extent", f"{w}x{h}", str(dst)])
+        if not dst.exists():
+            raise RuntimeError(f"fit failed: {r.stderr[-300:]}")
+        return
+
+    # Size one mark so `repeat` of them plus the gaps between fill the strip.
+    unit_h = int(h / (repeat + gap * (repeat - 1)))
+    step = int(unit_h * (1 + gap))
+    tmp = dst.parent / f"_unit_{dst.stem}.png"
+    r = sh(["magick", str(src), *rot, "-resize", f"{w}x{unit_h}",
+            "-background", "none", "-gravity", "center",
+            "-extent", f"{w}x{unit_h}", str(tmp)])
+    if not tmp.exists():
+        raise RuntimeError(f"unit failed: {r.stderr[-300:]}")
+
+    # Centre the whole stack rather than starting at the top, so the run of
+    # marks sits evenly on the sleeve instead of drifting toward the cuff.
+    total = step * (repeat - 1) + unit_h
+    top = (h - total) // 2
+    cmd = ["magick", "-size", f"{w}x{h}", "xc:none"]
+    for i in range(repeat):
+        cmd += ["(", str(tmp), ")", "-geometry", f"+0+{top + i * step}",
+                "-composite"]
+    cmd += [str(dst)]
     r = sh(cmd)
+    tmp.unlink(missing_ok=True)
     if not dst.exists():
-        raise RuntimeError(f"fit failed: {r.stderr[-300:]}")
+        raise RuntimeError(f"repeat failed: {r.stderr[-300:]}")
 
 
 def main():
@@ -85,6 +119,8 @@ def main():
     # letterforms live in the alpha channel, so a dark version is a recolour
     # rather than a re-render.
     ap.add_argument("--ink", help="recolour the letterforms, e.g. '#141414'")
+    ap.add_argument("--repeat", type=int, default=1,
+                    help="times the mark repeats down the long sleeve")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -104,16 +140,18 @@ def main():
               "horizontally — it is rotated here for the long sleeve.",
               file=sys.stderr)
 
+    # The tee patch is near square and takes one mark whatever --repeat says;
+    # repeating belongs to the long strip.
     targets = [
-        (f"{args.slug}-tee.png", TEE, 0),
+        (f"{args.slug}-tee.png", TEE, 0, 1),
         # Rotated in opposite directions so the type reads top-to-bottom on
         # whichever arm it is on.
-        (f"{args.slug}-sleeve-left.png", LONG, 90),
-        (f"{args.slug}-sleeve-right.png", LONG, -90),
+        (f"{args.slug}-sleeve-left.png", LONG, 90, args.repeat),
+        (f"{args.slug}-sleeve-right.png", LONG, -90, args.repeat),
     ]
     if args.dry_run:
-        for name, size, rot in targets:
-            print(f"  {name:<36} {size[0]}x{size[1]}  rotate {rot}")
+        for name, size, rot, rep in targets:
+            print(f"  {name:<36} {size[0]}x{size[1]}  rotate {rot}  x{rep}")
         return 0
 
     keyed = OUT / f"_{args.slug}-keyed.png"
@@ -134,9 +172,9 @@ def main():
         print(f"  recoloured to {args.ink}")
 
     rc = 0
-    for name, size, rot in targets:
+    for name, size, rot, rep in targets:
         dst = OUT / name
-        fit(keyed, dst, size, rot)
+        fit(keyed, dst, size, rot, rep)
         got = fx(dst, "%wx%h")
         ink = float(fx(dst, "%[fx:mean.a]") or 0)
         ok = got == f"{size[0]}x{size[1]}" and ink > 0.01
