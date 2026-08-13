@@ -48,6 +48,7 @@ SIZES = {
     654: ["S/M", "L/XL"],
     465: None,          # one size
     630: ["S", "M", "L"],
+    390: ["XS", "S", "M", "L", "XL", "2XL"],
 }
 
 # name, catalogue id, retail (SEK), {placement: sheet}, blank cost for the note
@@ -80,6 +81,15 @@ PRODUCTS = [
     }),
     ("Solstice Bandana", 630, "299.00", {
         "front": "bandana-4125x4125",
+    }),
+    # The one piece here that is not recycled polyester. Printful has no
+    # recycled bomber and this is the statement outerwear, so it is listed with
+    # its real composition rather than under the range's claim — which is what
+    # MATERIALS keying by blank is for.
+    ("Solstice Bomber Jacket", 390, "1399.00", {
+        "front": "bomber-4650x5400", "back": "bomber-4650x5400",
+        "sleeve_left": "bomber-4650x5400", "sleeve_right": "bomber-4650x5400",
+        "details": "bomber-7950x2700",
     }),
 ]
 
@@ -163,6 +173,9 @@ def files_for(placements, area):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    # Printful has no upsert, so re-running this whole file would duplicate
+    # everything already created. --only names the products to build.
+    ap.add_argument("--only", help="comma-separated substrings of product names")
     args = ap.parse_args()
 
     token = os.environ.get("PRINTFUL_SOLKAST_API_TOKEN")
@@ -172,8 +185,12 @@ def main():
               file=sys.stderr)
         return 1
 
+    wanted_names = [w.strip().lower() for w in (args.only or "").split(",") if w.strip()]
+
     created = {}
     for name, cid, retail, placements in PRODUCTS:
+        if wanted_names and not any(w in name.lower() for w in wanted_names):
+            continue
         catalog = request(f"/products/{cid}", token)["result"]["variants"]
         wanted = SIZES.get(cid)
         chosen = [v for v in catalog

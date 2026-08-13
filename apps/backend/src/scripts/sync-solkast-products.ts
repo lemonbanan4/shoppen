@@ -74,8 +74,32 @@ const CURATED: Record<string, string> = {
   "455299326": "Total Eclipse Tee",
   "455299329": "Built in Sunlight Tee",
   "455299333": "Driven by Light Tee",
-  "455299343": "City Angel Tee",
-  "455299390": "Late Bloom Tee",
+
+  // Swapped in for City Angel and Late Bloom, from the fourteen the first pass
+  // rejected. That rejection was mostly right — most of the batch is small,
+  // quiet, and repetitive, half of it the same winged statue with the wordmark
+  // over it — but it was applied to all fourteen and these two are not that.
+  //
+  // Both carry display type large enough to read at thumbnail size, which is
+  // the size that decides whether anyone clicks. Rise Above also brings a red
+  // accent, the only thing in the range that is not gold on dark.
+  //
+  // Checked against the garment before listing, since this is the whole Rose
+  // Sun problem: alpha-weighted ink luminance against the blank gives 6.4:1
+  // for Discipline on Black and 3.0:1 for Rise Above on Stone. Measuring that
+  // naively with -alpha off reads the transparent surround as ink and returns
+  // the answer exactly inverted, which is worth knowing before trusting it.
+  "454889415": "Discipline Builds Freedom Tee",
+  "454889407": "Rise Above Tee",
+
+  // City Angel and Late Bloom removed. City Angel put the wordmark on the
+  // shirt twice and had no colour anchor; Late Bloom was florals — no sun, no
+  // statue, no gold — which is a pleasant tee and not one this brand sells.
+  //
+  // Removed from the list, not deleted in Printful: both come back by
+  // uncommenting an id, and their artwork is untouched.
+  // "455299343": "City Angel Tee",
+  // "455299390": "Late Bloom Tee",
   "455299399": "Nebula Tee",
   "455299401": "Solkast Mark Tee",
 
@@ -214,6 +238,13 @@ const CURATED: Record<string, string> = {
   // 1499 the most expensive thing in the shop, which is the spread a monogram
   // wants: the point of entry has to be reachable or the pattern never gets
   // seen on anyone.
+  // The only piece in the range that is not recycled polyester: Printful has
+  // no recycled bomber and this is the statement outerwear. Listed with its
+  // real composition rather than under the range's claim, which is exactly
+  // what keying MATERIALS by blank is for — the alternative was either
+  // dropping the piece or quietly letting "recycled" carry across.
+  "455634532": "Solstice Bomber Jacket",
+
   "455595147": "Solstice Zip Hoodie",
   "455595154": "Solstice Baseball Jersey",
   "455595166": "Solstice Bucket Hat",
@@ -293,6 +324,7 @@ const MATERIALS: Record<number, string> = {
   654: "Cut and sewn from polyester, printed before assembly.",
   465: "Cut and sewn from polyester, printed before assembly.",
   630: "Cut and sewn from polyester, printed before assembly.",
+  390: "Cut and sewn from polyester, printed before assembly.",
   449: "Knitted from organic cotton.",
   491: "Organic cotton twill, embroidered to order.",
   528: "Organic cotton denim.",

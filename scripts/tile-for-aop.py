@@ -84,6 +84,15 @@ PRODUCTS = {
         "id": 630,
         "placements": {"front": (4125, 4125)},
     },
+    # Not recycled, unlike every other Solstice piece. Kept because it is the
+    # statement outerwear and Printful has no recycled bomber; the description
+    # says plain polyester rather than letting the range's claim carry over.
+    "bomber": {
+        "id": 390,
+        "placements": {"front": (4650, 5400), "back": (4650, 5400),
+                       "sleeve_left": (4650, 5400), "sleeve_right": (4650, 5400),
+                       "details": (7950, 2700)},
+    },
 }
 
 
