@@ -167,6 +167,22 @@ const CURATED: Record<string, string> = {
   "455583328": "Tuned Sun Mono Hoodie",
   "455583331": "Sun Face Mono Hoodie",
   "455583334": "Solkast Mono Hoodie",
+
+  // The Solstice kit — the first pieces here that are printed rather than
+  // decorated. Everything above is a blank someone else made with artwork
+  // placed on a rectangle of it; these are printed on flat fabric which is
+  // then cut and sewn, so the pattern crosses seams and runs down a sleeve
+  // with nothing left blank.
+  //
+  // Sold as separates rather than as a set. A tracksuit bought whole is one
+  // decision a shopper mostly does not make; either half worn with plain
+  // black is the way these actually get worn.
+  //
+  // 1499 and 999 sit above the hoodie at 899 because the blanks cost 669 and
+  // 389 against roughly 250 for fleece — the ladder tracks what the garment
+  // costs, not how much artwork is on it.
+  "455589012": "Solstice Track Jacket",
+  "455589016": "Solstice Joggers",
 };
 
 /**
@@ -185,6 +201,48 @@ const CURATED: Record<string, string> = {
  * every product to get the colour back.
  */
 const RETIRED_COLOURS = new Set(["French Navy"]);
+
+/**
+ * What each blank is actually made of, keyed by Printful catalogue product id.
+ *
+ * This replaced a constant. Every description used to end "Printed to order on
+ * heavyweight organic cotton", which was written when the shop sold tees and
+ * hoodies and nothing else. It stayed literally true for exactly as long as
+ * that was the whole range: a beanie is not heavyweight, a tote is denim, and
+ * an all-over-print garment cannot be cotton at all — sublimation ink bonds to
+ * polyester and washes off cotton, so there is no version of that product the
+ * old sentence describes.
+ *
+ * A material claim is the kind of copy a customer can hold you to, so an
+ * unknown blank gets no claim rather than an inherited one. Adding a product
+ * type the shop has not sold before should make the sentence go quiet, not
+ * make it lie.
+ */
+const MATERIALS: Record<number, string> = {
+  400: "Cut and sewn from recycled polyester, printed before assembly.",
+  801: "Cut and sewn from recycled polyester, printed before assembly.",
+  449: "Knitted from organic cotton.",
+  491: "Organic cotton twill, embroidered to order.",
+  528: "Organic cotton denim.",
+  822: "Printed to order on heavyweight organic cotton.",
+  823: "Printed to order on heavyweight organic cotton.",
+  831: "Printed to order on heavyweight organic cotton.",
+};
+
+const MATERIAL_FALLBACK = "Made to order.";
+
+/** The material sentence for a product, from the blank its variants sit on. */
+function materialFor(variants: PrintfulSyncVariant[]): string {
+  const ids = new Set(
+    variants.map((v) => v.product?.product_id).filter(Boolean)
+  );
+  const claims = new Set(
+    [...ids].map((id) => MATERIALS[id as number]).filter(Boolean)
+  );
+  // One product spanning two blanks with different materials cannot honestly
+  // claim either, so it claims neither.
+  return claims.size === 1 ? [...claims][0] : MATERIAL_FALLBACK;
+}
 
 const SALES_CHANNEL_NAME = "Solkast";
 const API_KEY_TITLE = "Solkast Storefront";
@@ -413,7 +471,13 @@ export default async function syncSolkastProducts({
       // order prints in the US — and the EU is no longer sold to at all. The
       // region-aware wording lives in the storefront copy layer, which knows
       // the country; this string cannot.
-      description: `${name} — Solkast. Printed to order on heavyweight organic cotton.`,
+      //
+      // The material is read off the blank rather than asserted. It used to be
+      // a constant reading "heavyweight organic cotton", which was true of the
+      // tees and hoodies the shop started with and stopped being true the
+      // moment anything else was added — an all-over-print garment has to be
+      // polyester, because sublimation does not bond to cotton.
+      description: `${name} — Solkast. ${materialFor(variants)}`,
       shipping_profile_id: profiles[0]?.id,
       images: images.map((url) => ({ url })),
       options,
