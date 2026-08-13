@@ -295,6 +295,14 @@ const CURATED: Record<string, string> = {
   // 499 rather than 599: front only, so it does not carry the price of the
   // second placement the v6 tees pay for.
   "455739447": "Solkast Arch Tee",
+
+  // The hoodie companion, from its own printfile rather than the tee's file
+  // centred into the hoodie's square area. That was tried and rendered on a
+  // real hoodie first: the tee file lands low enough to brush the pouch
+  // pocket seam and shrinks from 11in to 8.6in, because a 3:4 file fitted into
+  // a 1:1 area is limited by its height. 899 to match the shop's other
+  // hoodies rather than the tee's ladder.
+  "455754274": "Solkast Arch Hoodie",
 };
 
 /**
