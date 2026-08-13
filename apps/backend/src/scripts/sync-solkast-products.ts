@@ -841,6 +841,14 @@ export default async function syncSolkastProducts({
           COLLECTIONS.find((c) => c.match.test(name))?.handle ?? ""
         ) ?? null,
       images: images.map((url) => ({ url })),
+      // Set explicitly, or the grid and the product page disagree.
+      //
+      // Medusa derives a thumbnail from the first image when a product is
+      // created and then leaves it alone. Once this sync started updating in
+      // place, a product that gained generated mockups kept the thumbnail it
+      // was born with — so the card showed Printful's stock preview and the
+      // page opened on a different picture entirely.
+      thumbnail: images[0] ?? null,
       options,
       metadata: {
         printful_product_id: p.id,

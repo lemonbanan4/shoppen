@@ -14,6 +14,7 @@ Rate limit is strict (~2 calls/min), hence the deliberate throttling.
 """
 import json
 import os
+import re
 import subprocess
 import time
 import urllib.request
@@ -278,9 +279,38 @@ def generate(catalog_product_id, variant_ids, files_by_placement, option_group=N
     return []
 
 
+def retired_colours():
+    """Colourways the sync withholds, read from the sync itself.
+
+    Restating the list here would work until the day someone retires a colour
+    in one place and not the other, and the symptom of that — product images
+    showing a colourway with no buy button — is subtle enough to ship.
+
+    Parsed rather than imported because the owner is TypeScript. A file that
+    exists but cannot be parsed raises: silently returning an empty set would
+    reintroduce exactly the bug this prevents.
+    """
+    path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "apps", "backend", "src", "scripts", "sync-solkast-products.ts")
+    if not os.path.exists(path):
+        return set()
+    with open(path) as f:
+        src = f.read()
+    m = re.search(r"const RETIRED_COLOURS = new Set\(\[(.*?)\]\)", src, re.S)
+    if not m:
+        raise SystemExit(
+            f"Could not find RETIRED_COLOURS in {path}. Mockups would be "
+            f"generated for colourways the shop does not sell.")
+    return set(re.findall(r'"([^"]+)"', m.group(1)))
+
+
 def main():
     dest_dir = os.path.join(ASSETS_REPO, ASSETS_SUBDIR)
     os.makedirs(dest_dir, exist_ok=True)
+    retired = retired_colours()
+    if retired:
+        print(f"withholding retired colourway(s): {', '.join(sorted(retired))}")
 
     products = call("/store/products?limit=100")["result"]
 
@@ -318,7 +348,24 @@ def main():
             continue
 
         catalog_product_id = variants[0]["product"]["product_id"]
-        variant_ids = [v["variant_id"] for v in variants]
+        # Only colourways the shop actually sells.
+        #
+        # Printful still lists French Navy on the tees; the sync filters it out
+        # because every design here is keyed against black or white and reads
+        # washed out on a mid-tone. Generating mockups from the full variant
+        # list meant the first product image of a Black-only tee was a navy
+        # shirt nobody could add to a cart.
+        #
+        # Falls back to the full list if nothing is sellable, so a product
+        # whose every colour is retired still gets pictures rather than none —
+        # that is a curation mistake to see, not to hide.
+        sellable = [v for v in variants
+                    if (v.get("color") or "").strip() not in retired]
+        variant_ids = [v["variant_id"] for v in (sellable or variants)]
+        if sellable and len(sellable) != len(variants):
+            dropped = sorted({v.get("color") for v in variants} -
+                             {v.get("color") for v in sellable})
+            print(f"    skipping retired colourway(s): {', '.join(dropped)}")
 
         print(f"[{idx+1}/{len(products)}] {sp['name']}  (catalog {catalog_product_id})")
 
