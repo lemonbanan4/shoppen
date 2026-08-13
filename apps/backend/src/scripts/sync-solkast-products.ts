@@ -267,19 +267,30 @@ const CURATED: Record<string, string> = {
 /**
  * Colourways withheld from the shop, whatever Printful still lists.
  *
- * French Navy is wrong for every design currently in the range, and the reason
- * is the keying rather than the garment. Each design has its background
- * removed against the colour it was generated on, so wherever black used to be
- * the garment now shows through. On Black that is invisible and intended; on
- * French Navy the artwork reads navy exactly where it assumed black, which is
- * the washed-out look these prints have on it.
+ * Empty, and French Navy is the reason it is worth explaining.
  *
- * Filtered at sync rather than deleted in Printful: the variants stay there,
- * costing nothing, and come back by removing a line here once there is
- * artwork built for a mid-tone garment. Deleting them would mean rebuilding
- * every product to get the colour back.
+ * It was retired on the argument that every design here has its background
+ * keyed out, so wherever black used to be, the garment shows through — black
+ * on Black, navy on French Navy, washed out. That was tested and it does not
+ * hold. Stanley/Stella French Navy is #091629 against Black's #171717: 0.079
+ * luminance against 0.090, a difference of about one percent. There is no
+ * washing out available at that distance.
+ *
+ * Composited every distinct design in the range onto both to check rather than
+ * argue it, and the gold, cream, orange and purple all read at least as well
+ * on navy — several better, because #091629 is a colder ground and the warm
+ * artwork separates from it more than it does from a neutral black.
+ *
+ * How it went wrong is the useful part. The filter was added when the range
+ * was the first fourteen designs, which had muted grey-heavy palettes and
+ * genuinely did go flat on a coloured ground. Those fourteen were dropped, the
+ * artwork became gold-on-dark, and the rule stayed — a correct decision about
+ * a set of files, still being applied long after those files were gone.
+ *
+ * Kept as an empty set rather than deleted: it is the right mechanism, and the
+ * next colourway that genuinely does not work goes here.
  */
-const RETIRED_COLOURS = new Set(["French Navy"]);
+const RETIRED_COLOURS = new Set<string>([]);
 
 /**
  * What each blank is actually made of, keyed by Printful catalogue product id.
@@ -855,6 +866,22 @@ export default async function syncSolkastProducts({
       );
     }
 
+    // Resolved before the handle is computed, because a product does not
+    // collide with itself.
+    //
+    // Getting this order wrong renamed eleven live product URLs. Re-enabling
+    // French Navy is an options change, so those products take the rebuild
+    // path — delete, then create — but toHandle ran first, while the old
+    // product was still holding its slug, so every one of them was recreated
+    // as `<slug>-<printfulId>`. The clean URLs were freed by the delete a
+    // moment later with nothing to claim them.
+    //
+    // Same shape as the retiring-products fix above: something on its way out
+    // was counted as owning a handle it was about to release.
+    seenPrintfulIds.add(String(p.id));
+    const existing = existingByPrintfulId.get(String(p.id));
+    if (existing?.handle) takenHandles.delete(existing.handle as string);
+
     const productInput = {
       title: name,
       handle: toHandle(name, p.id, takenHandles),
@@ -916,9 +943,6 @@ export default async function syncSolkastProducts({
       }),
       sales_channels: [{ id: channel!.id }],
     };
-
-    seenPrintfulIds.add(String(p.id));
-    const existing = existingByPrintfulId.get(String(p.id));
 
     try {
       if (!existing) {
