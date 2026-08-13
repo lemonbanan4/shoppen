@@ -36,7 +36,15 @@ const uspsFor = (countryCode?: string) =>
           title: SHIPPING_PROMISE[shippingRegionFor(countryCode)].uspTitle,
           detail: SHIPPING_PROMISE[shippingRegionFor(countryCode)].uspDetail,
         },
-        { title: "Organic cotton", detail: "Stanley/Stella, GOTS certified." },
+        // "Organic cotton — Stanley/Stella, GOTS certified" is a certification
+        // claim, and certification claims are the ones that get checked. It is
+        // true of the tees, hoodies and sweatshirts and false of the Solstice
+        // range, which is recycled polyester because sublimation does not bond
+        // to cotton. Narrowed to what holds across everything on the site.
+        {
+          title: "Considered blanks",
+          detail: "Organic cotton and recycled polyester.",
+        },
         { title: "Printed to order", detail: "No warehouse, no overproduction." },
       ]
 

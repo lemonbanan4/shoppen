@@ -19,13 +19,18 @@ const ANGERKOP_PHRASES = [
 // Solkast's own designs, in its own register. Same trick, different joke:
 // these are the actual pieces in the shop, so the ticker doubles as a
 // contents page.
+// Kept in step with CURATED by hand, which is the cost of a ticker that
+// doubles as a contents page: Late Bloom was dropped from the shop and left
+// scrolling across the homepage advertising a product that 404s.
 const SOLKAST_PHRASES = [
   "CHASE THE LIGHT",
   "BUILT IN SUNLIGHT",
   "FROM SHADOW",
   "DRIVEN BY LIGHT",
   "TOTAL ECLIPSE",
-  "LATE BLOOM",
+  "GLOW DIFFERENT",
+  "STAY GOLDEN",
+  "SOLSTICE",
 ]
 
 const PHRASES = isSolkast ? SOLKAST_PHRASES : ANGERKOP_PHRASES

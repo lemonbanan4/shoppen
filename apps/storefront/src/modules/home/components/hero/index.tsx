@@ -84,8 +84,18 @@ const Hero = async ({ countryCode }: { countryCode: string }) => {
         </h1>
         <div className="mt-8 small:mt-10 flex flex-col small:flex-row small:items-end gap-8 small:gap-14">
           <p className="max-w-sm text-sm small:text-base text-white/70 leading-relaxed">
+            {/* No blanket material claim.
+              *
+              * This said "heavy organic cotton", which was true of everything
+              * the shop sold when it was written and stopped being true as the
+              * range grew: the Solstice pieces are recycled polyester, because
+              * an all-over print cannot be cotton, and the accessories are
+              * polyester too. The product descriptions already had this exact
+              * problem and now read their material off the blank; the homepage
+              * has no single blank to read, so it claims nothing and lets the
+              * product pages be specific. */}
             {isSolkast
-              ? `Graphic pieces in heavy organic cotton, ${
+              ? `Graphic pieces and all-over prints, ${
                   FULFILMENT[shippingRegionFor(countryCode)].printedIn
                 }. A short list, made properly, meant to outlast the season.`
               : "Tröjor för dig som redan vet hur det slutar. Ekologisk bomull, tryckt på beställning i EU — vi gör bara det någon faktiskt beställt."}

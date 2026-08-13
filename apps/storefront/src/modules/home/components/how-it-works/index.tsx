@@ -2,7 +2,9 @@
 // two questions a first-time visitor has are "will this actually arrive" and
 // "why does it take a few days". With no reviews on the store yet, answering
 // those plainly is the closest thing to social proof available.
-const stepsFor = (isSv: boolean) =>
+import { FULFILMENT, shippingRegionFor } from "@lib/copy"
+
+const stepsFor = (isSv: boolean, countryCode?: string) =>
   isSv
     ? [
         {
@@ -25,12 +27,22 @@ const stepsFor = (isSv: boolean) =>
         {
           n: "01",
           title: "You order",
-          body: "Pick a colour and size — everything comes in S–2XL.",
+          // Not "everything comes in S–2XL" any more. The bucket hat is S/M
+          // and L/XL, the duffle is one size, and several pieces start at XS.
+          // A size claim on the homepage is the kind of detail a shopper takes
+          // literally and then finds untrue on the product page.
+          body: "Pick a colour and size — most pieces run XS to 2XL.",
         },
         {
           n: "02",
           title: "We print it",
-          body: "Made to order at our EU printer. No warehouse, no unsold boxes, no overproduction.",
+          // "our EU printer" survived the move to US-only fulfilment and was
+          // contradicting the hero, the footer and every product page, which
+          // all say the US. Reads from the same region-aware copy layer as
+          // those, so there is now one place that can be wrong.
+          body: `Made to order ${
+            FULFILMENT[shippingRegionFor(countryCode)].printedIn
+          }. No warehouse, no unsold boxes, no overproduction.`,
         },
         {
           n: "03",
@@ -55,7 +67,7 @@ export default function HowItWorks({
         {isSv ? "Ingen magi, bara tryck." : "No magic, just printing."}
       </h2>
       <ol className="grid grid-cols-1 small:grid-cols-3 gap-8 small:gap-10">
-        {stepsFor(isSv).map((step) => (
+        {stepsFor(isSv, countryCode).map((step) => (
           <li key={step.n} className="border-t border-neutral-200 pt-5">
             <p className="text-xs font-semibold tracking-[0.2em] text-brand">
               {step.n}

@@ -395,8 +395,10 @@ const EN: UiCopy = {
   storeTitle: "Store",
   storeDescription: "Explore all of our products.",
 
+  // No blanket material claim: the range now spans organic cotton and
+  // recycled polyester, and the all-over pieces could never have been cotton.
   footerBlurb: isSolkast
-    ? "Considered graphics on organic cotton, printed to order in the EU. " +
+    ? "Considered graphics, printed to order. " +
       "No warehouse, no overproduction."
     : "Swedish streetwear for people who already know how it ends. " +
       "Organic cotton, printed to order in the EU. Buy now, regret later.",
@@ -723,7 +725,7 @@ export function copyFor(countryCode?: string): UiCopy {
     announcement: promise.announcement,
     shippingNote: promise.note,
     footerBlurb: isSolkast
-      ? `Considered graphics on organic cotton, ${fulfilment.printedIn}. ` +
+      ? `Considered graphics, ${fulfilment.printedIn}. ` +
         "No warehouse, no overproduction."
       : "Swedish streetwear for people who already know how it ends. " +
         `Organic cotton, ${fulfilment.printedIn}. Buy now, regret later.`,

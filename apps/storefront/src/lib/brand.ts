@@ -65,7 +65,7 @@ const SOLKAST: Brand = {
   // whichever region they ship to. See FULFILMENT in copy.ts for the
   // region-aware wording used on the page itself.
   description:
-    "Graphic pieces in heavy organic cotton, printed to order. " +
+    "Graphic pieces and all-over prints, printed to order. " +
     "A short list, made properly, meant to outlast the season.",
   domain: "solkast.com",
   email: "hello@solkast.com",
