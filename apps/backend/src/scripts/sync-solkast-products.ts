@@ -373,6 +373,42 @@ function loadMockups(logger: { info: (m: string) => void }): MockupManifest {
   }
 }
 
+/**
+ * Size buttons in size order, not in whatever order Printful listed them.
+ *
+ * The launch products happened to come back smallest-first and looked fine.
+ * The Solstice pieces did not, because their variants are picked by filtering
+ * the catalogue rather than from a hand-written list, and the bomber shipped
+ * showing "2XL L M S XL XS" — which reads as a bug to anyone choosing a size,
+ * and is one.
+ *
+ * Sorting on the option values rather than fixing each creation script means
+ * it holds for products that already exist and for any added later, whatever
+ * order they arrive in.
+ *
+ * Anything unrecognised keeps its original position relative to other
+ * unrecognised entries and sorts after the known ones, so a blank with sizing
+ * this does not model degrades to today's behaviour instead of scrambling.
+ */
+const SIZE_ORDER = [
+  "3XS", "2XS", "XXS", "XS", "S", "M", "L", "XL",
+  "2XL", "XXL", "3XL", "XXXL", "4XL", "5XL", "6XL",
+  // Paired sizings, used by headwear.
+  "XS/S", "S/M", "M/L", "L/XL", "XL/2XL",
+  "One size", "One Size",
+];
+
+function sortSizes(sizes: string[]): string[] {
+  const rank = (s: string) => {
+    const i = SIZE_ORDER.indexOf(s.trim());
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  return [...sizes]
+    .map((s, i) => ({ s, i }))
+    .sort((a, b) => rank(a.s) - rank(b.s) || a.i - b.i)
+    .map((x) => x.s);
+}
+
 type ExistingProduct = {
   id: string;
   title: string;
@@ -761,7 +797,9 @@ export default async function syncSolkastProducts({
     if (!variants.length) continue;
 
     const name = displayTitle(p.name);
-    const sizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
+    const sizes = sortSizes(
+      [...new Set(variants.map((v) => v.size).filter(Boolean))] as string[]
+    );
     const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
 
     // Only declare options that actually vary — a beanie with one size and

@@ -14,6 +14,44 @@ type OptionSelectProps = {
   "data-testid"?: string
 }
 
+/**
+ * Sizes read smallest to largest, whatever order they arrive in.
+ *
+ * The option values come back in the order Printful happened to list the
+ * variants, which for several products is alphabetical: the bomber offered
+ * "2XL L M S XL XS". That reads as a bug to anyone picking a size, and is one.
+ *
+ * Sorted here rather than in the sync because ordering is presentation, and
+ * because the sync cannot fix it retroactively — it deliberately leaves an
+ * existing product's options alone, since editing them in place is what forces
+ * a product to be rebuilt. Doing it at render covers every product, including
+ * the three hoodies that have been listed this way since launch.
+ *
+ * Unknown values keep their original relative order and sort last, so a
+ * sizing scheme this does not model is left as it was rather than scrambled —
+ * and any non-size option (Colour, Style) passes through untouched.
+ */
+const SIZE_ORDER = [
+  "3XS", "2XS", "XXS", "XS", "S", "M", "L", "XL",
+  "2XL", "XXL", "3XL", "XXXL", "4XL", "5XL", "6XL",
+  "XS/S", "S/M", "M/L", "L/XL", "XL/2XL",
+  "One size", "One Size",
+]
+
+const bySize = (values: string[]) => {
+  const rank = (v: string) => {
+    const i = SIZE_ORDER.indexOf(v.trim())
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i
+  }
+  // Only reorder when this actually looks like a size option; a colour list
+  // that happened to contain "S" should not be resorted around it.
+  if (!values.some((v) => SIZE_ORDER.includes(v.trim()))) return values
+  return values
+    .map((v, i) => ({ v, i }))
+    .sort((a, b) => rank(a.v) - rank(b.v) || a.i - b.i)
+    .map((x) => x.v)
+}
+
 const OptionSelect: React.FC<OptionSelectProps> = ({
   option,
   current,
@@ -24,9 +62,11 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   availableValues,
 }) => {
   const t = useCopy()
-  const filteredOptions = (option.values ?? [])
-    .map((v) => v.value)
-    .filter((v) => !availableValues || availableValues.includes(v))
+  const filteredOptions = bySize(
+    (option.values ?? [])
+      .map((v) => v.value)
+      .filter((v) => !availableValues || availableValues.includes(v))
+  )
 
   return (
     <div className="flex flex-col gap-y-3">
