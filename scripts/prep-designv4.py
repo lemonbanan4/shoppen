@@ -139,9 +139,21 @@ def upscale(src, dst):
         raise RuntimeError(f"upscayl failed for {src.name}: {r.stderr[-300:]}")
 
 
-def key_only(src, dst, kind, fuzz_override=None):
+def corner_colour(src):
+    """The literal colour of the source's top-left pixel.
+
+    Better than assuming black or white. A design generated on navy has a
+    #04172F field, which is 18% away from black in the blue channel and so
+    falls outside the fuzz that a "black" seed uses — the fill matches nothing
+    and the whole background survives as a solid rectangle on the garment.
+    """
+    p = pixel(src, 0, 0)
+    return p if p else None
+
+
+def key_only(src, dst, kind, fuzz_override=None, seed_override=None):
     """Flood-fill the background away, at the source's own size."""
-    seed = "black" if kind == "dark" else "white"
+    seed = seed_override or ("black" if kind == "dark" else "white")
     fuzz = fuzz_override or ("18%" if kind == "light" else "12%")
     w, h = map(int, sh(["magick", str(src), "-format", "%w %h",
                         "info:"]).stdout.split())
@@ -207,7 +219,7 @@ def poster_fit(src, dst):
         raise RuntimeError(f"poster fit failed for {src.name}: {r.stderr[-300:]}")
 
 
-def key_and_fit(src, dst, kind, fuzz_override=None):
+def key_and_fit(src, dst, kind, fuzz_override=None, seed_override=None):
     """Remove the border-connected background, THEN fit to the placement.
 
     Order matters and getting it wrong fails silently. Extending the canvas
@@ -216,7 +228,7 @@ def key_and_fit(src, dst, kind, fuzz_override=None):
     opaque background — which still looks like a plausible result and would
     have gone to Printful as a black ink panel on a black shirt.
     """
-    seed = "black" if kind == "dark" else "white"
+    seed = seed_override or ("black" if kind == "dark" else "white")
     # Fuzz is generous for light backgrounds (Firefly's white is not flat, it
     # ranges 242-255) and tight for dark ones, where the artwork itself sits
     # close to the background and a wide fuzz starts eating it.
