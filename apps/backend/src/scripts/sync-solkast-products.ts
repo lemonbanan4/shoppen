@@ -7,6 +7,7 @@ import {
 } from "@medusajs/framework/utils";
 import {
   createApiKeysWorkflow,
+  createCollectionsWorkflow,
   createProductVariantsWorkflow,
   createProductsWorkflow,
   createSalesChannelsWorkflow,
@@ -465,6 +466,23 @@ function materialFor(variants: PrintfulSyncVariant[]): string {
   return claims.size === 1 ? [...claims][0] : MATERIAL_FALLBACK;
 }
 
+/**
+ * Ranges that get their own collection, matched on the product name.
+ *
+ * The nav carries Shop all, New arrivals and About, and a note saying the
+ * category links come back when the catalogue does. It has: Solstice is seven
+ * products — jacket, joggers, zip hoodie, jersey, bucket hat, duffle, bandana
+ * — that share one pattern and want to be seen together. Scattered through a
+ * 45-product grid they read as seven unrelated things.
+ *
+ * Assigned here rather than by hand in the admin because this script owns the
+ * products. A collection set in the admin survives until the next time a
+ * product is rebuilt for an option change, and then quietly does not.
+ */
+const COLLECTIONS: { title: string; handle: string; match: RegExp }[] = [
+  { title: "Solstice", handle: "solstice", match: /^Solstice\b/ },
+];
+
 const SALES_CHANNEL_NAME = "Solkast";
 const API_KEY_TITLE = "Solkast Storefront";
 const MAX_IMAGES = 6;
@@ -603,6 +621,26 @@ export default async function syncSolkastProducts({
     fields: ["id"],
   });
 
+  // ——— Collections ———
+  // Created if absent, reused if present. Matched on handle rather than title
+  // so renaming the display name later does not orphan every product in it.
+  const { data: liveCollections } = await query.graph({
+    entity: "product_collection",
+    fields: ["id", "handle"],
+  });
+  const collectionIdByHandle = new Map<string, string>(
+    liveCollections.map((c) => [c.handle as string, c.id as string])
+  );
+  for (const c of COLLECTIONS) {
+    if (collectionIdByHandle.has(c.handle)) continue;
+    const { result } = await createCollectionsWorkflow(container).run({
+      input: { collections: [{ title: c.title, handle: c.handle }] },
+    });
+    const created = Array.isArray(result) ? result[0] : result;
+    collectionIdByHandle.set(c.handle, (created as { id: string }).id);
+    logger.info(`Created collection "${c.title}".`);
+  }
+
   // ——— Find what this store already has ———
   //
   // This used to delete every synced product up front and recreate all of
@@ -737,6 +775,12 @@ export default async function syncSolkastProducts({
       // polyester, because sublimation does not bond to cotton.
       description: `${name} — Solkast. ${materialFor(variants)}`,
       shipping_profile_id: profiles[0]?.id,
+      // null, not undefined: a product dropped from a range has to be moved
+      // out of its collection, and undefined would leave it where it was.
+      collection_id:
+        collectionIdByHandle.get(
+          COLLECTIONS.find((c) => c.match.test(name))?.handle ?? ""
+        ) ?? null,
       images: images.map((url) => ({ url })),
       options,
       metadata: {

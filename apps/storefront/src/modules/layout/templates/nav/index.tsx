@@ -13,10 +13,19 @@ import { copyFor } from "@lib/copy"
 
 // A small capsule store: every link must land on a page with products on it.
 // The fit categories return when the catalogue does.
+//
+// Solstice is the first range big enough to earn one — seven pieces sharing a
+// single pattern, from a 299 bandana to a 1499 duffle. Scattered through the
+// full grid they read as seven unrelated products; the whole argument for a
+// monogram is that you see it repeated across things.
+//
+// Not a name kept in two places: the collection is created by the Solkast sync
+// under this handle, so a link here can only go dead if that stops running.
 const navLinksFor = (countryCode?: string) => {
   const t = copyFor(countryCode)
   return [
     { label: t.shopAll, href: "/store" },
+    { label: t.solstice, href: "/collections/solstice" },
     { label: t.newArrivals, href: "/collections/new-arrivals" },
     { label: t.about, href: "/content/about" },
   ]
