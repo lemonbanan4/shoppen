@@ -7,11 +7,15 @@ import {
 } from "@medusajs/framework/utils";
 import {
   createApiKeysWorkflow,
+  createProductVariantsWorkflow,
   createProductsWorkflow,
   createSalesChannelsWorkflow,
+  deleteProductVariantsWorkflow,
   deleteProductsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
+  updateProductVariantsWorkflow,
+  updateProductsWorkflow,
 } from "@medusajs/medusa/core-flows";
 import {
   PrintfulClient,
@@ -271,6 +275,118 @@ function loadMockups(logger: { info: (m: string) => void }): MockupManifest {
   }
 }
 
+type ExistingProduct = {
+  id: string;
+  title: string;
+  options?: { id: string; title: string; values?: { value: string }[] }[];
+  variants?: { id: string; title: string; metadata?: Record<string, unknown> | null }[];
+};
+
+type DesiredOption = { title: string; values: string[] };
+
+/**
+ * Does the live product already declare exactly the options we want?
+ *
+ * Compared as sets, because neither Printful nor Medusa promises an order and
+ * a difference in ordering is not a difference in the product.
+ */
+function sameOptions(
+  existing: ExistingProduct,
+  desired: DesiredOption[]
+): boolean {
+  const norm = (title: string, values: string[]) =>
+    `${title}:${[...values].sort().join("|")}`;
+  const a = new Set(
+    (existing.options || []).map((o) =>
+      norm(o.title, (o.values || []).map((v) => v.value))
+    )
+  );
+  const b = new Set(desired.map((o) => norm(o.title, o.values)));
+  return a.size === b.size && [...b].every((x) => a.has(x));
+}
+
+/**
+ * Bring a product's variants in line without touching the ones that are fine.
+ *
+ * Matched on printful_variant_id rather than title or SKU: the title carries
+ * the colour and size and so changes whenever Printful renames a colourway,
+ * and a variant whose title changed is still the same variant.
+ *
+ * Prices go through updateProductVariantsWorkflow with the full price array,
+ * which replaces the set for that variant — the currencies a product sells in
+ * can shrink as well as grow, and a merge would leave a stale price behind in
+ * a region that was closed.
+ */
+async function reconcileVariants(
+  container: MedusaContainer,
+  existing: ExistingProduct,
+  desired: any[],
+  logger: { info: (m: string) => void }
+): Promise<void> {
+  const liveByPrintfulId = new Map(
+    (existing.variants || []).map((v) => [
+      String((v.metadata as Record<string, unknown> | null)?.printful_variant_id),
+      v,
+    ])
+  );
+
+  const toUpdate: any[] = [];
+  const toCreate: any[] = [];
+  const matched = new Set<string>();
+
+  for (const d of desired) {
+    const key = String(d.metadata?.printful_variant_id);
+    const live = liveByPrintfulId.get(key);
+    if (live) {
+      matched.add(live.id);
+      toUpdate.push({
+        id: live.id,
+        title: d.title,
+        sku: d.sku,
+        prices: d.prices,
+        metadata: d.metadata,
+      });
+    } else {
+      toCreate.push(d);
+    }
+  }
+
+  const toDelete = (existing.variants || [])
+    .filter((v) => !matched.has(v.id))
+    .map((v) => v.id);
+
+  if (toUpdate.length) {
+    await updateProductVariantsWorkflow(container).run({
+      input: { product_variants: toUpdate as never },
+    });
+  }
+  if (toCreate.length) {
+    await createProductVariantsWorkflow(container).run({
+      input: {
+        product_variants: toCreate.map((v) => ({
+          ...v,
+          product_id: existing.id,
+        })) as never,
+      },
+    });
+  }
+  // Deleted last. A product must keep at least one variant to remain
+  // purchasable, and removing the old set before adding the new one would
+  // leave it briefly unbuyable — the same mistake as deleting the catalogue
+  // before rebuilding it, one level down.
+  if (toDelete.length) {
+    await deleteProductVariantsWorkflow(container).run({
+      input: { ids: toDelete },
+    });
+  }
+  if (toCreate.length || toDelete.length) {
+    logger.info(
+      `      variants: ${toUpdate.length} kept, ${toCreate.length} added, ` +
+        `${toDelete.length} removed`
+    );
+  }
+}
+
 /** The material sentence for a product, from the blank its variants sit on. */
 function materialFor(variants: PrintfulSyncVariant[]): string {
   const ids = new Set(
@@ -422,25 +538,45 @@ export default async function syncSolkastProducts({
     fields: ["id"],
   });
 
-  // ——— Replace this store's previously synced products ———
+  // ——— Find what this store already has ———
+  //
+  // This used to delete every synced product up front and recreate all of
+  // them. It worked, and it took the shop down while it ran: for the length of
+  // the sync there was no catalogue, so every product page revalidating in
+  // that window rendered against nothing and returned 500. It also issued a
+  // fresh id and a fresh handle each time, so any link anyone had saved died
+  // on every run — including the ones in the sitemap that had just been
+  // submitted to Google.
+  //
+  // Now the run reconciles. Products are matched on printful_product_id, which
+  // is stable across renames, and the delete of anything no longer curated
+  // happens at the end rather than the start.
+  //
   // Scoped by printful_store_id so the Ångerköp catalogue is untouched.
   const { data: allProducts } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "metadata"],
+    fields: [
+      "id", "title", "handle", "metadata",
+      "options.id", "options.title", "options.values.value",
+      "variants.id", "variants.title", "variants.metadata",
+    ],
   });
   const mine = allProducts.filter(
     (p) =>
       String((p.metadata as Record<string, unknown> | null)?.printful_store_id) ===
       storeId
   );
-  if (mine.length) {
-    logger.info(`Replacing ${mine.length} previously synced Solkast product(s)...`);
-    await deleteProductsWorkflow(container).run({
-      input: { ids: mine.map((p) => p.id) },
-    });
-  }
+  const existingByPrintfulId = new Map(
+    mine.map((p) => [
+      String((p.metadata as Record<string, unknown> | null)?.printful_product_id),
+      p,
+    ])
+  );
+  logger.info(
+    `${mine.length} product(s) already synced from this store; reconciling.`
+  );
 
-  // ——— Build and create ———
+  // ——— Build, then create or update ———
   // Handles must be unique across the whole store, not just this run: an
   // Ångerköp product already owning a slug would otherwise collide.
   const { data: handleRows } = await query.graph({
@@ -452,6 +588,9 @@ export default async function syncSolkastProducts({
   );
 
   let created = 0;
+  let updated = 0;
+  let rebuilt = 0;
+  const seenPrintfulIds = new Set<string>();
   for (const detail of details) {
     const p = detail.sync_product;
     const variants = detail.sync_variants.filter(
@@ -564,18 +703,76 @@ export default async function syncSolkastProducts({
       sales_channels: [{ id: channel!.id }],
     };
 
+    seenPrintfulIds.add(String(p.id));
+    const existing = existingByPrintfulId.get(String(p.id));
+
     try {
-      await createProductsWorkflow(container).run({
-        input: { products: [productInput as never] },
+      if (!existing) {
+        await createProductsWorkflow(container).run({
+          input: { products: [productInput as never] },
+        });
+        logger.info(`  + ${name}`);
+        created++;
+        continue;
+      }
+
+      // Options are the one thing that cannot be edited into place safely: a
+      // variant may only carry option values its product declares, so a
+      // colourway appearing or being retired has to change the product's
+      // options before its variants, and Medusa exposes no single atomic way
+      // to do that. Rebuilding one product is a second of downtime on one URL;
+      // rebuilding all of them was the outage.
+      if (!sameOptions(existing, productInput.options)) {
+        logger.info(`  ↻ ${name} — options changed, rebuilding this one`);
+        await deleteProductsWorkflow(container).run({
+          input: { ids: [existing.id] },
+        });
+        await createProductsWorkflow(container).run({
+          input: { products: [productInput as never] },
+        });
+        rebuilt++;
+        continue;
+      }
+
+      // Keep the existing handle. It is the product's URL, it is what the
+      // sitemap submitted, and regenerating it from the title would break
+      // every saved link the moment a product is renamed.
+      const { handle: _discard, options: _keep, variants: _v, ...fields } =
+        productInput;
+      await updateProductsWorkflow(container).run({
+        input: { products: [{ id: existing.id, ...fields } as never] },
       });
+      await reconcileVariants(container, existing, productInput.variants, logger);
       logger.info(`  ✓ ${name}`);
-      created++;
+      updated++;
     } catch (e) {
       logger.error(`  ✗ ${name}: ${(e as Error).message}`);
     }
   }
 
+  // ——— Retire what is no longer curated ———
+  // Last, not first. Anything still wanted has already been updated in place
+  // by this point, so the only products removed here are ones deliberately
+  // dropped from CURATED or deleted upstream in Printful.
+  const stale = mine.filter(
+    (p) =>
+      !seenPrintfulIds.has(
+        String((p.metadata as Record<string, unknown> | null)?.printful_product_id)
+      )
+  );
+  if (stale.length) {
+    logger.info(
+      `Retiring ${stale.length} product(s) no longer in the catalogue: ` +
+        stale.map((p) => p.title).join(", ")
+    );
+    await deleteProductsWorkflow(container).run({
+      input: { ids: stale.map((p) => p.id) },
+    });
+  }
+
   logger.info(
-    `Done. ${created}/${details.length} Solkast products on the "${SALES_CHANNEL_NAME}" channel.`
+    `Done. ${created} created, ${updated} updated, ${rebuilt} rebuilt, ` +
+      `${stale.length} retired — ${details.length} curated on the ` +
+      `"${SALES_CHANNEL_NAME}" channel.`
   );
 }
