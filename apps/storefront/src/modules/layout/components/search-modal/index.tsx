@@ -140,7 +140,7 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
             onClick={close}
           />
           <div className="absolute inset-x-0 top-0 flex justify-center px-4 pt-4 small:pt-20">
-            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div className="w-full max-w-2xl bg-white text-neutral-950 rounded-2xl shadow-2xl overflow-hidden">
               <form
                 onSubmit={submit}
                 className="flex items-center gap-x-3 px-5 py-4 border-b border-neutral-100"
@@ -152,7 +152,7 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t.searchPlaceholder}
-                  className="flex-1 text-base outline-none placeholder:text-neutral-400 bg-transparent"
+                  className="flex-1 text-base text-neutral-950 outline-none placeholder:text-neutral-400 bg-transparent"
                   data-testid="search-input"
                 />
                 <button

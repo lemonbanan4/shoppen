@@ -65,7 +65,12 @@ const Modal = ({
                     "max-w-xl": size === "medium",
                     "max-w-3xl": size === "large",
                     "bg-transparent shadow-none": search,
-                    "bg-white shadow-xl border rounded-rounded": !search,
+                    // text-neutral-950 alongside bg-white: the address-book
+                    // modals render a bare Heading with no colour class, which
+                    // otherwise inherits the page's near-white default text
+                    // and disappears against this white panel.
+                    "bg-white text-neutral-950 shadow-xl border rounded-rounded":
+                      !search,
                   }
                 )}
               >
