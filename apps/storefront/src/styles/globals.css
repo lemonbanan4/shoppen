@@ -147,3 +147,18 @@
   letter-spacing: -0.03em;
   color: #fafafa;
 }
+
+/* That last premise didn't hold: cart, checkout, order and account pages
+ * grew bg-white cards with real h1/h2s inside them ("Already have an
+ * account?", "Shipping address", order/account titles) — headings that DO
+ * sit on a light field. The rule above forced them to #fafafa too, near-
+ * invisible on white, which is what "the white section is malformed" was.
+ *
+ * .bg-white h2 alone would tie the specificity of the rule above and lose
+ * on source order; qualifying with the brand attribute again wins outright
+ * regardless of order, and self-maintains the same way — any future
+ * bg-white card's heading is covered without a new rule. */
+[data-brand="solkast"] .bg-white h1,
+[data-brand="solkast"] .bg-white h2 {
+  color: #0a0a0a;
+}
