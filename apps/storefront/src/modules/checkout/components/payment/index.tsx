@@ -7,7 +7,6 @@ import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
   StripeCardContainer,
 } from "@modules/checkout/components/payment-container"
-import Divider from "@modules/common/components/divider"
 import {
   Button,
   Container,
@@ -114,7 +113,7 @@ const Payment = ({
   }, [isOpen])
 
   return (
-    <div className="bg-white text-neutral-950">
+    <div className="bg-white text-neutral-950 brand-card px-6 py-6 sm:px-8">
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
@@ -263,7 +262,6 @@ const Payment = ({
           ) : null}
         </div>
       </div>
-      <Divider className="mt-8" />
     </div>
   )
 }

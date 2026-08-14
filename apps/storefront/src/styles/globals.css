@@ -162,3 +162,22 @@
 [data-brand="solkast"] .bg-white h2 {
   color: #0a0a0a;
 }
+
+/* Shared card treatment for white sections that float on the page (cart,
+ * checkout steps, order/account panels) — rounded corners, inset padding
+ * and a brand-colour edge, so they read as a floating card rather than a
+ * flush rectangle cut out of the page. The glow colour is per-brand via
+ * these custom properties so the same class works on both storefronts. */
+[data-brand="solkast"] {
+  --brand-border: rgba(217, 162, 27, 0.6);
+  --brand-glow: rgba(217, 162, 27, 0.45);
+}
+[data-brand="angerkop"] {
+  --brand-border: rgba(154, 75, 46, 0.6);
+  --brand-glow: rgba(154, 75, 46, 0.45);
+}
+.brand-card {
+  border-radius: 1rem;
+  border: 1px solid var(--brand-border, rgba(217, 162, 27, 0.6));
+  box-shadow: 0 0 35px -2px var(--brand-glow, rgba(217, 162, 27, 0.45));
+}

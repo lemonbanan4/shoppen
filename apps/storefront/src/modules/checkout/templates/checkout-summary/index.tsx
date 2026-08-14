@@ -13,7 +13,7 @@ const CheckoutSummary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const t = useCopy()
   return (
     <div className="sticky top-0 flex flex-col-reverse small:flex-col gap-y-8 py-8 small:py-0 ">
-      <div className="w-full bg-white text-neutral-950 flex flex-col">
+      <div className="w-full bg-white text-neutral-950 flex flex-col brand-card px-6 py-6 sm:px-8">
         <Divider className="my-6 small:hidden" />
         <Heading
           level="h2"

@@ -4,7 +4,6 @@ import useToggleState from "@lib/hooks/use-toggle-state"
 import compareAddresses from "@lib/util/compare-addresses"
 import { CheckCircleSolid } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import Divider from "@modules/common/components/divider"
 import { Heading, Text } from "@modules/common/components/ui"
 import Spinner from "@modules/common/icons/spinner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -42,7 +41,7 @@ const Addresses = ({
   const [message, formAction] = useActionState(setAddresses, null)
 
   return (
-    <div className="bg-white text-neutral-950">
+    <div className="bg-white text-neutral-950 brand-card px-6 py-6 sm:px-8">
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
@@ -178,7 +177,6 @@ const Addresses = ({
           </div>
         </div>
       )}
-      <Divider className="mt-8" />
     </div>
   )
 }

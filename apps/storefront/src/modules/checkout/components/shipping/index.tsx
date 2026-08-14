@@ -6,7 +6,6 @@ import { convertToLocale } from "@lib/util/money"
 import { CheckCircleSolid, Loader } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import ErrorMessage from "@modules/checkout/components/error-message"
-import Divider from "@modules/common/components/divider"
 import MedusaRadio from "@modules/common/components/radio"
 import { Button, clx, Heading, Text } from "@modules/common/components/ui"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -154,7 +153,7 @@ const Shipping: React.FC<ShippingProps> = ({
   }, [isOpen])
 
   return (
-    <div className="bg-white text-neutral-950">
+    <div className="bg-white text-neutral-950 brand-card px-6 py-6 sm:px-8">
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
@@ -405,7 +404,6 @@ const Shipping: React.FC<ShippingProps> = ({
           </div>
         </div>
       )}
-      <Divider className="mt-8" />
     </div>
   )
 }
