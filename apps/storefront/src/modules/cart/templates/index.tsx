@@ -27,7 +27,7 @@ const CartTemplate = ({
               * starter, where the ambient colour and the card agreed. The
               * price/quantity labels survived because they already carry
               * their own explicit colour class; the two bare Headings did not. */}
-            <div className="flex flex-col bg-white text-neutral-950 py-6 gap-y-6">
+            <div className="flex flex-col bg-white text-neutral-950 py-6 px-6 sm:px-8 gap-y-6 rounded-2xl border border-brand/30 shadow-[0_0_25px_-5px_rgba(217,162,27,0.25)]">
               {!customer && (
                 <>
                   <SignInPrompt />
@@ -40,7 +40,7 @@ const CartTemplate = ({
               <div className="flex flex-col gap-y-8 sticky top-12">
                 {cart && cart.region && (
                   <>
-                    <div className="bg-white text-neutral-950 py-6">
+                    <div className="bg-white text-neutral-950 py-6 px-6 sm:px-8 rounded-2xl border border-brand/30 shadow-[0_0_25px_-5px_rgba(217,162,27,0.25)]">
                       <Summary cart={cart} />
                     </div>
                   </>
