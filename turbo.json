@@ -2,15 +2,51 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!**/.turbo/**",
+        "!**/node_modules/**",
+        "!**/.git/**",
+        "!**/.next/cache/**",
+        "!**/.next/dev-logs.jsonl"
+      ],
+      "env": [
+        "MEDUSA_BACKEND_URL",
+        "MEDUSA_PUBLISHABLE_KEY",
+        "MEDUSA_ADMIN_ONBOARDING_TYPE",
+        "STORE_CORS",
+        "ADMIN_CORS",
+        "AUTH_CORS",
+        "REDIS_URL",
+        "JWT_SECRET",
+        "COOKIE_SECRET",
+        "AUTH_MFA_ENCRYPTION_KEY",
+        "PRINTFUL_API_TOKEN",
+        "PRINTFUL_STORE_ID",
+        "PRINTFUL_SOLKAST_API_TOKEN",
+        "PRINTFUL_SOLKAST_STORE_ID",
+        "PRINTFUL_AUTO_PRODUCTION",
+        "POSTHOG_PERSONAL_API_KEY",
+        "POSTHOG_PROJECT_ID",
+        "POSTHOG_HOST",
+        "STRIPE_*",
+        "SENTRY_*",
+        "NEXT_PUBLIC_MEDUSA_BACKEND_URL",
+        "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "start": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "lint": {
       "outputs": []
