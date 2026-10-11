@@ -1,0 +1,5 @@
+[
+  {"source": "build/source-clean/drip-precleaned.png", "slug": "solkast-v8b-amber-554322", "field": "light"},
+  {"source": "build/source-clean/molecular-precleaned.png", "slug": "solkast-v8b-dys-295078", "field": "dark"},
+  {"source": "build/source-clean/hooded-precleaned.png", "slug": "solkast-v8b-dys-295078xx", "field": "light"}
+]

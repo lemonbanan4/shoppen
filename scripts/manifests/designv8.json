@@ -1,0 +1,13 @@
+[
+  {"source": "Firefly_A late 90s sunny aesthetic, surreal y2k streetwear graphic, isolated on a stark white 826312_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-sun-monogram-white", "field": "light", "key": "global", "fuzz": "12%"},
+  {"source": "Firefly_A late 90s sunny aesthetic, surreal y2k streetwear graphic, isolated on a stark black 261848_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-sun-shades", "field": "dark"},
+  {"source": "Firefly_A late 90s sunny aesthetic, surreal y2k streetwear graphic, isolated on a stark black 826312_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-arc-sun", "field": "dark"},
+  {"source": "Firefly_A late 90s dystopian advertisement aesthetic, surreal y2k streetwear graphic, isolate 295078 (3)_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-blindfold-monogram", "field": "dark"},
+  {"source": "Firefly_fine tune it, ready to print on a shirt, black background 446861_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-molecular-pattern", "field": "dark"},
+  {"source": "build/source-clean/horizon-precleaned.png", "slug": "solkast-horizon-head", "field": "light", "extra_seeds": [[413,1539],[2620,5009],[488,1852],[496,2013],[3581,3377],[3701,3377],[3820,3377]]},
+  {"source": "Firefly_A late 90s aesthetic, surreal y2k streetwear graphic amber color, isolated on a stark 554322 (2)_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-amber-oracle", "field": "dark"},
+  {"source": "Firefly_A late 90s aesthetic, surreal y2k streetwear graphic, isolated on a stark navy backgr 305720_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-mindscape-head", "field": "dark", "key": "global", "fuzz": "8%"},
+  {"source": "Firefly_A late 90s aesthetic, surreal y2k streetwear graphic, isolated on a stark black backg 905263_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-elite-head", "field": "dark"},
+  {"source": "Firefly_A late 90s aesthetic, surreal y2k streetwear graphic, isolated on a stark navy backgr 219695_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-chaos3-head", "field": "dark", "key": "global", "fuzz": "8%"},
+  {"source": "Firefly_fix the star top left corner 995957_upscayl_4x_upscayl-standard-4x.png", "slug": "solkast-paradise-sun", "field": "light", "key": "global", "fuzz": "12%"}
+]

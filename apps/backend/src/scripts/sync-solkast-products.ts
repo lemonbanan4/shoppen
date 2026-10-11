@@ -303,6 +303,42 @@ const CURATED: Record<string, string> = {
   // a 1:1 area is limited by its height. 899 to match the shop's other
   // hoodies rather than the tee's ladder.
   "455754274": "Solkast Arch Hoodie",
+
+  // v8: the Y2K-tech-mystic capsule, eleven designs from one Firefly batch.
+  // Four wordmark-forward pieces went to front, the rest — dense collage
+  // portraits and one molecular pattern — to back, matching how each source
+  // image actually reads on a garment rather than any rule about content.
+  // Single placement each, so 499 like the arch tee.
+  "455912389": "Solkast Arc Tee",
+  "455912432": "Golden Hour Tee",
+  "455912444": "Sun Crest Tee",
+  "455912511": "Static Tee",
+  "455912558": "Horizon Tee",
+  "455912582": "Paradise Tee",
+  "455912599": "Oracle Tee",
+  "455912608": "Mindscape Tee",
+  "455912618": "Elite Tee",
+  "455912627": "Chaos Tee",
+  "455912634": "Molecular Tee",
+
+  // v8b: second wave, curated down from 28 candidates to the amber, SK
+  // monogram and blue-toned pieces that held up under review. All back
+  // placement, same 499 tier as v8.
+  "456071809": "Transcend Tee",
+  "456071815": "Future Drip Tee",
+  "456071820": "Visions Tee",
+  "456071825": "Y2K Vision Tee",
+  "456071832": "Forever Tee",
+  "456071836": "Sun Code Tee",
+  "456071842": "Molecular Crest Tee",
+  "456071873": "Hooded Crest Tee",
+  "456071913": "Survival Protocol Tee",
+  "456071918": "Crest Tee",
+  "456071987": "Glyph Tee",
+  "456072016": "Dreamscape Tee",
+  "456072021": "Illusion Systems Tee",
+  "456072067": "Flux Tee",
+  "456072069": "Eternal Sunshine Tee",
 };
 
 /**
