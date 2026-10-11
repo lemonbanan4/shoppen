@@ -54,7 +54,7 @@ export default async function ProductRail({
           {countryCode === "se" ? "Se alla →" : "View all →"}
         </LocalizedClientLink>
       </div>
-      <ul className="grid grid-flow-col auto-cols-[68%] xsmall:auto-cols-[42%] small:auto-cols-[calc(25%-18px)] gap-4 small:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 small:mx-0 small:px-0">
+      <ul className="grid grid-flow-col auto-cols-[68%] xsmall:auto-cols-[42%] small:auto-cols-[calc(25%-9px)] gap-2 small:gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 small:mx-0 small:px-0">
         {pricedProducts.map((product) => (
           <li key={product.id} className="snap-start">
             <ProductPreview product={product} region={region} isFeatured />

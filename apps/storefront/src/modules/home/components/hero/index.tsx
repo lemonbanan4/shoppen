@@ -1,155 +1,110 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Image from "next/image"
-import { isSolkast } from "@lib/brand"
-import { FULFILMENT, shippingRegionFor } from "@lib/copy"
-import { featuredTiles, type FeaturedTile } from "@modules/home/featured"
-import HeroVideo from "@modules/home/components/hero-video"
 
-// Our own generated mockups, not stock photography of someone else's clothes.
-const MOCKUPS =
-  "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets/main/mockups"
-
-// The products every one of these points at has to still exist — an earlier
-// hero pointed at Solkast-era ids that outlived the products themselves.
-// No prices here on purpose: this renders for every region, and a hardcoded
-// SEK figure would be wrong for EUR and USD visitors.
-const STRIP = [
-  {
-    src: `${MOCKUPS}/pf-453013477-0.jpg`,
-    alt: "ORKAR INTE Hoodie i svart ekologisk bomull",
-    href: "/products/orkar-inte-hoodie",
-    label: "ORKAR INTE Hoodie",
-    tag: "Ny",
-  },
-  {
-    src: `${MOCKUPS}/pf-452915689-0.jpg`,
-    alt: "VARNING: Impulsköp tee — gul varningsetikett på svart",
-    href: "/products/varning-impulskop-tee",
-    label: "VARNING: Impulsköp",
-  },
-  {
-    src: `${MOCKUPS}/pf-452915678-0.jpg`,
-    alt: "ORKAR INTE tee — vit text på svart ekologisk t-shirt",
-    href: "/products/orkar-inte-tee",
-    label: "ORKAR INTE Tee",
-  },
-  {
-    src: `${MOCKUPS}/pf-452915702-0.jpg`,
-    alt: "LAGOM DELULU tee — vit text på svart ekologisk t-shirt",
-    href: "/products/lagom-delulu-tee",
-    label: "LAGOM DELULU",
-  },
-]
-
-const Hero = async ({ countryCode }: { countryCode: string }) => {
-  // Ångerköp's strip is hand-picked, one line of copy per design. Solkast has
-  // no per-piece writing, so its tiles come from the catalogue — hardcoding
-  // them is exactly how this hero ended up showing another brand's shirts.
-  const strip: FeaturedTile[] = isSolkast
-    ? await featuredTiles(countryCode, 4)
-    : STRIP
-
-  // Opt-in, not a hardcoded path: an unset variable leaves the existing
-  // typographic hero exactly as it is, rather than a black hole where a video
-  // was meant to be.
-  const videoSrc = process.env.NEXT_PUBLIC_HERO_VIDEO_URL
+/**
+ * Full-screen cinematic hero — Y2K Cyber Sigilism / Neo-Futurism.
+ *
+ * A looping background video fills the viewport behind a centered headline
+ * and a glowing CTA. The video is muted + playsInline so every mobile browser
+ * autoplays it without issues. A radial gradient overlay darkens the edges
+ * and keeps the text legible regardless of the footage.
+ *
+ * The path defaults to /video/black-garment.mp4 — drop any clip there and
+ * it works. Override via NEXT_PUBLIC_HERO_VIDEO_URL for a CDN-hosted file.
+ */
+const Hero = ({ countryCode }: { countryCode: string }) => {
+  const videoSrc =
+    process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/video/solkast-hero.mp4"
   const videoPoster = process.env.NEXT_PUBLIC_HERO_VIDEO_POSTER
 
   return (
-    <section className="relative bg-neutral-950 text-white">
-      {videoSrc && <HeroVideo src={videoSrc} poster={videoPoster} />}
-      <div className="relative content-container pt-16 pb-12 small:pt-24 small:pb-16">
-        <p className="text-[11px] small:text-xs tracking-[0.28em] uppercase text-brand-light">
-          {isSolkast
-            ? "Chase the light. Become the standard."
-            : "Svenska kapseln — nu i fyra färger"}
-        </p>
-        {/* The product is type, so the page leads with type too. Leading has
-            to clear Å and Ö rings against the previous line's descenders —
-            the usual sub-1 display leading collides in Swedish. */}
-        <h1 className="mt-5 text-[3.25rem] leading-[1.06] small:text-[7rem] small:leading-[1.02] font-semibold tracking-[-0.03em] text-balance">
-          {isSolkast ? (
-            <>
-              Chase
-              <br />
-              <span className="text-brand-light">the light.</span>
-            </>
-          ) : (
-            <>
-              Köp nu.
-              <br />
-              <span className="text-brand-light">Ångra sen.</span>
-            </>
-          )}
-        </h1>
-        <div className="mt-8 small:mt-10 flex flex-col small:flex-row small:items-end gap-8 small:gap-14">
-          <p className="max-w-sm text-sm small:text-base text-white/70 leading-relaxed">
-            {/* No blanket material claim.
-              *
-              * This said "heavy organic cotton", which was true of everything
-              * the shop sold when it was written and stopped being true as the
-              * range grew: the Solstice pieces are recycled polyester, because
-              * an all-over print cannot be cotton, and the accessories are
-              * polyester too. The product descriptions already had this exact
-              * problem and now read their material off the blank; the homepage
-              * has no single blank to read, so it claims nothing and lets the
-              * product pages be specific. */}
-            {isSolkast
-              ? `Graphic pieces and all-over prints, ${
-                  FULFILMENT[shippingRegionFor(countryCode)].printedIn
-                }. A short list, made properly, meant to outlast the season.`
-              : "Tröjor för dig som redan vet hur det slutar. Ekologisk bomull, tryckt på beställning i EU — vi gör bara det någon faktiskt beställt."}
-          </p>
-          <div className="flex gap-3 shrink-0">
-            <LocalizedClientLink
-              href="/store"
-              className="bg-white text-neutral-950 text-sm font-medium px-7 py-3.5 rounded-full hover:bg-neutral-200 transition-colors"
-              data-testid="hero-shop-link"
-            >
-              {isSolkast ? "Shop all" : "Handla allt"}
-            </LocalizedClientLink>
-            <LocalizedClientLink
-              href="/collections/new-arrivals"
-              className="border border-white/30 text-white text-sm font-medium px-7 py-3.5 rounded-full hover:bg-white/10 transition-colors"
-            >
-              {isSolkast ? "New arrivals" : "Nyheter"}
-            </LocalizedClientLink>
-          </div>
-        </div>
+    <section
+      className="relative w-full h-screen min-h-[600px] overflow-hidden bg-black"
+      data-testid="hero"
+    >
+      {/* ── Background video ─────────────────────────────────────────── */}
+      <div className="absolute inset-0" aria-hidden="true">
+        <video
+          className="h-full w-full object-cover opacity-60"
+          src={videoSrc}
+          poster={videoPoster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+        {/* Layered gradient overlay: radial vignette + bottom fade for text */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.7)_100%)]" />
       </div>
 
-      {/* A shoppable strip rather than a decorative collage — every tile is a
-          real product page. */}
-      <div className="relative content-container pb-16 small:pb-20">
-        <div className="grid grid-cols-2 small:grid-cols-4 gap-3 small:gap-4">
-          {strip.map((item, i) => (
-            <LocalizedClientLink
-              key={item.href}
-              href={item.href}
-              className="group"
-            >
-              <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-900">
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  fill
-                  priority={i === 0}
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                />
-                {/* On the image, not beside the title — in a grid, a badge in
-                    the text row reads as belonging to the next column. */}
-                {item.tag && (
-                  <span className="absolute top-3 left-3 bg-brand text-white text-[10px] font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full">
-                    {item.tag}
-                  </span>
-                )}
-              </div>
-              <p className="mt-3 text-xs small:text-sm text-white/90 truncate">
-                {item.label}
-              </p>
-            </LocalizedClientLink>
-          ))}
+      {/* ── Content ──────────────────────────────────────────────────── */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
+        {/* Headline — sharp, futuristic, unmissable */}
+        <h1
+          className="
+            font-header uppercase tracking-[0.25em]
+            text-3xl sm:text-5xl md:text-7xl lg:text-8xl
+            text-white font-bold
+            leading-[1.15]
+            [text-shadow:0_0_60px_rgba(255,255,255,0.08)]
+          "
+        >
+          <span className="block">BEYOND</span>
+          <span className="block text-silver-muted my-2 sm:my-3 text-xl sm:text-3xl md:text-5xl lg:text-6xl tracking-[0.5em]">
+            //
+          </span>
+          <span className="block">THE</span>
+          <span className="block text-silver-muted my-2 sm:my-3 text-xl sm:text-3xl md:text-5xl lg:text-6xl tracking-[0.5em]">
+            //
+          </span>
+          <span className="block">HORIZON</span>
+        </h1>
+
+        {/* CTA — thin metallic border, electric blue glow on hover */}
+        <LocalizedClientLink
+          href="/store"
+          className="
+            group relative mt-10 sm:mt-14
+            px-10 py-4 sm:px-14 sm:py-5
+            font-mono text-xs sm:text-sm
+            tracking-[0.35em] uppercase
+            text-silver border border-silver-dark/50
+            rounded-none
+            transition-all duration-500 ease-out
+            hover:border-[#00d4ff] hover:text-white
+            hover:shadow-[0_0_30px_rgba(0,212,255,0.35),inset_0_0_30px_rgba(0,212,255,0.08)]
+            backdrop-blur-sm
+          "
+          data-testid="hero-cta"
+        >
+          {/* Subtle inner glow line at top */}
+          <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-silver-dark/60 to-transparent group-hover:via-[#00d4ff]/60 transition-all duration-500" />
+          TRANSCEND&ensp;//&ensp;EVOLVE
+          {/* Subtle inner glow line at bottom */}
+          <span className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-silver-dark/60 to-transparent group-hover:via-[#00d4ff]/60 transition-all duration-500" />
+        </LocalizedClientLink>
+
+        {/* Scroll hint */}
+        <div className="absolute bottom-8 sm:bottom-12 flex flex-col items-center gap-2 animate-pulse">
+          <span className="text-silver-muted text-[10px] tracking-[0.3em] uppercase font-mono">
+            Scroll
+          </span>
+          <svg
+            width="16"
+            height="24"
+            viewBox="0 0 16 24"
+            fill="none"
+            className="text-silver-muted"
+          >
+            <path
+              d="M8 4v12m0 0l-4-4m4 4l4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
       </div>
     </section>

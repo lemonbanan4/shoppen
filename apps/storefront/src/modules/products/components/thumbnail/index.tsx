@@ -35,7 +35,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   return (
     <div
       className={clx(
-        "relative w-full overflow-hidden bg-neutral-100 rounded-xl",
+        "relative w-full overflow-hidden bg-transparent border border-gray-800 shadow-none rounded-none",
         className,
         {
           "aspect-[4/5]": size !== "square",

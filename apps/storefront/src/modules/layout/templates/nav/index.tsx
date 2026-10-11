@@ -54,15 +54,15 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
         {t.announcement}
       </div>
       <header
-        className={`relative h-16 mx-auto border-b duration-200 backdrop-blur-md ${
+        className={`relative h-16 mx-auto duration-200 backdrop-blur-xl ${
           isSolkast
-            ? "bg-ink/95 border-ink-line"
-            : "bg-white/95 border-neutral-100"
+            ? "bg-transparent border-b border-white/10"
+            : "bg-white/95 border-b border-neutral-100"
         }`}
       >
         <nav
           className={`content-container text-sm flex items-center justify-between w-full h-full ${
-            isSolkast ? "text-neutral-400" : "text-neutral-500"
+            isSolkast ? "text-white/70" : "text-neutral-500"
           }`}
         >
           <div className="flex-1 basis-0 h-full flex items-center gap-x-6">
@@ -75,8 +75,10 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             </div>
             <LocalizedClientLink
               href="/"
-              className={`flex items-center text-lg font-semibold tracking-[0.22em] uppercase ${
-                isSolkast ? "text-neutral-50" : "text-neutral-950"
+              className={`flex items-center font-semibold uppercase ${
+                isSolkast
+                  ? "text-white text-base tracking-[0.3em] font-header"
+                  : "text-neutral-950 text-lg tracking-[0.22em]"
               }`}
               data-testid="nav-store-link"
             >
@@ -84,10 +86,14 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-6 h-full ml-6">
               {navLinksFor(countryCode).map((link) => (
-                <LocalizedClientLink
+                  <LocalizedClientLink
                   key={link.href}
                   href={link.href}
-                  className="hover:text-neutral-950 transition-colors"
+                  className={`transition-colors ${
+                    isSolkast
+                      ? "hover:text-white"
+                      : "hover:text-neutral-950"
+                  }`}
                 >
                   {link.label}
                 </LocalizedClientLink>
@@ -98,7 +104,11 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
           <div className="flex items-center gap-x-6 h-full flex-1 basis-0 justify-end">
             <SearchModal regionMap={regionMap} />
             <LocalizedClientLink
-              className="hidden small:block hover:text-neutral-950 transition-colors"
+              className={`hidden small:block transition-colors ${
+                isSolkast
+                  ? "hover:text-white"
+                  : "hover:text-neutral-950"
+              }`}
               href="/account"
               data-testid="nav-account-link"
             >
@@ -107,7 +117,11 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             <Suspense
               fallback={
                 <LocalizedClientLink
-                  className="hover:text-neutral-950 flex gap-2"
+                  className={`flex gap-2 transition-colors ${
+                    isSolkast
+                      ? "hover:text-white"
+                      : "hover:text-neutral-950"
+                  }`}
                   href="/cart"
                   data-testid="nav-cart-link"
                 >

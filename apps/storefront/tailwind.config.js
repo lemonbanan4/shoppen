@@ -37,12 +37,18 @@ module.exports = {
                 dark: "#7C3B23",
                 light: "#B9633F",
               },
-        // Solkast's ground. Slightly warm-shifted off pure black so the gold
-        // sits on it without vibrating, and so photography does not float.
+        // Deep black and crisp silver for Y2K Neo-Futurism
         ink: {
-          DEFAULT: "#0B0B0C",
-          soft: "#141416",
-          line: "#26262A",
+          DEFAULT: "#000000",
+          soft: "#0A0A0C",
+          line: "rgba(255, 255, 255, 0.12)",
+        },
+        silver: {
+          DEFAULT: "#E2E8F0",
+          light: "#F8FAFC",
+          muted: "#94A3B8",
+          dark: "#64748B",
+          chrome: "#D1D5DB",
         },
         grey: {
           0: "#FFFFFF",
@@ -83,13 +89,33 @@ module.exports = {
       },
       fontFamily: {
         sans: [
+          "Space Grotesk",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
           "Roboto",
-          "Helvetica Neue",
-          "Ubuntu",
+          "sans-serif",
+        ],
+        mono: [
+          "Space Mono",
+          "JetBrains Mono",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace",
+        ],
+        header: [
+          "Syncopate",
+          "Space Grotesk",
+          "-apple-system",
+          "sans-serif",
+        ],
+        extended: [
+          "Syncopate",
+          "Space Grotesk",
           "sans-serif",
         ],
       },

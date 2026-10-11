@@ -67,9 +67,11 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       style={{ colorScheme: dark ? "dark" : "light" }}
     >
       <body
-        className={
-          dark ? "bg-ink text-neutral-100" : "bg-white text-neutral-950"
-        }
+        className={`font-sans antialiased ${
+          dark
+            ? "bg-ink text-silver selection:bg-brand/30"
+            : "bg-white text-neutral-950"
+        }`}
       >
         <PostHogProvider>
           <main className="relative">{props.children}</main>
