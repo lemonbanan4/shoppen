@@ -33,8 +33,15 @@
         "POSTHOG_PERSONAL_API_KEY",
         "POSTHOG_PROJECT_ID",
         "POSTHOG_HOST",
-        "STRIPE_*",
-        "SENTRY_*",
+        "STRIPE_PUBLISHABLE_KEY",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_MCP_KEY",
+        "SENTRY_VERCEL_LOG_DRAIN_URL",
+        "SENTRY_AUTH_TOKEN",
+        "SENTRY_PROJECT",
+        "SENTRY_OTLP_TRACES_URL",
+        "SENTRY_PUBLIC_KEY",
+        "SENTRY_ORG",
         "NEXT_PUBLIC_MEDUSA_BACKEND_URL",
         "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"
       ]
