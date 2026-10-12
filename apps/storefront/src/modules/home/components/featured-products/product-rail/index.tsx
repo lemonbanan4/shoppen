@@ -39,19 +39,19 @@ export default async function ProductRail({
       <div className="flex items-end justify-between mb-6 small:mb-8">
         <div>
           {eyebrow && (
-            <p className="text-[11px] tracking-[0.2em] uppercase text-brand mb-1.5">
+            <p className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#00d4ff] mb-1.5">
               {eyebrow}
             </p>
           )}
-          <h2 className="text-xl small:text-2xl font-semibold tracking-[-0.02em] text-neutral-950">
+          <h2 className="text-xl small:text-2xl font-mono font-bold tracking-tight text-white uppercase">
             {title ?? collection.title}
           </h2>
         </div>
         <LocalizedClientLink
           href={`/collections/${collection.handle}`}
-          className="text-sm text-neutral-500 hover:text-brand transition-colors shrink-0"
+          className="text-xs font-mono uppercase tracking-wider text-neutral-400 hover:text-white transition-colors shrink-0"
         >
-          {countryCode === "se" ? "Se alla →" : "View all →"}
+          VIEW ALL →
         </LocalizedClientLink>
       </div>
       <ul className="grid grid-flow-col auto-cols-[68%] xsmall:auto-cols-[42%] small:auto-cols-[calc(25%-9px)] gap-2 small:gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 small:mx-0 small:px-0">

@@ -80,27 +80,25 @@ export default async function DesignsGrid({
     <section className="content-container py-14 small:py-20">
       <div className="flex flex-col xsmall:flex-row xsmall:items-end justify-between gap-4 mb-8 small:mb-10">
         <div>
-          <p className="text-[11px] tracking-[0.24em] uppercase text-brand mb-2">
-            {isSolkast ? "The collection" : "Kollektionen"}
+          <p className="text-[11px] font-mono tracking-[0.24em] uppercase text-[#00d4ff] mb-2">
+            ARCHIVE // LINEUP
           </p>
-          <h2 className="text-2xl small:text-3xl font-semibold tracking-[-0.02em] text-neutral-950">
-            {isSolkast
-              ? "Made to be worn out, not put away"
-              : "Sex sätt att säga att du inte orkar"}
+          <h2 className="text-2xl small:text-3xl font-mono font-bold tracking-tight text-white uppercase">
+            CURATED SILHOUETTES & ESSENTIALS
           </h2>
         </div>
         <LocalizedClientLink
           href="/store"
-          className="text-sm text-neutral-500 hover:text-neutral-950 transition-colors shrink-0 underline underline-offset-4 decoration-neutral-300"
+          className="text-xs font-mono uppercase tracking-wider text-neutral-400 hover:text-white transition-colors shrink-0"
         >
-          {isSolkast ? "See all" : "Se alla"}
+          VIEW ALL →
         </LocalizedClientLink>
       </div>
 
       <div className="grid grid-cols-2 small:grid-cols-3 gap-x-3 gap-y-8 small:gap-x-6 small:gap-y-10">
         {tiles.map((d) => (
           <LocalizedClientLink key={d.href} href={d.href} className="group">
-            <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100">
+            <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800/80">
               <Image
                 src={d.src}
                 alt={d.alt}
@@ -109,11 +107,11 @@ export default async function DesignsGrid({
                 className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               />
             </div>
-            <p className="mt-3.5 text-sm small:text-base font-medium text-neutral-950">
+            <p className="mt-3.5 text-sm small:text-base font-mono font-bold text-white uppercase tracking-tight">
               {d.name}
             </p>
             {d.gloss ? (
-              <p className="mt-1 text-xs small:text-sm text-neutral-500 leading-snug">
+              <p className="mt-1 text-xs small:text-sm text-neutral-400 leading-snug font-sans">
                 {d.gloss}
               </p>
             ) : null}

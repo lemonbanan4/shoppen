@@ -6,7 +6,9 @@ import {
   ProviderDeleteFileDTO,
   ProviderGetFileDTO,
 } from "@medusajs/framework/types"
-import { v2 as cloudinary } from "cloudinary"
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { v2: cloudinary } = require("cloudinary")
 
 type Options = {
   cloud_name?: string

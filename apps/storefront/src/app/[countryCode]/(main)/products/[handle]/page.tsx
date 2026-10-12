@@ -88,38 +88,60 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
-  // Search engines cut the snippet around 160 characters, so trim on a word
-  // boundary rather than mid-word.
   const summary = product.description?.trim()
     ? product.description.trim().length > 160
       ? product.description.trim().slice(0, 157).replace(/\s+\S*$/, "") + "…"
       : product.description.trim()
-    : `${product.title} — printed to order by ${BRAND.name}.`
+    : `${product.title} — ${BRAND.tagline} by ${BRAND.name}.`
+
+  // Collect all product images in order
+  const allImages = [
+    ...(product.images?.map((i) => i.url) || []),
+    ...(product.thumbnail ? [product.thumbnail] : []),
+  ].filter(Boolean) as string[]
+
+  // Locate the first Cloudinary image URL if available
+  const firstCloudinaryImage = allImages.find(
+    (url) => url.includes("cloudinary.com") || url.includes("cloudinary")
+  )
+
+  // Use Cloudinary image first, falling back to the first product image or thumbnail
+  const ogImageUrl = firstCloudinaryImage || allImages[0] || undefined
+
+  const ogImages = ogImageUrl
+    ? [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 1200,
+          alt: `${product.title} | ${BRAND.name}`,
+        },
+      ]
+    : []
+
+  const pageTitle = `${product.title} | ${BRAND.name}`
 
   return {
-    title: `${product.title}`,
+    title: product.title,
     description: summary,
-    // Two kinds of duplicate collapse here.
-    //
-    // Selecting a colour adds ?v_id=..., which would otherwise look like a
-    // separate page. And every one of the ~74 country codes renders the same
-    // English page — the routes exist so a visitor lands in their own
-    // currency, not because the content differs.
-    //
-    // This used to canonicalise to `params.countryCode`, which meant each of
-    // the 74 declared *itself* authoritative and nothing consolidated. Pinning
-    // to the default region gathers them onto one URL, which is what the
-    // sitemap now submits.
     alternates: {
       canonical: `/${
         process.env.NEXT_PUBLIC_DEFAULT_REGION || params.countryCode
       }/products/${handle}`,
     },
     openGraph: {
-      title: `${product.title}`,
+      title: pageTitle,
       description: summary,
       type: "website",
-      images: product.thumbnail ? [product.thumbnail] : [],
+      siteName: BRAND.name,
+      url: `https://${BRAND.domain}/${params.countryCode}/products/${handle}`,
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: pageTitle,
+      description: summary,
+      images: ogImageUrl ? [ogImageUrl] : [],
     },
   }
 }

@@ -16,22 +16,39 @@ import type { MedusaContainer } from "@medusajs/framework";
  * is bad, and no confirmation at all is worse.
  */
 
-const DEFAULT_FROM = "Ångerköp <hej@angerkop.se>";
+const DEFAULT_FROM =
+  process.env.FROM_EMAIL_ADDRESS ||
+  process.env.RESEND_FROM_EMAIL ||
+  "SOLKAST <hello@solkast.com>";
 
 /** Sales channel name -> env var holding that brand's sender. */
 const SENDER_ENV: Record<string, string> = {
   solkast: "RESEND_FROM_SOLKAST",
+  angerkop: "RESEND_FROM_ANGERKOP",
 };
 
 /** Sales channel name -> env var holding that brand's storefront origin. */
 const STOREFRONT_ENV: Record<string, string> = {
   solkast: "STOREFRONT_URL_SOLKAST",
+  angerkop: "STOREFRONT_URL_ANGERKOP",
 };
 
 export function senderForChannelName(name?: string | null): string {
-  const fallback = process.env.RESEND_FROM_EMAIL || DEFAULT_FROM;
+  const fallback =
+    process.env.FROM_EMAIL_ADDRESS ||
+    process.env.RESEND_FROM_EMAIL ||
+    DEFAULT_FROM;
   if (!name) return fallback;
-  const envKey = SENDER_ENV[name.trim().toLowerCase()];
+  const channel = name.trim().toLowerCase();
+  if (channel === "solkast") {
+    return (
+      process.env.RESEND_FROM_SOLKAST ||
+      process.env.FROM_EMAIL_ADDRESS ||
+      process.env.RESEND_FROM_EMAIL ||
+      "SOLKAST <hello@solkast.com>"
+    );
+  }
+  const envKey = SENDER_ENV[channel];
   if (!envKey) return fallback;
   return process.env[envKey] || fallback;
 }

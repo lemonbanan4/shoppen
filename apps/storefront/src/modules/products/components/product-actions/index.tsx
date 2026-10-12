@@ -211,11 +211,13 @@ export default function ProductActions({
             !isValidVariant
           }
           variant="primary"
-          className="w-full h-10"
+          className="w-full h-12 bg-white text-black hover:bg-neutral-200 font-mono font-bold uppercase tracking-wider transition-all disabled:bg-neutral-800 disabled:text-neutral-500 rounded-lg active:scale-[0.98] shadow-[0_0_15px_rgba(255,255,255,0.15)]"
           isLoading={isAdding}
           data-testid="add-product-button"
         >
-          {!selectedVariant || !isValidVariant
+          {isAdding
+            ? "ADDING TO CART..."
+            : !selectedVariant || !isValidVariant
             ? t.selectSize
             : !inStock
             ? t.outOfStock

@@ -19,77 +19,104 @@ export default async function Footer({
   const productCategories = await listCategories();
 
   return (
-    <footer className="bg-neutral-950 text-neutral-400 w-full mt-16">
+    <footer className="bg-black text-neutral-400 w-full mt-24 border-t border-neutral-900">
       <div className="content-container flex flex-col w-full">
-        <div className="flex flex-col gap-y-12 small:flex-row items-start justify-between py-16 small:py-24">
-          <div className="max-w-sm">
+        {/* Main Footer Content */}
+        <div className="flex flex-col gap-y-12 lg:flex-row items-start justify-between py-16 sm:py-20 gap-x-12">
+          {/* Brand & Newsletter Column */}
+          <div className="max-w-sm w-full">
             <LocalizedClientLink
               href="/"
-              className="flex items-center gap-x-2 text-lg font-semibold tracking-[0.22em] text-white uppercase"
+              className="flex items-center gap-x-2.5 text-base font-semibold tracking-[0.25em] text-white uppercase"
             >
               <LogoMark size="18" />
-              {BRAND.wordmark}
+              <span>{BRAND.wordmark}</span>
             </LocalizedClientLink>
-            <p className="mt-4 text-sm leading-6">{t.footerBlurb}</p>
-            <div className="mt-8">
+            <p className="mt-3.5 text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
+              {t.footerBlurb}
+            </p>
+            <div className="mt-7">
               <NewsletterForm />
             </div>
           </div>
-          <div className="text-sm gap-10 md:gap-x-20 grid grid-cols-2 sm:grid-cols-3">
-            {productCategories && productCategories.length > 0 && (
-              <div className="flex flex-col gap-y-3">
-                <span className="text-white font-medium">{t.footerShop}</span>
-                <ul className="grid grid-cols-1 gap-2" data-testid="footer-categories">
-                  <li>
-                    <LocalizedClientLink
-                      className="hover:text-white transition-colors"
-                      href="/store"
-                    >
-                      {t.allProducts}
-                    </LocalizedClientLink>
-                  </li>
-                  {productCategories.slice(0, 6).map((c) => {
-                    if (c.parent_category) {
-                      return null;
-                    }
-                    return (
-                      <li key={c.id}>
-                        <LocalizedClientLink
-                          className="hover:text-white transition-colors"
-                          href={`/categories/${c.handle}`}
-                          data-testid="category-link"
-                        >
-                          {c.name}
-                        </LocalizedClientLink>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-            {collections && collections.length > 0 && (
-              <div className="flex flex-col gap-y-3">
-                <span className="text-white font-medium">{t.footerCollections}</span>
-                <ul className="grid grid-cols-1 gap-2">
-                  {collections.slice(0, 6).map((c) => (
-                    <li key={c.id}>
-                      <LocalizedClientLink
-                        className="hover:text-white transition-colors"
-                        href={`/collections/${c.handle}`}
-                      >
-                        {c.title}
-                      </LocalizedClientLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+
+          {/* Navigation Columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 text-xs w-full lg:w-auto">
+            {/* Shop Column */}
             <div className="flex flex-col gap-y-3">
-              <span className="text-white font-medium">{t.footerCustomerCare}</span>
-              <ul className="grid grid-cols-1 gap-y-2">
+              <span className="text-[11px] font-mono tracking-[0.2em] text-white uppercase font-semibold">
+                {t.footerShop}
+              </span>
+              <ul className="flex flex-col gap-y-2.5" data-testid="footer-categories">
                 <li>
                   <LocalizedClientLink
-                    className="hover:text-white transition-colors"
+                    className="hover:text-white transition-colors duration-150"
+                    href="/store"
+                  >
+                    {t.allProducts}
+                  </LocalizedClientLink>
+                </li>
+                {productCategories?.slice(0, 4).map((c) => {
+                  if (c.parent_category) return null;
+                  return (
+                    <li key={c.id}>
+                      <LocalizedClientLink
+                        className="hover:text-white transition-colors duration-150"
+                        href={`/categories/${c.handle}`}
+                        data-testid="category-link"
+                      >
+                        {c.name}
+                      </LocalizedClientLink>
+                    </li>
+                  );
+                })}
+                {collections?.slice(0, 3).map((c) => (
+                  <li key={c.id}>
+                    <LocalizedClientLink
+                      className="hover:text-white transition-colors duration-150"
+                      href={`/collections/${c.handle}`}
+                    >
+                      {c.title}
+                    </LocalizedClientLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Brand Column */}
+            <div className="flex flex-col gap-y-3">
+              <span className="text-[11px] font-mono tracking-[0.2em] text-white uppercase font-semibold">
+                Brand
+              </span>
+              <ul className="flex flex-col gap-y-2.5">
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors duration-150"
+                    href="/about"
+                  >
+                    About {BRAND.name}
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors duration-150"
+                    href="/customer-service"
+                  >
+                    Customer Care
+                  </LocalizedClientLink>
+                </li>
+              </ul>
+            </div>
+
+            {/* Account Column */}
+            <div className="flex flex-col gap-y-3">
+              <span className="text-[11px] font-mono tracking-[0.2em] text-white uppercase font-semibold">
+                Account
+              </span>
+              <ul className="flex flex-col gap-y-2.5">
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors duration-150"
                     href="/account"
                   >
                     {t.myAccount}
@@ -97,60 +124,76 @@ export default async function Footer({
                 </li>
                 <li>
                   <LocalizedClientLink
-                    className="hover:text-white transition-colors"
+                    className="hover:text-white transition-colors duration-150"
                     href="/account/orders"
                   >
                     {t.orderHistory}
                   </LocalizedClientLink>
                 </li>
+              </ul>
+            </div>
+
+            {/* Legal Column */}
+            <div className="flex flex-col gap-y-3">
+              <span className="text-[11px] font-mono tracking-[0.2em] text-white uppercase font-semibold">
+                Legal
+              </span>
+              <ul className="flex flex-col gap-y-2.5">
                 <li>
                   <LocalizedClientLink
-                    className="hover:text-white transition-colors"
-                    href="/content/about"
+                    className="hover:text-white transition-colors duration-150"
+                    href="/terms-of-service"
                   >
-                    {t.aboutBrand(BRAND.name)}
+                    Terms of Service
                   </LocalizedClientLink>
                 </li>
                 <li>
                   <LocalizedClientLink
-                    className="hover:text-white transition-colors"
-                    href="/customer-service"
+                    className="hover:text-white transition-colors duration-150"
+                    href="/privacy-policy"
                   >
-                    {t.customerService}
+                    Privacy Policy
                   </LocalizedClientLink>
                 </li>
                 <li>
                   <LocalizedClientLink
-                    className="hover:text-white transition-colors"
-                    href="/content/shipping-and-returns"
+                    className="hover:text-white transition-colors duration-150"
+                    href="/returns"
                   >
-                    {t.shippingReturns}
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink
-                    className="hover:text-white transition-colors"
-                    href="/content/privacy-policy"
-                  >
-                    {t.privacyPolicy}
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink
-                    className="hover:text-white transition-colors"
-                    href="/content/terms-of-use"
-                  >
-                    {t.termsOfUse}
+                    Returns & Exchanges
                   </LocalizedClientLink>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-        <div className="flex w-full py-8 justify-between items-center border-t border-neutral-800 text-xs">
-          <p>© {new Date().getFullYear()} {BRAND.name}. {t.rightsReserved}</p>
-          <div className="flex items-center gap-4 flex-wrap">
-            <p>{t.shippingNote}</p>
+
+        {/* Sub-Footer Bar */}
+        <div className="flex flex-col sm:flex-row w-full py-8 justify-between items-center border-t border-neutral-900 text-[11px] text-neutral-500 gap-y-4">
+          <div className="flex flex-col sm:flex-row items-center gap-y-2 sm:gap-x-6">
+            <p>© {new Date().getFullYear()} {BRAND.name}. {t.rightsReserved}</p>
+            {/* Quick Clean Minimal Legal & About Links */}
+            <nav className="flex items-center gap-x-4 text-neutral-400">
+              <LocalizedClientLink href="/terms-of-service" className="hover:text-white transition-colors duration-150">
+                Terms
+              </LocalizedClientLink>
+              <span className="text-neutral-700">·</span>
+              <LocalizedClientLink href="/privacy-policy" className="hover:text-white transition-colors duration-150">
+                Privacy
+              </LocalizedClientLink>
+              <span className="text-neutral-700">·</span>
+              <LocalizedClientLink href="/returns" className="hover:text-white transition-colors duration-150">
+                Returns
+              </LocalizedClientLink>
+              <span className="text-neutral-700">·</span>
+              <LocalizedClientLink href="/about" className="hover:text-white transition-colors duration-150">
+                About
+              </LocalizedClientLink>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
+            <p className="text-[11px] text-neutral-400 font-mono">{t.shippingNote}</p>
             <ul
               aria-label={t.paymentMethods}
               className="flex items-center gap-1.5"
@@ -159,7 +202,7 @@ export default async function Footer({
                 (method) => (
                   <li
                     key={method}
-                    className="rounded border border-white/20 px-2 py-0.5 text-[10px] tracking-wide text-white/60"
+                    className="rounded border border-neutral-800 bg-neutral-950 px-2 py-0.5 text-[10px] tracking-wider text-neutral-400 font-mono"
                   >
                     {method}
                   </li>
@@ -172,3 +215,4 @@ export default async function Footer({
     </footer>
   );
 }
+

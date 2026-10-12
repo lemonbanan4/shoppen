@@ -51,7 +51,7 @@ export default async function CustomerServicePage(props: {
           30 days, no questions asked. Items should be unworn and in their
           original packaging. See{" "}
           <LocalizedClientLink
-            href="/content/shipping-and-returns"
+            href="/returns"
             className="underline"
           >
             Shipping &amp; returns

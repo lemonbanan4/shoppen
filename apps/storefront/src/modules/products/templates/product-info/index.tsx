@@ -18,14 +18,14 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         {product.collection && (
           <LocalizedClientLink
             href={`/collections/${product.collection.handle}`}
-            className="text-medium text-ui-fg-muted hover:text-ui-fg-subtle"
+            className="text-xs font-mono uppercase tracking-widest text-[#00d4ff] hover:text-white transition-colors"
           >
             {product.collection.title}
           </LocalizedClientLink>
         )}
         <Heading
           level="h2"
-          className="text-3xl leading-10 text-ui-fg-base"
+          className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-white uppercase"
           data-testid="product-title"
         >
           {product.title}
@@ -33,7 +33,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
         {intro && (
           <Text
-            className="text-medium text-ui-fg-subtle whitespace-pre-line"
+            className="text-sm font-sans text-[#EDEDED] leading-relaxed whitespace-pre-line"
             data-testid="product-description"
           >
             {intro}

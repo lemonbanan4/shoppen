@@ -47,27 +47,23 @@ const Item: React.FC<AccordionItemProps> = ({
     <AccordionPrimitive.Item
       {...props}
       className={clx(
-        "border-grey-20 group border-t last:mb-0 last:border-b",
-        // Half the row padding lives on the trigger below, so the tap target
-        // reaches 44px without changing the row's overall height.
+        "border-neutral-800 group border-t last:mb-0 last:border-b",
         "py-1.5",
         className
       )}
     >
-      {/* The whole row is the trigger. Previously only the small +/- icon
-          was, so tapping the label — the obvious target, and the only one
-          big enough on a phone — did nothing, and the button reached screen
-          readers with no accessible name because the title sat outside it. */}
       <AccordionPrimitive.Header className="px-1">
         <AccordionPrimitive.Trigger className="flex w-full flex-col text-left py-1.5">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-4">
-              <Text className="text-ui-fg-subtle text-sm">{title}</Text>
+              <Text className="text-white font-mono uppercase tracking-wider text-sm font-semibold">
+                {title}
+              </Text>
             </div>
             {customTrigger || <MorphingTrigger />}
           </div>
           {subtitle && (
-            <Text as="span" className="mt-1 text-sm">
+            <Text as="span" className="mt-1 text-sm text-[#EDEDED]/70 font-mono">
               {subtitle}
             </Text>
           )}
@@ -80,7 +76,7 @@ const Item: React.FC<AccordionItemProps> = ({
         )}
       >
         <div className="inter-base-regular group-radix-state-closed:animate-accordion-close">
-          {description && <Text>{description}</Text>}
+          {description && <Text className="text-[#EDEDED]">{description}</Text>}
           <div className="w-full">{children}</div>
         </div>
       </AccordionPrimitive.Content>
@@ -92,10 +88,10 @@ Accordion.Item = Item
 
 const MorphingTrigger = () => {
   return (
-    <div className="text-grey-90 hover:bg-grey-5 active:bg-grey-5 active:text-violet-60 focus:border-violet-60 disabled:text-grey-30 bg-transparent disabled:bg-transparent rounded-rounded group relative p-[6px]">
+    <div className="text-white hover:bg-neutral-800/60 active:bg-neutral-800 rounded group relative p-[6px] transition-colors">
       <div className="h-5 w-5">
-        <span className="bg-grey-50 rounded-circle group-radix-state-open:rotate-90 absolute inset-y-[31.75%] left-[48%] right-1/2 w-[1.5px] duration-300" />
-        <span className="bg-grey-50 rounded-circle group-radix-state-open:rotate-90 group-radix-state-open:left-1/2 group-radix-state-open:right-1/2 absolute inset-x-[31.75%] top-[48%] bottom-1/2 h-[1.5px] duration-300" />
+        <span className="bg-neutral-300 rounded-circle group-radix-state-open:rotate-90 absolute inset-y-[31.75%] left-[48%] right-1/2 w-[1.5px] duration-300" />
+        <span className="bg-neutral-300 rounded-circle group-radix-state-open:rotate-90 group-radix-state-open:left-1/2 group-radix-state-open:right-1/2 absolute inset-x-[31.75%] top-[48%] bottom-1/2 h-[1.5px] duration-300" />
       </div>
     </div>
   )

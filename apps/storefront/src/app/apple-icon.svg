@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0A0A0C"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" stroke="#26262B" stroke-width="2"/>
+  <!-- Geometric Solkast Cyber-S Motif -->
+  <path d="M44 18H24C18.477 18 14 22.477 14 28C14 33.523 18.477 38 24 38H40C45.523 38 50 42.477 50 48C50 53.523 45.523 58 40 58H18" stroke="#00D4FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Pure White Core Highlights -->
+  <path d="M44 18L32 28" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M20 58L32 48" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="32" cy="38" r="3.5" fill="#FFFFFF"/>
+</svg>

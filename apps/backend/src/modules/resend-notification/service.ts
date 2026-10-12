@@ -44,7 +44,12 @@ export default class ResendNotificationProviderService extends AbstractNotificat
       notification.data
     );
 
-    if (!this.options_.api_key) {
+    const apiKey =
+      this.options_.api_key ||
+      process.env.EMAIL_API_KEY ||
+      process.env.RESEND_API_KEY;
+
+    if (!apiKey) {
       const dir = path.join(process.cwd(), ".medusa", "emails");
       fs.mkdirSync(dir, { recursive: true });
       const file = path.join(
@@ -53,7 +58,7 @@ export default class ResendNotificationProviderService extends AbstractNotificat
       );
       fs.writeFileSync(file, html);
       this.logger_.info(
-        `[email:dev] "${subject}" to ${notification.to} (no RESEND_API_KEY — written to ${file})`
+        `[email:dev] "${subject}" to ${notification.to} (no EMAIL_API_KEY / RESEND_API_KEY — written to ${file})`
       );
       return { id: `local-${Date.now()}` };
     }
@@ -61,7 +66,7 @@ export default class ResendNotificationProviderService extends AbstractNotificat
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${this.options_.api_key}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -69,14 +74,12 @@ export default class ResendNotificationProviderService extends AbstractNotificat
         // the configured default can only name one of them. Subscribers that
         // know which storefront an order came from set it; anything that
         // cannot tell falls back here rather than guessing.
-        //
-        // The final fallback is a last resort, not a default worth relying
-        // on: resend.dev is a shared sandbox sender, so mail from it is
-        // unauthenticated for our domain and lands in spam.
         from:
           notification.from ||
           this.options_.from ||
-          "Ångerköp <hej@angerkop.se>",
+          process.env.FROM_EMAIL_ADDRESS ||
+          process.env.RESEND_FROM_EMAIL ||
+          "SOLKAST <hello@solkast.com>",
         to: [notification.to],
         subject,
         html,

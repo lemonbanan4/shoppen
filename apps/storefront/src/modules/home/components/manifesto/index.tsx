@@ -9,57 +9,30 @@ import { FULFILMENT, shippingRegionFor } from "@lib/copy"
 // the whole proposition is that it does not perform. Running the Ångerköp
 // line through it in English would land as a joke told flatly, which is
 // worse than either brand on its own.
-export default function Manifesto({ countryCode }: { countryCode?: string }) {
-  const isSv = !isSolkast && countryCode === "se"
-
+export default function Manifesto() {
   return (
-    <section className="bg-neutral-950 text-white">
+    <section className="bg-black border-y border-neutral-900 text-white">
       <div className="content-container py-16 small:py-24 max-w-4xl">
-        <p className="text-[11px] tracking-[0.24em] uppercase text-brand-light mb-6">
-          {isSolkast
-            ? "On the name"
-            : isSv
-            ? "Affärsidén"
-            : "The business model"}
+        <p className="text-[11px] font-mono tracking-[0.24em] uppercase text-[#00d4ff] mb-6">
+          BRAND ETHOS // 001
         </p>
 
-        <p className="text-2xl small:text-4xl font-semibold leading-[1.2] tracking-[-0.02em] text-balance">
-          {isSolkast ? (
-            <>
-              Solkast is the way light gets thrown.
-              <span className="text-white/45">
-                {" "}
-                Not the sun — the cast of it.
-              </span>
-            </>
-          ) : isSv ? (
-            <>
-              Vi säljer tröjor till folk som inte behöver fler tröjor.
-              <span className="text-white/45"> Det är hela affärsidén.</span>
-            </>
-          ) : (
-            <>
-              We sell shirts to people who do not need more shirts.
-              <span className="text-white/45"> That is the whole model.</span>
-            </>
-          )}
+        <p className="text-2xl small:text-4xl font-mono font-bold leading-[1.2] tracking-tight uppercase text-white">
+          SOLKAST IS THE WAY LIGHT GETS THROWN.
+          <span className="text-neutral-500 block mt-1">
+            NOT THE SUN — THE SHADOW AND THE CAST OF IT.
+          </span>
         </p>
 
-        <p className="mt-7 max-w-xl text-sm small:text-base text-white/65 leading-relaxed">
-          {isSolkast
-            ? "The long shadow at four in the afternoon, the shape a thing makes when the light hits it sideways. A short list, made properly, " +
-              `${FULFILMENT[shippingRegionFor(countryCode)].printedIn}. ` +
-              "Made to be worn for years rather than noticed for a season."
-            : isSv
-            ? "Ångerköp betyder precis vad du tror. Vi gör plagg för dig som lägger saker i kundvagnen kl 02:47 och ångrar det på söndag — men som ändå vill ha något som håller. Ekologisk bomull, tryckt i EU, inget lager."
-            : "Ångerköp means “regret purchase”. We make clothes for people who add things to the basket at 02:47 and think better of it by Sunday — but still want something that lasts. Organic cotton, printed in the EU, no warehouse."}
+        <p className="mt-7 max-w-xl text-sm small:text-base text-neutral-400 font-sans leading-relaxed">
+          The long shadow at four in the afternoon; the stark profile formed when light strikes sideways. Heavyweight garments engineered with high-density graphics and enduring cuts. Designed to be lived in for years rather than chased for a season.
         </p>
 
         <LocalizedClientLink
-          href="/content/about"
-          className="mt-9 inline-block text-sm font-medium text-white border-b border-white/30 pb-1 hover:border-white transition-colors"
+          href="/about"
+          className="mt-9 inline-block text-xs font-mono uppercase tracking-widest text-white border-b border-white/40 pb-1 hover:border-[#00d4ff] hover:text-[#00d4ff] transition-all"
         >
-          {isSv ? "Mer om oss" : "More about us"}
+          ABOUT SOLKAST →
         </LocalizedClientLink>
       </div>
     </section>

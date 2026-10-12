@@ -58,14 +58,14 @@ module.exports = defineConfig({
       options: {
         providers: [
           {
-            // Sends via Resend when RESEND_API_KEY is set; otherwise renders
+            // Sends via Resend when EMAIL_API_KEY or RESEND_API_KEY is set; otherwise renders
             // emails to .medusa/emails/ for local development.
             resolve: './src/modules/resend-notification',
             id: 'resend',
             options: {
               channels: ['email'],
-              api_key: process.env.RESEND_API_KEY,
-              from: process.env.RESEND_FROM_EMAIL,
+              api_key: process.env.EMAIL_API_KEY || process.env.RESEND_API_KEY,
+              from: process.env.FROM_EMAIL_ADDRESS || process.env.RESEND_FROM_EMAIL,
             },
           },
         ],

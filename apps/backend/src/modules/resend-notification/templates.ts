@@ -39,6 +39,18 @@ const money = (amount: number, currency: string) =>
     currency: currency.toUpperCase(),
   }).format(Number(amount ?? 0));
 
+const getBrandName = () => {
+  if (process.env.BRAND_NAME) return process.env.BRAND_NAME;
+  if (process.env.NEXT_PUBLIC_BRAND === "angerkop") return "Ångerköp";
+  return "SOLKAST";
+};
+
+const getBrandWordmark = () => {
+  if (process.env.BRAND_WORDMARK) return process.env.BRAND_WORDMARK;
+  if (process.env.NEXT_PUBLIC_BRAND === "angerkop") return "ÅNGERKÖP";
+  return "SOLKAST";
+};
+
 const layout = (body: string) => `<!doctype html>
 <html>
   <body style="margin:0;padding:0;background-color:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#171717;">
@@ -46,14 +58,14 @@ const layout = (body: string) => `<!doctype html>
       <tr><td align="center">
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
           <tr><td style="padding:0 8px 24px;text-align:center;">
-            <span style="font-size:18px;font-weight:600;letter-spacing:0.22em;color:#0a0a0a;">ÅNGERKÖP</span>
+            <span style="font-size:18px;font-weight:700;letter-spacing:0.25em;color:#0a0a0a;">${getBrandWordmark()}</span>
           </td></tr>
           <tr><td style="background-color:#ffffff;border-radius:16px;padding:40px;">
             ${body}
           </td></tr>
           <tr><td style="padding:24px 8px;text-align:center;font-size:12px;color:#737373;line-height:1.6;">
-            Free shipping over 800 kr / €75 · 30-day returns<br/>
-            © ${new Date().getFullYear()} Ångerköp. Köp nu. Ångra sen.
+            Free shipping on orders over €75 / $85 · 30-day returns<br/>
+            © ${new Date().getFullYear()} ${getBrandName()}. All rights reserved.
           </td></tr>
         </table>
       </td></tr>
@@ -130,20 +142,18 @@ const orderPlaced = (data: OrderPlacedData) => {
 
 const customerWelcome = (data: CustomerWelcomeData) => {
   const name = data.customer.first_name || "there";
+  const brand = getBrandName();
   return {
-    // These templates are not locale-aware, and the store sells in SEK, EUR
-    // and USD — so they stay in English rather than sending Swedish to a
-    // German customer. Worth revisiting off the order's region.
-    subject: "Welcome to Ångerköp",
+    subject: `Welcome to ${brand}`,
     html: layout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Hi ${name}, welcome</h1>
       <p style="margin:0 0 20px;font-size:14px;color:#525252;line-height:1.7;">
-        Your Ångerköp account is ready. You can track orders, save addresses and
+        Your ${brand} account is ready. You can track orders, save addresses and
         check out faster next time.
       </p>
       <p style="margin:0;font-size:14px;color:#525252;line-height:1.7;">
         As a small welcome: use code <strong style="color:#171717;">WELCOME10</strong>
-        for 10% off your first order. Regret it later if you like — 30-day returns.
+        for 10% off your first order. 30-day returns.
       </p>
     `),
   };
@@ -155,12 +165,13 @@ export type OrderTransferData = {
 };
 
 const orderTransferRequested = (data: OrderTransferData) => {
+  const brand = getBrandName();
   return {
     subject: `Confirm the transfer of order #${data.order.display_id}`,
     html: layout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Order transfer request</h1>
       <p style="margin:0 0 20px;font-size:14px;color:#525252;line-height:1.7;">
-        An Ångerköp account has asked to connect your order
+        A ${brand} account has asked to connect your order
         <strong>#${data.order.display_id}</strong> to their account. If this was
         you, confirm below. If you don't recognize this request, you can safely
         ignore this email or decline it.

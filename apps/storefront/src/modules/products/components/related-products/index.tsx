@@ -49,11 +49,11 @@ export default async function RelatedProducts({
   return (
     <div className="product-page-constraint">
       <div className="flex flex-col mb-8">
-        <span className="text-[11px] tracking-[0.2em] uppercase text-brand mb-1.5">
-          Keep looking
+        <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#00d4ff] mb-1.5">
+          RELATED DROPS
         </span>
-        <h2 className="text-xl small:text-2xl font-medium text-neutral-950">
-          You may also like
+        <h2 className="text-xl small:text-2xl font-mono font-bold text-white uppercase tracking-tight">
+          YOU MAY ALSO LIKE
         </h2>
       </div>
 

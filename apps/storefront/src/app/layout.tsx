@@ -5,30 +5,32 @@ import PostHogProvider from "@modules/common/components/analytics/posthog-provid
 import "styles/globals.css"
 import { BRAND, isSolkast } from "@lib/brand"
 
-const title = `${BRAND.name} — ${BRAND.tagline}`
+const globalTitle = isSolkast
+  ? "SOLKAST | Premium Heavyweight Streetwear"
+  : `${BRAND.name} — ${BRAND.tagline}`
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: {
-    default: title,
+    default: globalTitle,
     template: `%s | ${BRAND.name}`,
   },
   description: BRAND.description,
-  // Both the icon and the share card used to be static files under src/app,
-  // which the two deployments necessarily shared: Solkast served Ångerköp's Å
-  // as its favicon, and both shops served the untouched Medusa starter card —
-  // a stock desk lamp captioned "Next.js Starter Template" — as their Open
-  // Graph image. That card is the most-seen asset either brand has, since it
-  // is what renders in every WhatsApp, iMessage, Slack and Discord share and
-  // behind every bio link.
   icons: {
-    icon: `/brand/icon-${BRAND.id}.svg`,
-    apple: `/brand/icon-${BRAND.id}.svg`,
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+      { url: `/brand/icon-${BRAND.id}.svg`, type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-icon.svg", type: "image/svg+xml" },
+      { url: `/brand/icon-${BRAND.id}.svg`, type: "image/svg+xml" },
+    ],
   },
   openGraph: {
     type: "website",
     siteName: BRAND.name,
-    title,
+    title: globalTitle,
     description: BRAND.description,
     url: `https://${BRAND.domain}`,
     images: [
@@ -36,13 +38,13 @@ export const metadata: Metadata = {
         url: `/brand/og-${BRAND.id}.jpg`,
         width: 1200,
         height: 630,
-        alt: `${BRAND.name} — ${BRAND.tagline}`,
+        alt: globalTitle,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title,
+    title: globalTitle,
     description: BRAND.description,
     images: [`/brand/og-${BRAND.id}.jpg`],
   },

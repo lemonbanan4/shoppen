@@ -58,15 +58,9 @@ const SOLKAST: Brand = {
   id: "solkast",
   name: "SOLKAST",
   wordmark: "SOLKAST",
-  tagline: "BEYOND // THE // HORIZON",
-  // No country named here, unlike the on-page copy. This is the site-wide meta
-  // description and the root layout has no country code to switch on, so it is
-  // served to a US visitor and an EU one alike — and orders are printed in
-  // whichever region they ship to. See FULFILMENT in copy.ts for the
-  // region-aware wording used on the page itself.
+  tagline: "Premium Heavyweight Streetwear",
   description:
-    "Graphic pieces and all-over prints, printed to order. " +
-    "A short list, made properly, meant to outlast the season.",
+    "Premium heavyweight streetwear engineered with high-density graphics and considered cuts. Printed on demand with zero overproduction.",
   domain: "solkast.com",
   email: "hello@solkast.com",
   lang: "en",

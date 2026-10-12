@@ -27,7 +27,7 @@ const navLinksFor = (countryCode?: string) => {
     { label: t.shopAll, href: "/store" },
     { label: t.solstice, href: "/collections/solstice" },
     { label: t.newArrivals, href: "/collections/new-arrivals" },
-    { label: t.about, href: "/content/about" },
+    { label: t.about, href: "/about" },
   ]
 }
 

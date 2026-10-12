@@ -26,36 +26,39 @@ export default function ProductPrice({
   }
 
   return (
-    <div className="flex flex-col text-ui-fg-base">
+    <div className="flex flex-col text-white font-mono">
       <span
-        className={clx("text-xl-semi", {
-          "text-ui-fg-interactive": selectedPrice.price_type === "sale",
+        className={clx("text-2xl font-bold tracking-tight text-white", {
+          "text-[#00d4ff]": selectedPrice.price_type === "sale",
         })}
       >
-        {!variant && t.priceFrom}
+        {!variant && (
+          <span className="text-neutral-400 font-normal mr-2 text-base">
+            {t.priceFrom}
+          </span>
+        )}
         <span
           data-testid="product-price"
           data-value={selectedPrice.calculated_price_number}
+          className="text-white"
         >
           {selectedPrice.calculated_price}
         </span>
       </span>
       {selectedPrice.price_type === "sale" && (
-        <>
-          <p>
-            <span className="text-ui-fg-subtle">Original: </span>
-            <span
-              className="line-through"
-              data-testid="original-product-price"
-              data-value={selectedPrice.original_price_number}
-            >
-              {selectedPrice.original_price}
-            </span>
-          </p>
-          <span className="text-ui-fg-interactive">
+        <div className="flex items-center gap-2 mt-1 text-sm">
+          <span className="text-neutral-400">Original: </span>
+          <span
+            className="line-through text-neutral-400"
+            data-testid="original-product-price"
+            data-value={selectedPrice.original_price_number}
+          >
+            {selectedPrice.original_price}
+          </span>
+          <span className="text-[#00d4ff] font-semibold">
             -{selectedPrice.percentage_diff}%
           </span>
-        </>
+        </div>
       )}
     </div>
   )

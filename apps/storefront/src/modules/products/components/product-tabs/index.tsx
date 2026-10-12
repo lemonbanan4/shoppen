@@ -80,14 +80,16 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
     : Array.from(new Set(guide.rows.flatMap((r) => Object.keys(r.values))))
 
   return (
-    <div className="py-8">
+    <div className="py-6 font-mono">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
+        <table className="w-full text-sm text-left border-collapse">
           <thead>
-            <tr className="border-b border-neutral-200 text-neutral-500">
-              <th className="py-2 pr-4 font-medium">{t.measurement(guide.unit)}</th>
+            <tr className="border-b border-neutral-800 text-white">
+              <th className="py-2.5 pr-4 font-semibold text-white tracking-wider uppercase">
+                {t.measurement(guide.unit)}
+              </th>
               {sizes.map((s) => (
-                <th key={s} className="py-2 px-3 font-medium text-center">
+                <th key={s} className="py-2.5 px-3 font-semibold text-center text-white">
                   {s}
                 </th>
               ))}
@@ -95,10 +97,10 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
           </thead>
           <tbody>
             {guide.rows.map((row) => (
-              <tr key={row.label} className="border-b border-neutral-100">
-                <td className="py-2 pr-4 text-neutral-700">{row.label}</td>
+              <tr key={row.label} className="border-b border-neutral-900/80">
+                <td className="py-2.5 pr-4 text-[#EDEDED] font-medium">{row.label}</td>
                 {sizes.map((s) => (
-                  <td key={s} className="py-2 px-3 text-center text-neutral-900">
+                  <td key={s} className="py-2.5 px-3 text-center text-[#EDEDED]">
                     {row.values[s] ?? "–"}
                   </td>
                 ))}
@@ -107,7 +109,7 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-xs text-neutral-500">
+      <p className="mt-4 text-xs text-[#EDEDED]/70 leading-relaxed">
         {t.sizeGuideNote}
       </p>
     </div>
@@ -116,10 +118,6 @@ const SizeGuideTab = ({ guide }: { guide: SizeGuide }) => {
 
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
   const t = useCopy()
-  // The spec bullets from the supplier's catalog copy. These carry the real
-  // detail — fabric, weight, fit, certifications — where Medusa's own
-  // material/weight/dimension fields are unset for print-on-demand products
-  // and rendered as a grid of dashes.
   const { bullets } = splitDescription(product.description)
 
   const attributes = [
@@ -137,21 +135,19 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
 
   if (!bullets.length && !attributes.length) {
     return (
-      <div className="text-small-regular py-8">
-        <p className="text-ui-fg-subtle">
-          {t.detailsPending}
-        </p>
+      <div className="text-small-regular py-6 font-mono text-[#EDEDED]/70">
+        <p>{t.detailsPending}</p>
       </div>
     )
   }
 
   return (
-    <div className="text-small-regular py-8 flex flex-col gap-y-6">
+    <div className="text-small-regular py-6 flex flex-col gap-y-6 font-mono">
       {bullets.length > 0 && (
         <ul className="flex flex-col gap-y-2">
           {bullets.map((bullet, i) => (
-            <li key={i} className="flex gap-x-2 text-ui-fg-subtle">
-              <span aria-hidden="true">•</span>
+            <li key={i} className="flex gap-x-2 text-[#EDEDED]">
+              <span aria-hidden="true" className="text-[#00d4ff]">•</span>
               <span>{bullet}</span>
             </li>
           ))}
@@ -161,8 +157,10 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
           {attributes.map(([label, value]) => (
             <div key={label}>
-              <span className="font-semibold">{label}</span>
-              <p>{value}</p>
+              <span className="font-semibold text-white uppercase tracking-wider text-xs block mb-0.5">
+                {label}
+              </span>
+              <p className="text-[#EDEDED]">{value}</p>
             </div>
           ))}
         </div>
@@ -174,31 +172,31 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
 const ShippingInfoTab = () => {
   const t = useCopy()
   return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-1 gap-y-8">
-        <div className="flex items-start gap-x-2">
+    <div className="text-small-regular py-6 font-mono">
+      <div className="grid grid-cols-1 gap-y-6">
+        <div className="flex items-start gap-x-3 text-white">
           <FastDelivery />
           <div>
-            <span className="font-semibold">{t.shipFastTitle}</span>
-            <p className="max-w-sm">
+            <span className="font-semibold text-white block">{t.shipFastTitle}</span>
+            <p className="max-w-sm text-[#EDEDED]/80 text-xs mt-0.5 font-sans leading-relaxed">
               {t.shipFastBody}
             </p>
           </div>
         </div>
-        <div className="flex items-start gap-x-2">
+        <div className="flex items-start gap-x-3 text-white">
           <Refresh />
           <div>
-            <span className="font-semibold">{t.shipExchangeTitle}</span>
-            <p className="max-w-sm">
+            <span className="font-semibold text-white block">{t.shipExchangeTitle}</span>
+            <p className="max-w-sm text-[#EDEDED]/80 text-xs mt-0.5 font-sans leading-relaxed">
               {t.shipExchangeBody}
             </p>
           </div>
         </div>
-        <div className="flex items-start gap-x-2">
+        <div className="flex items-start gap-x-3 text-white">
           <Back />
           <div>
-            <span className="font-semibold">{t.shipReturnTitle}</span>
-            <p className="max-w-sm">
+            <span className="font-semibold text-white block">{t.shipReturnTitle}</span>
+            <p className="max-w-sm text-[#EDEDED]/80 text-xs mt-0.5 font-sans leading-relaxed">
               {t.shipReturnBody}
             </p>
           </div>

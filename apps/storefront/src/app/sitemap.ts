@@ -10,11 +10,13 @@ const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 const STATIC_PATHS = [
   "",
   "/store",
+  "/about",
   "/customer-service",
-  "/content/shipping-and-returns",
-  "/content/privacy-policy",
-  "/content/terms-of-use",
+  "/returns",
+  "/privacy-policy",
+  "/terms-of-service",
 ]
+
 
 const backendFetch = async <T>(path: string): Promise<T> => {
   const res = await fetch(`${BACKEND_URL}${path}`, {
