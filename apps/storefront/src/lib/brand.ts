@@ -56,9 +56,9 @@ const ANGERKOP: Brand = {
 
 const SOLKAST: Brand = {
   id: "solkast",
-  name: "Solkast",
-  wordmark: "Solkast",
-  tagline: "Considered goods.",
+  name: "SOLKAST",
+  wordmark: "SOLKAST",
+  tagline: "BEYOND // THE // HORIZON",
   // No country named here, unlike the on-page copy. This is the site-wide meta
   // description and the root layout has no country code to switch on, so it is
   // served to a US visitor and an EU one alike — and orders are printed in
@@ -78,12 +78,11 @@ const BRANDS: Record<BrandId, Brand> = {
   solkast: SOLKAST,
 }
 
-// Read once at module scope. NEXT_PUBLIC_* is inlined at build time, so each
-// deployment is compiled against exactly one brand and there is no per-request
-// branching to get wrong.
-const configured = (process.env.NEXT_PUBLIC_BRAND || "").toLowerCase()
+// Read once at module scope. Defaults to SOLKAST so every deployment,
+// preview, and local dev serves SOLKAST unless specifically overridden.
+const configured = (process.env.NEXT_PUBLIC_BRAND || "solkast").toLowerCase()
 
-export const BRAND: Brand = BRANDS[configured as BrandId] ?? ANGERKOP
+export const BRAND: Brand = BRANDS[configured as BrandId] ?? SOLKAST
 
 export const isSolkast = BRAND.id === "solkast"
 export const isAngerkop = BRAND.id === "angerkop"

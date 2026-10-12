@@ -50,23 +50,19 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
 
   return (
     <div className="sticky top-0 inset-x-0 z-50 group">
-      <div className="bg-brand text-white text-[11px] tracking-[0.14em] uppercase text-center py-2 px-4">
-        {t.announcement}
+      {/* ── Minimal Black Announcement Ticker ── */}
+      <div className="bg-black/90 border-b border-neutral-900 text-silver/80 text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-center py-2 px-4 font-mono backdrop-blur-md">
+        <span className="inline-flex items-center gap-x-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
+          <span>SOLKAST // FREE WORLDWIDE SHIPPING ON ORDERS OVER $85 // 30-DAY RETURNS</span>
+        </span>
       </div>
-      <header
-        className={`relative h-16 mx-auto duration-200 backdrop-blur-xl ${
-          isSolkast
-            ? "bg-transparent border-b border-white/10"
-            : "bg-white/95 border-b border-neutral-100"
-        }`}
-      >
-        <nav
-          className={`content-container text-sm flex items-center justify-between w-full h-full ${
-            isSolkast ? "text-white/70" : "text-neutral-500"
-          }`}
-        >
+
+      {/* ── Frosted Glass Blurred Header ── */}
+      <header className="relative h-16 mx-auto duration-200 backdrop-blur-md bg-black/60 border-b border-neutral-900">
+        <nav className="content-container text-sm flex items-center justify-between w-full h-full text-silver">
           <div className="flex-1 basis-0 h-full flex items-center gap-x-6">
-            <div className="h-full small:hidden flex items-center">
+            <div className="h-full small:hidden flex items-center text-silver hover:text-white transition-colors">
               <SideMenu
                 regions={regions}
                 locales={locales}
@@ -75,25 +71,17 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             </div>
             <LocalizedClientLink
               href="/"
-              className={`flex items-center font-semibold uppercase ${
-                isSolkast
-                  ? "text-white text-base tracking-[0.3em] font-header"
-                  : "text-neutral-950 text-lg tracking-[0.22em]"
-              }`}
+              className="flex items-center text-white text-base tracking-[0.3em] font-header font-bold uppercase hover:text-silver transition-colors"
               data-testid="nav-store-link"
             >
-              {BRAND.wordmark}
+              SOLKAST
             </LocalizedClientLink>
-            <div className="hidden small:flex items-center gap-x-6 h-full ml-6">
+            <div className="hidden small:flex items-center gap-x-8 h-full ml-8">
               {navLinksFor(countryCode).map((link) => (
-                  <LocalizedClientLink
+                <LocalizedClientLink
                   key={link.href}
                   href={link.href}
-                  className={`transition-colors ${
-                    isSolkast
-                      ? "hover:text-white"
-                      : "hover:text-neutral-950"
-                  }`}
+                  className="font-mono text-xs tracking-[0.2em] uppercase text-silver hover:text-white transition-colors"
                 >
                   {link.label}
                 </LocalizedClientLink>
@@ -104,11 +92,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
           <div className="flex items-center gap-x-6 h-full flex-1 basis-0 justify-end">
             <SearchModal regionMap={regionMap} />
             <LocalizedClientLink
-              className={`hidden small:block transition-colors ${
-                isSolkast
-                  ? "hover:text-white"
-                  : "hover:text-neutral-950"
-              }`}
+              className="hidden small:block font-mono text-xs tracking-[0.2em] uppercase text-silver hover:text-white transition-colors"
               href="/account"
               data-testid="nav-account-link"
             >
@@ -117,11 +101,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
             <Suspense
               fallback={
                 <LocalizedClientLink
-                  className={`flex gap-2 transition-colors ${
-                    isSolkast
-                      ? "hover:text-white"
-                      : "hover:text-neutral-950"
-                  }`}
+                  className="flex gap-2 font-mono text-xs tracking-[0.2em] uppercase text-silver hover:text-white transition-colors"
                   href="/cart"
                   data-testid="nav-cart-link"
                 >

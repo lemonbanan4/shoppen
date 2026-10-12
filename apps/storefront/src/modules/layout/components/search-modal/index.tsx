@@ -125,11 +125,11 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
         onClick={() => setOpen(true)}
         // -m-2 p-2 keeps the visual size while giving the icon a ~40px
         // touch area; a bare 16px icon is far below the usable minimum.
-        className="flex items-center gap-x-1.5 hover:text-ui-fg-base transition-colors -m-2 p-2"
+        className="flex items-center gap-x-1.5 text-silver hover:text-white font-mono text-xs tracking-[0.18em] uppercase transition-colors -m-2 p-2"
         aria-label={t.searchAria}
         data-testid="nav-search-button"
       >
-        <MagnifyingGlass className="w-4 h-4" />
+        <MagnifyingGlass className="w-4 h-4 text-silver" />
         <span className="hidden small:inline">{t.search}</span>
       </button>
 
