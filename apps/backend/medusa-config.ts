@@ -71,5 +71,41 @@ module.exports = defineConfig({
         ],
       },
     },
+    // Cloudinary file provider for product images and asset uploads
+    ...(process.env.CLOUDINARY_CLOUD_NAME
+      ? [
+          {
+            resolve: '@medusajs/medusa/file',
+            options: {
+              providers: [
+                {
+                  resolve: './src/modules/cloudinary-file',
+                  id: 'cloudinary',
+                  options: {
+                    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                    api_key: process.env.CLOUDINARY_API_KEY,
+                    api_secret: process.env.CLOUDINARY_API_SECRET,
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
+  ],
+  plugins: [
+    ...(process.env.CLOUDINARY_CLOUD_NAME
+      ? [
+          {
+            resolve: 'medusa-file-cloudinary',
+            options: {
+              cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+              api_key: process.env.CLOUDINARY_API_KEY,
+              api_secret: process.env.CLOUDINARY_API_SECRET,
+              secure: true,
+            },
+          },
+        ]
+      : []),
   ],
 })

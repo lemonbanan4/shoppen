@@ -128,6 +128,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "*.cloudfront.net",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [
             {
