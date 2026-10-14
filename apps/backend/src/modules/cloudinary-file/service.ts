@@ -8,7 +8,12 @@ import {
 } from "@medusajs/framework/types"
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { v2: cloudinary } = require("cloudinary")
+let cloudinary: any
+try {
+  cloudinary = require("cloudinary").v2
+} catch {
+  // Loaded when package is installed in environment
+}
 
 type Options = {
   cloud_name?: string
@@ -25,7 +30,7 @@ export default class CloudinaryFileProviderService extends AbstractFileProviderS
     super()
     this.logger_ = logger
 
-    cloudinary.config({
+    cloudinary?.config({
       cloud_name: options.cloud_name || process.env.CLOUDINARY_CLOUD_NAME,
       api_key: options.api_key || process.env.CLOUDINARY_API_KEY,
       api_secret: options.api_secret || process.env.CLOUDINARY_API_SECRET,

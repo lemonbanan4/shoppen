@@ -56,7 +56,7 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
           return (
             <Container
               key={image.id}
-              className="relative aspect-[29/34] w-[85%] shrink-0 snap-center small:w-full small:shrink overflow-hidden bg-ui-bg-subtle cursor-zoom-in"
+              className="relative aspect-[29/34] w-[85%] shrink-0 snap-center small:w-full small:shrink overflow-hidden bg-transparent cursor-zoom-in"
               id={image.id}
             >
               {!!image.url && (
@@ -81,7 +81,7 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
                     // column. A stale hint here serves under-resolution images.
                     sizes="(max-width: 1023px) 85vw, 800px"
                     style={{
-                      objectFit: "cover",
+                      objectFit: "contain",
                     }}
                   />
                 </button>

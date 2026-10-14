@@ -8,10 +8,12 @@ import path from "path";
 import {
   createCollectionsWorkflow,
   createProductCategoriesWorkflow,
+  createProductVariantsWorkflow,
   createProductsWorkflow,
   deleteCollectionsWorkflow,
   deleteProductCategoriesWorkflow,
   deleteProductsWorkflow,
+  deleteProductVariantsWorkflow,
   updateProductsWorkflow,
 } from "@medusajs/medusa/core-flows";
 import {
@@ -408,6 +410,95 @@ const toMedusaProduct = (
   };
 };
 
+// ——— Types for the existence-check helpers ———
+type ExistingProduct = {
+  id: string;
+  title?: string;
+  handle?: string;
+  metadata?: Record<string, unknown> | null;
+  options?: { id: string; title: string; values?: { value: string }[] }[];
+  variants?: { id: string; metadata?: Record<string, unknown> | null }[];
+};
+type DesiredOption = { title: string; values: string[] };
+
+/**
+ * Does the live product already declare exactly the same options (by set
+ * equality) as the desired input? Compared as sets so ordering never matters.
+ */
+function sameOptions(existing: ExistingProduct, desired: DesiredOption[]): boolean {
+  const norm = (title: string, values: string[]) =>
+    `${title}:${[...values].sort().join("|")}`;
+  const a = new Set(
+    (existing.options || []).map((o) =>
+      norm(o.title as string, (o.values || []).map((v) => v.value))
+    )
+  );
+  const b = new Set(desired.map((o) => norm(o.title, o.values)));
+  return a.size === b.size && [...b].every((x) => a.has(x));
+}
+
+/**
+ * Add variants that are missing from an existing product. Variants are matched
+ * on printful_variant_id stored in their metadata; unrecognised ones (variants
+ * that existed in Medusa but no longer exist in Printful) are removed.
+ * Variants that already exist are left entirely untouched — their title,
+ * options, and prices are preserved as the user may have edited them.
+ */
+async function addMissingVariants(
+  container: MedusaContainer,
+  existing: ExistingProduct,
+  desired: any[],
+  logger: any
+): Promise<void> {
+  const liveByPrintfulId = new Map(
+    (existing.variants || []).map((v) => [
+      String((v.metadata as Record<string, unknown> | null)?.printful_variant_id),
+      v,
+    ])
+  );
+
+  const toCreate: any[] = [];
+  const matched = new Set<string>();
+
+  for (const d of desired) {
+    const key = String(d.metadata?.printful_variant_id);
+    const live = liveByPrintfulId.get(key);
+    if (live) {
+      matched.add(live.id);
+    } else {
+      toCreate.push(d);
+    }
+  }
+
+  // Variants no longer in Printful should be removed.
+  const toDelete = (existing.variants || [])
+    .filter((v) => !matched.has(v.id))
+    .map((v) => v.id);
+
+  if (toCreate.length) {
+    await createProductVariantsWorkflow(container).run({
+      input: {
+        product_variants: toCreate.map((v) => ({
+          ...v,
+          product_id: existing.id,
+        })) as never,
+      },
+    });
+  }
+  if (toDelete.length) {
+    await deleteProductVariantsWorkflow(container).run({
+      input: { ids: toDelete },
+    });
+  }
+  if (toCreate.length || toDelete.length) {
+    logger.info(
+      `      variants: ${matched.size} kept, ${toCreate.length} added, ${
+        toDelete.length
+      } removed`
+    );
+  }
+}
+
 export default async function syncPrintfulProducts({
   container,
 }: {
@@ -614,19 +705,19 @@ export default async function syncPrintfulProducts({
     }
   }
 
-  // ——— Clear out every previously synced Printful product ———
-  // Matched on metadata.printful_product_id rather than on the handle: the
-  // handle is now a slug derived from the product name, so it changes
-  // whenever a product is renamed and can no longer identify anything.
-  //
-  // This covers two cases at once — products still in Printful (deleted here,
-  // recreated below with fresh data) and products deleted upstream, which
-  // would otherwise linger in the store: still published, still purchasable,
-  // but impossible to fulfil.
+  // ——— Reconcile products with Printful ———
+  // Matched on metadata.printful_product_id (stable across renames).
+  // Existing products keep their title, description, and prices — only
+  // completely new products are created and missing variants are added.
+  // Products deleted upstream in Printful (orphans) are still pruned.
   const liveIds = new Set(details.map((d) => d.sync_product.id));
   const { data: allProducts } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "handle", "metadata"],
+    fields: [
+      "id", "title", "handle", "metadata",
+      "options.id", "options.title", "options.values.value",
+      "variants.id", "variants.title", "variants.metadata",
+    ],
   });
   // Scoped to this Printful store. Products carrying a different
   // printful_store_id belong to another brand's catalogue and must survive
@@ -639,19 +730,15 @@ export default async function syncPrintfulProducts({
     const owner = meta?.printful_store_id;
     return !owner || String(owner) === PRINTFUL_STORE_ID;
   });
-  const stale = printfulProducts.filter((p) =>
-    liveIds.has(Number((p.metadata as any)?.printful_product_id))
+  const existingByPrintfulId = new Map(
+    printfulProducts
+      .filter((p) => (p.metadata as any)?.printful_product_id)
+      .map((p) => [String((p.metadata as any).printful_product_id), p])
   );
   const orphans = printfulProducts.filter(
     (p) => !liveIds.has(Number((p.metadata as any)?.printful_product_id))
   );
 
-  if (stale.length) {
-    logger.info(`Replacing ${stale.length} previously synced products...`);
-    await deleteProductsWorkflow(container).run({
-      input: { ids: stale.map((p) => p.id) },
-    });
-  }
   if (orphans.length) {
     logger.info(
       `Pruning ${orphans.length} product(s) no longer in Printful: ${orphans
@@ -662,6 +749,15 @@ export default async function syncPrintfulProducts({
       input: { ids: orphans.map((p) => p.id) },
     });
   }
+
+  // Handles are needed for toMedusaProduct (for new products).
+  const { data: handleRows } = await query.graph({
+    entity: "product",
+    fields: ["handle"],
+  });
+  const takenHandles = new Set<string>(
+    handleRows.map((r) => r.handle).filter(Boolean) as string[]
+  );
 
   const ctx = {
     categoryId,
@@ -674,24 +770,45 @@ export default async function syncPrintfulProducts({
     shippingProfileId: shippingProfiles[0].id,
     exchangeRatesByCurrency,
     psychologicalRounding,
-    takenHandles: new Set<string>(),
+    takenHandles,
   };
 
   let created = 0;
+  let skipped = 0;
+  let variantPatched = 0;
   for (const detail of details) {
+    const existing = existingByPrintfulId.get(String(detail.sync_product.id)) as ExistingProduct | undefined;
     try {
-      await createProductsWorkflow(container).run({
-        input: { products: [toMedusaProduct(detail, ctx)] },
-      });
-      created++;
-      logger.info(`  ✓ ${detail.sync_product.name}`);
+      if (!existing) {
+        // Brand-new product — create it in full.
+        await createProductsWorkflow(container).run({
+          input: { products: [toMedusaProduct(detail, ctx)] },
+        });
+        created++;
+        logger.info(`  + ${detail.sync_product.name}`);
+      } else {
+        // Product already exists — skip title/description/prices, only add
+        // variants that are missing from Medusa.
+        const desired = toMedusaProduct(detail, ctx);
+        const variantsBefore = (existing.variants || []).length;
+        await addMissingVariants(container, existing, desired.variants, logger);
+        const hadChanges =
+          (existing.variants || []).length !== variantsBefore;
+        if (hadChanges) {
+          variantPatched++;
+          logger.info(`  ~ ${detail.sync_product.name} (variants patched)`);
+        } else {
+          skipped++;
+          logger.info(`  = ${detail.sync_product.name} (no changes)`);
+        }
+      }
     } catch (e: any) {
       logger.error(`  ✗ ${detail.sync_product.name}: ${e.message}`);
     }
   }
 
   logger.info(
-    `Done. ${created}/${details.length} Printful products synced into the store (category: Print on Demand).`
+    `Done. ${created} new, ${variantPatched} variant-patched, ${skipped} unchanged out of ${details.length} Printful products.`
   );
 
   // ——— Re-apply generated mockup images ———
