@@ -1,7 +1,6 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import { Container } from "@modules/common/components/ui"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 
@@ -54,7 +53,7 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
       <div className="flex flex-row w-full gap-x-2 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden small:flex-col small:flex-1 small:gap-y-4 small:mx-16 small:overflow-visible">
         {images.map((image, index) => {
           return (
-            <Container
+            <div
               key={image.id}
               className="relative aspect-[29/34] w-[85%] shrink-0 snap-center small:w-full small:shrink overflow-hidden bg-transparent cursor-zoom-in"
               id={image.id}
@@ -69,7 +68,7 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
                   <Image
                     src={image.url}
                     priority={index <= 2 ? true : false}
-                    className="absolute inset-0 rounded-rounded"
+                    className="absolute inset-0"
                     alt={
                       title
                         ? `${title} — view ${index + 1} of ${images.length}`
@@ -81,12 +80,12 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
                     // column. A stale hint here serves under-resolution images.
                     sizes="(max-width: 1023px) 85vw, 800px"
                     style={{
-                      objectFit: "contain",
+                      objectFit: "cover",
                     }}
                   />
                 </button>
               )}
-            </Container>
+            </div>
           )
         })}
       </div>
