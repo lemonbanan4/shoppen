@@ -157,6 +157,28 @@ const CartDropdown = ({
                                 >
                                   {t.cartQuantity}: {item.quantity}
                                 </span>
+                                {item.adjustments && item.adjustments.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {item.adjustments.map((adjustment) => {
+                                      const isBundle =
+                                        adjustment.code?.includes("AEON-BUNDLE") ||
+                                        adjustment.code?.includes("BUNDLE")
+                                      return (
+                                        <span
+                                          key={adjustment.id}
+                                          className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#00d4ff] bg-[#00d4ff]/10 border border-[#00d4ff]/25 px-1.5 py-0.5 rounded"
+                                        >
+                                          <span className="h-1 w-1 rounded-full bg-[#00d4ff]" />
+                                          {isBundle ? "Bundle" : adjustment.code || "Discount"}{" "}
+                                          (-{convertToLocale({
+                                            amount: adjustment.amount,
+                                            currency_code: cartState.currency_code,
+                                          })})
+                                        </span>
+                                      )
+                                    })}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex justify-end">
                                 <LineItemPrice

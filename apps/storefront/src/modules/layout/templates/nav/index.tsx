@@ -10,6 +10,7 @@ import SearchModal from "@modules/layout/components/search-modal"
 import SideMenu from "@modules/layout/components/side-menu"
 import { BRAND, isSolkast } from "@lib/brand"
 import { copyFor } from "@lib/copy"
+import { getBundleDiscountAmount } from "@lib/util/bundle"
 
 // A small capsule store: every link must land on a page with products on it.
 // The fit categories return when the catalogue does.
@@ -39,6 +40,11 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
     getLocale(),
   ])
 
+  const currentRegion = countryCode
+    ? regions?.find((r) => r.countries?.some((c) => c.iso_2 === countryCode))
+    : regions?.[0]
+  const bundleDiscount = getBundleDiscountAmount(currentRegion?.currency_code)
+
   const regionMap: Record<string, string> = {}
   regions?.forEach((region) => {
     region.countries?.forEach((country) => {
@@ -54,7 +60,9 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
       <div className="bg-black/90 border-b border-neutral-900 text-silver/80 text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-center py-2 px-4 font-mono backdrop-blur-md">
         <span className="inline-flex items-center gap-x-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
-          <span>SOLKAST // FREE WORLDWIDE SHIPPING ON ORDERS OVER $85 // 30-DAY RETURNS</span>
+          <span>
+            SOLKAST // BUNDLE &amp; SAVE {bundleDiscount} ON SETS // FREE WORLDWIDE SHIPPING OVER $85 // 30-DAY RETURNS
+          </span>
         </span>
       </div>
 

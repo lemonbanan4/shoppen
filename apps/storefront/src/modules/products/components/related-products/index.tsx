@@ -2,6 +2,7 @@ import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { HttpTypes } from "@medusajs/types"
 import Product from "../product-preview"
+import { getBundlePair, getBundleDiscountAmount } from "@lib/util/bundle"
 
 type RelatedProductsProps = {
   product: HttpTypes.StoreProduct
@@ -18,6 +19,11 @@ export default async function RelatedProducts({
     return null
   }
 
+  const bundlePair = getBundlePair(product.handle)
+  const discountAmount = bundlePair
+    ? getBundleDiscountAmount(region?.currency_code)
+    : null
+
   // edit this function to define your related products logic
   const queryParams: HttpTypes.StoreProductListParams = {}
   if (region?.id) {
@@ -33,7 +39,7 @@ export default async function RelatedProducts({
   }
   queryParams.is_giftcard = false
 
-  const products = await listProducts({
+  let products = await listProducts({
     queryParams,
     countryCode,
   }).then(({ response }) => {
@@ -42,6 +48,32 @@ export default async function RelatedProducts({
     )
   })
 
+  // If this product is part of a bundle, ensure the counterpart is at index 0
+  if (bundlePair) {
+    const counterpartIndex = products.findIndex(
+      (p) => p.handle === bundlePair.counterpartHandle
+    )
+
+    if (counterpartIndex > -1) {
+      const [counterpart] = products.splice(counterpartIndex, 1)
+      products = [counterpart, ...products]
+    } else {
+      // Counterpart wasn't in collection/tags results; fetch it explicitly
+      const counterpartRes = await listProducts({
+        queryParams: {
+          handle: bundlePair.counterpartHandle,
+          region_id: region.id,
+          limit: 1,
+        },
+        countryCode,
+      }).then(({ response }) => response.products[0])
+
+      if (counterpartRes) {
+        products = [counterpartRes, ...products]
+      }
+    }
+  }
+
   if (!products.length) {
     return null
   }
@@ -49,11 +81,16 @@ export default async function RelatedProducts({
   return (
     <div className="product-page-constraint">
       <div className="flex flex-col mb-8">
-        <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#00d4ff] mb-1.5">
-          RELATED DROPS
+        <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#00d4ff] mb-1.5 flex items-center gap-1.5">
+          {bundlePair && (
+            <span className="h-1.5 w-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
+          )}
+          {bundlePair
+            ? `COMPLETE THE SET // SAVE ${discountAmount}`
+            : "RELATED DROPS"}
         </span>
         <h2 className="text-xl small:text-2xl font-mono font-bold text-white uppercase tracking-tight">
-          YOU MAY ALSO LIKE
+          {bundlePair ? "MATCHING PIECES & RELATED DROPS" : "YOU MAY ALSO LIKE"}
         </h2>
       </div>
 
