@@ -2,37 +2,20 @@ import React from "react"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
+import { getBundlePair, getBundleDiscountAmount } from "@lib/util/bundle"
+
 type BundleCalloutProps = {
   product: HttpTypes.StoreProduct
   region?: HttpTypes.StoreRegion
 }
 
-const BUNDLE_PAIRS: Record<
-  string,
-  {
-    counterpartTitle: string
-    counterpartHandle: string
-  }
-> = {
-  "aeon-beyond-the-horizon-hoodie": {
-    counterpartTitle: "Heavyweight Sweatpants",
-    counterpartHandle: "aeon-beyond-the-horizon-sweatpants",
-  },
-  "aeon-beyond-the-horizon-sweatpants": {
-    counterpartTitle: "Heavyweight Hoodie",
-    counterpartHandle: "aeon-beyond-the-horizon-hoodie",
-  },
-}
-
 export default function BundleCallout({ product, region }: BundleCalloutProps) {
   if (!product?.handle) return null
 
-  const pair = BUNDLE_PAIRS[product.handle]
+  const pair = getBundlePair(product.handle)
   if (!pair) return null
 
-  const currency = region?.currency_code?.toLowerCase() || "eur"
-  const discountAmount =
-    currency === "sek" ? "100 kr" : currency === "usd" ? "$10" : "10 €"
+  const discountAmount = getBundleDiscountAmount(region?.currency_code)
 
   return (
     <div className="relative overflow-hidden rounded-lg border border-[#00d4ff]/30 bg-[#00d4ff]/5 p-3.5 backdrop-blur-sm transition-all hover:border-[#00d4ff]/50">

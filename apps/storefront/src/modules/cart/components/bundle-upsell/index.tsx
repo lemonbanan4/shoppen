@@ -2,6 +2,8 @@ import React from "react"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
+import { getBundleDiscountAmount } from "@lib/util/bundle"
+
 type BundleUpsellProps = {
   cart?: HttpTypes.StoreCart | null
   className?: string
@@ -31,9 +33,7 @@ export default function BundleUpsell({
 
   if (!hasHoodie && !hasSweatpants) return null
 
-  const currency = cart.currency_code?.toLowerCase() || "eur"
-  const discountAmount =
-    currency === "sek" ? "100 kr" : currency === "usd" ? "$10" : "10 €"
+  const discountAmount = getBundleDiscountAmount(cart.currency_code)
 
   // Both items in cart -> Unlocked state
   if (hasHoodie && hasSweatpants) {

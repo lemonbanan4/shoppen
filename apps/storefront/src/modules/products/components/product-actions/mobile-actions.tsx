@@ -11,6 +11,7 @@ import OptionSelect, { cleanOptionLabel } from "./option-select"
 import { HttpTypes } from "@medusajs/types"
 import { isSimpleProduct } from "@lib/util/product"
 import { useCopy } from "@lib/use-copy"
+import { getBundlePair, getBundleDiscountAmount } from "@lib/util/bundle"
 
 type MobileActionsProps = {
   product: HttpTypes.StoreProduct
@@ -22,6 +23,7 @@ type MobileActionsProps = {
   isAdding?: boolean
   show: boolean
   optionsDisabled: boolean
+  region?: HttpTypes.StoreRegion
 }
 
 const MobileActions: React.FC<MobileActionsProps> = ({
@@ -34,9 +36,15 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   isAdding,
   show,
   optionsDisabled,
+  region,
 }) => {
   const t = useCopy()
   const { state, open, close } = useToggleState()
+
+  const bundlePair = getBundlePair(product.handle)
+  const bundleDiscount = bundlePair
+    ? getBundleDiscountAmount(region?.currency_code)
+    : null
 
   const price = getProductPrice({
     product: product,
@@ -99,6 +107,17 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 <div></div>
               )}
             </div>
+
+            {bundlePair && (
+              <div className="w-full flex items-center justify-between px-2.5 py-1 rounded bg-[#00d4ff]/10 border border-[#00d4ff]/25 text-[11px] text-[#00d4ff]">
+                <span className="flex items-center gap-1.5 truncate">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#00d4ff] animate-pulse shrink-0" />
+                  <span className="truncate">Pair with {bundlePair.counterpartTitle}</span>
+                </span>
+                <span className="font-bold text-white shrink-0 ml-2">Save {bundleDiscount}</span>
+              </div>
+            )}
+
             <div
               className={clx("grid grid-cols-2 w-full gap-x-3", {
                 "!grid-cols-1": isSimple,
