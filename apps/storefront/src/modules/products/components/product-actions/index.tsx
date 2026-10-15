@@ -11,6 +11,7 @@ import { useParams, usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import ProductPrice from "../product-price"
+import BundleCallout from "../bundle-callout"
 import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
 import posthog from "posthog-js"
@@ -33,6 +34,7 @@ const optionsAsKeymap = (
 
 export default function ProductActions({
   product,
+  region,
   disabled,
 }: ProductActionsProps) {
   const t = useCopy()
@@ -200,6 +202,8 @@ export default function ProductActions({
         </div>
 
         <ProductPrice product={product} variant={selectedVariant} />
+
+        <BundleCallout product={product} region={region} />
 
         <Button
           onClick={handleAddToCart}

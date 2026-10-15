@@ -27,18 +27,21 @@ const CURRENCY_CONFIGS = [
     currency_code: "eur",
     value: 10,
     label: "10 EUR",
+    is_tax_inclusive: true,
   },
   {
     code: "AEON-BUNDLE-SEK",
     currency_code: "sek",
     value: 100,
     label: "100 SEK",
+    is_tax_inclusive: true,
   },
   {
     code: "AEON-BUNDLE-USD",
     currency_code: "usd",
     value: 10,
     label: "10 USD",
+    is_tax_inclusive: false,
   },
 ];
 
@@ -105,6 +108,7 @@ export default async function createBundlePromotion({
     type: PromotionType.BUYGET,
     status: PromotionStatus.ACTIVE,
     is_automatic: true,
+    is_tax_inclusive: cfg.is_tax_inclusive,
     application_method: {
       type: ApplicationMethodType.FIXED,
       target_type: ApplicationMethodTargetType.ITEMS,
