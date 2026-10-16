@@ -8,6 +8,8 @@ import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
 import { splitDescription } from "@lib/util/product-description"
 import { useCopy } from "@lib/use-copy"
+import { getBundlePair } from "@lib/util/bundle"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -35,12 +37,21 @@ const parseSizeGuide = (
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const t = useCopy()
   const sizeGuide = parseSizeGuide(product)
+  const bundlePair = getBundlePair(product.handle)
 
   const tabs = [
     {
       label: t.tabDetails,
       component: <ProductInfoTab product={product} />,
     },
+    ...(bundlePair
+      ? [
+          {
+            label: "BUNDLE & MATCHING SET",
+            component: <BundleSetTab bundlePair={bundlePair} />,
+          },
+        ]
+      : []),
     ...(sizeGuide
       ? [
           {
@@ -200,6 +211,61 @@ const ShippingInfoTab = () => {
               {t.shipReturnBody}
             </p>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const BundleSetTab = ({
+  bundlePair,
+}: {
+  bundlePair: {
+    title: string
+    counterpartTitle: string
+    counterpartHandle: string
+  }
+}) => {
+  return (
+    <div className="text-small-regular py-6 font-mono text-neutral-300 flex flex-col gap-y-4">
+      <div className="flex items-center gap-2">
+        <span className="flex h-2 w-2 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00d4ff] opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00d4ff]" />
+        </span>
+        <span className="text-xs uppercase tracking-widest text-[#00d4ff] font-bold">
+          Beyond the Horizon Coordinate Set
+        </span>
+      </div>
+
+      <p className="leading-relaxed text-xs sm:text-sm">
+        Engineered as a complementary two-piece capsule. When you purchase the{" "}
+        <strong className="text-white">{bundlePair.title}</strong> together with the matching{" "}
+        <LocalizedClientLink
+          href={`/products/${bundlePair.counterpartHandle}`}
+          className="text-white underline underline-offset-2 decoration-[#00d4ff]/60 hover:text-[#00d4ff] transition-colors font-bold"
+        >
+          {bundlePair.counterpartTitle}
+        </LocalizedClientLink>
+        , a set discount is automatically applied to your cart at checkout.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+        <div className="p-3 rounded-lg border border-neutral-800 bg-neutral-900/60">
+          <span className="text-white font-bold block mb-1 uppercase tracking-wider">
+            MIX &amp; MATCH SIZING
+          </span>
+          <p className="text-neutral-400">
+            Select different sizes for the hoodie and sweatpants. The bundle discount applies regardless of size combinations.
+          </p>
+        </div>
+        <div className="p-3 rounded-lg border border-neutral-800 bg-neutral-900/60">
+          <span className="text-white font-bold block mb-1 uppercase tracking-wider">
+            NO CODE REQUIRED
+          </span>
+          <p className="text-neutral-400">
+            Discount calculates automatically at checkout once both qualifying items are in your cart.
+          </p>
         </div>
       </div>
     </div>

@@ -27,9 +27,12 @@ const OrderSummary = ({ order }: OrderSummaryProps) => {
         </div>
         <div className="flex flex-col gap-y-1">
           {order.discount_total > 0 && (
-            <div className="flex items-center justify-between">
-              <span>Discount</span>
-              <span>- {getAmount(order.discount_total)}</span>
+            <div className="flex items-center justify-between text-[#00d4ff] font-mono">
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
+                <span>Discount</span>
+              </span>
+              <span className="font-bold">- {getAmount(order.discount_total)}</span>
             </div>
           )}
           {order.gift_card_total > 0 && (
