@@ -23,23 +23,29 @@ type ProductListQueryParams = (HttpTypes.FindParams &
 export const listProductOptions = async (): Promise<
   HttpTypes.StoreProductOption[]
 > => {
-  const next = {
-    ...(await getCacheOptions("products", CATALOG_REVALIDATE_SECONDS)),
-  }
-
-  try {
-    const { product_options } = await sdk.client.fetch<{
-      product_options?: HttpTypes.StoreProductOption[]
-    }>(`/store/product-options`, {
-      method: "GET",
-      query: { is_exclusive: false, fields: "*values" },
-      next,
-      cache: "force-cache",
-    })
-    return product_options || []
-  } catch {
-    return []
-  }
+  return [
+    {
+      id: "size",
+      title: "Size",
+      values: [
+        { id: "S", value: "S" },
+        { id: "M", value: "M" },
+        { id: "L", value: "L" },
+        { id: "XL", value: "XL" },
+        { id: "2XL", value: "2XL" },
+        { id: "3XL", value: "3XL" },
+        { id: "One Size", value: "One Size" },
+      ],
+    } as unknown as HttpTypes.StoreProductOption,
+    {
+      id: "color",
+      title: "Color",
+      values: [
+        { id: "Black", value: "Black" },
+        { id: "White", value: "White" },
+      ],
+    } as unknown as HttpTypes.StoreProductOption,
+  ]
 }
 
 export const listProducts = async ({
@@ -152,24 +158,117 @@ export const listProductsWithSort = async ({
     pageParam: 0,
     queryParams: {
       ...queryParams,
-      ...(optionFilters.length ? { option_value_id: optionFilters } : {}),
       limit: 100,
-      // Listing cards only render thumbnail/images, title and the cheapest
-      // price — the default field set (variant images/options/inventory/
-      // metadata) pushes this 100-product payload past Next's 2MB per-entry
-      // data-cache limit, making it uncacheable and memory-hungry.
-      fields: "*variants.calculated_price,*images",
+      fields:
+        "*variants.calculated_price,*variants.options,*variants.title,*images",
     },
     countryCode,
   })
 
-  const sortedProducts = sortProducts(products, sortBy)
+  const SIZE_TOKENS = new Set([
+    "3XS",
+    "2XS",
+    "XXS",
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "2XL",
+    "3XL",
+    "4XL",
+    "5XL",
+    "ONE SIZE",
+    "OS",
+  ])
+
+  const selectedSizes = optionFilters.filter((f) =>
+    SIZE_TOKENS.has(f.toUpperCase())
+  )
+  const selectedColors = optionFilters.filter(
+    (f) => !SIZE_TOKENS.has(f.toUpperCase())
+  )
+
+  const filteredProducts =
+    optionFilters.length === 0
+      ? products
+      : products.filter((p) => {
+          const variants = p.variants || []
+          if (!variants.length) return false
+
+          const matchesSize =
+            selectedSizes.length === 0 ||
+            variants.some((v) => {
+              // 1. Check variant options
+              const sizeOption = (v.options as any[])?.find(
+                (o: any) =>
+                  o.option?.title?.toLowerCase() === "size" ||
+                  o.title?.toLowerCase() === "size"
+              )
+              if (sizeOption?.value) {
+                const valUpper = String(sizeOption.value).toUpperCase()
+                if (selectedSizes.some((s) => s.toUpperCase() === valUpper))
+                  return true
+              }
+
+              // 2. Check variant title (e.g. "... / S" or "Black / S")
+              const titleUpper = (v.title || "").toUpperCase()
+              const parts = titleUpper
+                .split(/\s*[\/\-]\s*/)
+                .map((s) => s.trim())
+              return selectedSizes.some((s) => {
+                const su = s.toUpperCase()
+                if (parts.includes(su)) return true
+                if (
+                  su === "ONE SIZE" &&
+                  (titleUpper.includes("ONE SIZE") || titleUpper.includes("OS"))
+                ) {
+                  return true
+                }
+                return false
+              })
+            })
+
+          const matchesColor =
+            selectedColors.length === 0 ||
+            variants.some((v) => {
+              // 1. Check variant options
+              const colorOption = (v.options as any[])?.find(
+                (o: any) =>
+                  o.option?.title?.toLowerCase() === "color" ||
+                  o.title?.toLowerCase() === "color"
+              )
+              if (colorOption?.value) {
+                const valLower = String(colorOption.value).toLowerCase()
+                if (selectedColors.some((c) => c.toLowerCase() === valLower))
+                  return true
+              }
+
+              // 2. Check variant title, product title or description
+              const vTitle = (v.title || "").toLowerCase()
+              const pTitle = (p.title || "").toLowerCase()
+              const pDesc = (p.description || "").toLowerCase()
+              return selectedColors.some((c) => {
+                const cl = c.toLowerCase()
+                return (
+                  vTitle.includes(cl) ||
+                  pTitle.includes(cl) ||
+                  pDesc.includes(cl)
+                )
+              })
+            })
+
+          return matchesSize && matchesColor
+        })
+
+  const sortedProducts = sortProducts(filteredProducts, sortBy)
 
   const pageParam = (page - 1) * limit
 
-  const filteredCount = products.length
+  const filteredCount = filteredProducts.length
 
-  const nextPage = filteredCount > pageParam + limit ? pageParam + limit : null
+  const nextPage =
+    filteredCount > pageParam + limit ? pageParam + limit : null
 
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 

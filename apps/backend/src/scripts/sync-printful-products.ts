@@ -23,6 +23,7 @@ import {
 } from "../lib/printful-client";
 import { convertToStorePrices, fetchExchangeRates, STORE_CURRENCIES } from "../lib/pricing";
 import { displayTitle, toHandle } from "../lib/product-naming";
+import createBundlePromotion from "./create-bundle-promotion";
 
 /**
  * Syncs the Printful catalog (embroidery pieces) into this store.
@@ -115,16 +116,48 @@ const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> =>
     return optionValues;
   }
 
-  const parts = v.name.split("/").map((s) => s.trim()).slice(1);
-  if (parts.length === 2) {
-    optionValues["Color"] = parts[0];
-    optionValues["Size"] = parts[1];
-  } else if (parts.length === 1) {
-    // A single trailing token is either a size ("... / M", one colourway) or
-    // a colour ("... / Black", one size) depending on the product, so label
-    // it by what it actually looks like rather than assuming.
-    optionValues[SIZE_TOKEN.test(parts[0]) ? "Size" : "Color"] = parts[0];
+  // 1. Check blank's catalog name parentheses, e.g. "... (Black / S)" or "... (Black)"
+  const catalogParen = v.product?.name?.match(/\(([^)]+)\)$/);
+  if (catalogParen) {
+    const rawParts = catalogParen[1]
+      .split(/\s+\/\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (rawParts.length === 2) {
+      optionValues["Color"] = rawParts[0];
+      optionValues["Size"] =
+        rawParts[1].toLowerCase() === "one size" ? "One Size" : rawParts[1];
+      return optionValues;
+    } else if (rawParts.length === 1) {
+      const token = rawParts[0];
+      if (SIZE_TOKEN.test(token)) {
+        optionValues["Size"] =
+          token.toLowerCase() === "one size" ? "One Size" : token;
+      } else {
+        optionValues["Color"] = token;
+        optionValues["Size"] = "One Size";
+      }
+      return optionValues;
+    }
+  }
+
+  // 2. Split on " / " (space-slash-space) to avoid splitting brand double slashes like "AEON // TITLE"
+  const parts = v.name.split(/\s+\/\s+/).map((s) => s.trim());
+  if (parts.length >= 2) {
+    const trailing = parts.slice(1);
+    if (trailing.length === 2) {
+      optionValues["Color"] = trailing[0];
+      optionValues["Size"] =
+        trailing[1].toLowerCase() === "one size" ? "One Size" : trailing[1];
+    } else if (trailing.length === 1) {
+      optionValues[SIZE_TOKEN.test(trailing[0]) ? "Size" : "Color"] =
+        trailing[0];
+    }
   } else {
+    optionValues["Size"] = "One Size";
+  }
+
+  if (Object.keys(optionValues).length === 0) {
     optionValues["Variant"] = v.name;
   }
   return optionValues;
@@ -787,9 +820,22 @@ export default async function syncPrintfulProducts({
         created++;
         logger.info(`  + ${detail.sync_product.name}`);
       } else {
-        // Product already exists — skip title/description/prices, only add
-        // variants that are missing from Medusa.
         const desired = toMedusaProduct(detail, ctx);
+        if (!sameOptions(existing, desired.options)) {
+          logger.info(
+            `  ↻ ${detail.sync_product.name} — options changed, rebuilding`
+          );
+          if (existing.handle) takenHandles.delete(existing.handle as string);
+          await deleteProductsWorkflow(container).run({
+            input: { ids: [existing.id] },
+          });
+          await createProductsWorkflow(container).run({
+            input: { products: [desired] },
+          });
+          variantPatched++;
+          continue;
+        }
+
         const variantsBefore = (existing.variants || []).length;
         await addMissingVariants(container, existing, desired.variants, logger);
         const hadChanges =
@@ -918,4 +964,12 @@ export default async function syncPrintfulProducts({
     logger.info('Removed empty "Home" category.');
   }
 
+  // ——— Update Bundle Promotions ———
+  try {
+    logger.info("Updating bundle promotions for active products...");
+    await createBundlePromotion({ container });
+    logger.info("Bundle promotions successfully updated.");
+  } catch (err: any) {
+    logger.warn(`Could not update bundle promotions: ${err.message}`);
+  }
 }

@@ -13,8 +13,14 @@ import {
   deletePromotionsWorkflow,
 } from "@medusajs/medusa/core-flows";
 
-const HOODIE_HANDLE = "aeon-beyond-the-horizon-hoodie";
-const SWEATPANTS_HANDLE = "aeon-beyond-the-horizon-sweatpants";
+const HOODIE_HANDLES = [
+  "aeon-beyond-the-horizon-heavyweight-hoodie",
+  "aeon-beyond-the-horizon-hoodie",
+];
+const SWEATPANTS_HANDLES = [
+  "aeon-beyond-the-horizon-heavyweight-sweatpants",
+  "aeon-beyond-the-horizon-sweatpants",
+];
 
 // Standard fashion bundle: 10 EUR, 100 SEK (~10 EUR), and 10 USD (~10 EUR)
 // Up to 10 sets per order to allow customers to buy multiple sets (e.g., for themselves & friends)
@@ -58,22 +64,31 @@ export default async function createBundlePromotion({
   // 1. Locate the Hoodie and Sweatpants by handles (resilient against title renames)
   const { data: products } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "handle"],
+    fields: ["id", "title", "handle", "deleted_at"],
     filters: {
       handle: {
-        $in: [HOODIE_HANDLE, SWEATPANTS_HANDLE],
+        $in: [...HOODIE_HANDLES, ...SWEATPANTS_HANDLES],
       },
     },
   });
 
-  const hoodie = products.find((p: any) => p.handle === HOODIE_HANDLE);
-  const sweatpants = products.find((p: any) => p.handle === SWEATPANTS_HANDLE);
+  const activeProducts = products.filter((p: any) => !p.deleted_at);
+  const hoodie = activeProducts.find((p: any) =>
+    HOODIE_HANDLES.includes(p.handle)
+  );
+  const sweatpants = activeProducts.find((p: any) =>
+    SWEATPANTS_HANDLES.includes(p.handle)
+  );
 
   if (!hoodie) {
-    throw new Error(`Could not find Hoodie product with handle '${HOODIE_HANDLE}'.`);
+    throw new Error(
+      `Could not find active Hoodie product with handles [${HOODIE_HANDLES.join(", ")}].`
+    );
   }
   if (!sweatpants) {
-    throw new Error(`Could not find Sweatpants product with handle '${SWEATPANTS_HANDLE}'.`);
+    throw new Error(
+      `Could not find active Sweatpants product with handles [${SWEATPANTS_HANDLES.join(", ")}].`
+    );
   }
 
   logger.info(`Found Buy Product: ${hoodie.title} (${hoodie.id})`);
