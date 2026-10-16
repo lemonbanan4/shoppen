@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 
 import { listCollections } from "@lib/data/collections"
+import { getCategoryByHandle, listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
 import DesignsGrid from "@modules/home/components/designs-grid"
 import ProductRail from "@modules/home/components/featured-products/product-rail"
@@ -17,23 +18,6 @@ export const metadata: Metadata = {
   description: BRAND.description,
 }
 
-const RAIL_ORDER: {
-  handle: string
-  eyebrow: string
-  title: string
-}[] = [
-  {
-    handle: "new-arrivals",
-    eyebrow: "LATEST DROP",
-    title: "NEW ARRIVALS",
-  },
-  {
-    handle: "bestsellers",
-    eyebrow: "ARCHIVE ESSENTIALS",
-    title: "BESTSELLERS",
-  },
-]
-
 export default async function Home(props: {
   params: Promise<{ countryCode: string }>
 }) {
@@ -43,18 +27,25 @@ export default async function Home(props: {
 
   const region = await getRegion(countryCode)
 
-  const { collections } = await listCollections({
-    fields: "id, handle, title",
-  })
-
-  if (!collections || !region) {
+  if (!region) {
     return null
   }
 
-  const rails = RAIL_ORDER.map((rail) => ({
-    ...rail,
-    collection: collections.find((c) => c.handle === rail.handle),
-  })).filter((rail) => !!rail.collection)
+  const [{ collections }, bestsellersCategory] = await Promise.all([
+    listCollections({
+      fields: "id, handle, title",
+    }),
+    getCategoryByHandle(["bestsellers"]).catch(() => null),
+  ])
+
+  const aeonCollection =
+    collections?.find((c) => c.handle === "aeon-capsule") ?? collections?.[0]
+
+  const resolvedBestsellers =
+    bestsellersCategory ??
+    (await listCategories()
+      .then((cats) => cats?.find((c) => c.handle === "bestsellers"))
+      .catch(() => null))
 
   return (
     <>
@@ -63,26 +54,28 @@ export default async function Home(props: {
       <Marquee />
       <UspBar countryCode={countryCode} />
       <DesignsGrid countryCode={countryCode} />
-      {rails[0] && (
+      {aeonCollection && (
         <ProductRail
-          collection={rails[0].collection!}
+          collection={aeonCollection}
           region={region}
-          eyebrow={rails[0].eyebrow}
-          title={rails[0].title}
+          eyebrow="LATEST DROP"
+          title="AEON CAPSULE"
           countryCode={countryCode}
+          limit={8}
         />
       )}
       <Manifesto />
-      <HowItWorks />
-      {rails[1] && (
+      {resolvedBestsellers && (
         <ProductRail
-          collection={rails[1].collection!}
+          category={resolvedBestsellers}
           region={region}
-          eyebrow={rails[1].eyebrow}
-          title={rails[1].title}
+          eyebrow="ARCHIVE ESSENTIALS"
+          title="BESTSELLERS"
           countryCode={countryCode}
+          limit={4}
         />
       )}
+      <HowItWorks />
     </>
   )
 }

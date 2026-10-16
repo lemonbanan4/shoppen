@@ -18,7 +18,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section className="content-container py-14 small:py-20">
+    <section className="content-container pt-12 pb-2 small:pt-16 small:pb-4">
       <p className="text-[11px] font-mono tracking-[0.24em] uppercase text-[#00d4ff] mb-2">
         SYSTEM // PROCESS
       </p>
