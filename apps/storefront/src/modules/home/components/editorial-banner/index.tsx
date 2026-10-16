@@ -24,18 +24,16 @@ export default function EditorialBanner({
   // at the collection rather than a product.
   const spotlight = isSolkast
     ? {
-        eyebrow: "New — the Solstice range",
-        heading: "The pattern, on everything.",
+        eyebrow: "AEON Capsule",
+        heading: "Transcend the Infinite Now.",
         body:
-          "Sun and molecule, printed on the fabric before it is cut and sewn — " +
-          "so it runs across seams, down sleeves and around legs. Eight pieces, " +
-          "from a bandana to a duffle.",
-        cta: "Shop Solstice",
-        href: "/collections/solstice",
+          "Heavyweight silhouettes engineered with cyber sigilism graphics and high-density DTF prints.",
+        cta: "Shop AEON",
+        href: "/collections/aeon-capsule",
         image:
           "https://raw.githubusercontent.com/lemonbanan4/shoppen-merch-assets" +
           "/main/mockups/pf-455589012-1.jpg",
-        alt: "Solstice track jacket in the Solkast sun monogram",
+        alt: "AEON Capsule Collection",
       }
     : null
 

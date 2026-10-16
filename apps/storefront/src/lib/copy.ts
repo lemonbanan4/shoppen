@@ -25,6 +25,7 @@ export type UiCopy = {
   announcement: string
   shopAll: string
   newArrivals: string
+  aeon: string
   solstice: string
   about: string
   bestsellers: string
@@ -192,6 +193,7 @@ const SV: UiCopy = {
   announcement: "Fri frakt över 800 kr — enkel 30 dagars retur",
   shopAll: "Handla allt",
   newArrivals: "Nyheter",
+  aeon: "AEON",
   solstice: "Solstice",
   about: "Om oss",
   bestsellers: "Mest sålda",
@@ -360,6 +362,7 @@ const EN: UiCopy = {
   announcement: "Free shipping on orders over €75 — easy 30-day returns",
   shopAll: "Shop all",
   newArrivals: "New arrivals",
+  aeon: "AEON",
   solstice: "Solstice",
   about: "About",
   bestsellers: "Bestsellers",

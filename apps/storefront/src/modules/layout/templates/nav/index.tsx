@@ -26,7 +26,7 @@ const navLinksFor = (countryCode?: string) => {
   const t = copyFor(countryCode)
   return [
     { label: t.shopAll, href: "/store" },
-    { label: t.solstice, href: "/collections/solstice" },
+    { label: t.aeon, href: "/collections/aeon-capsule" },
     { label: t.newArrivals, href: "/collections/new-arrivals" },
     { label: t.about, href: "/about" },
   ]
