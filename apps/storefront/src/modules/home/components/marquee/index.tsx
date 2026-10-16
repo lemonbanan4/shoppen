@@ -1,12 +1,16 @@
 import { isSolkast } from "@lib/brand"
 
-// The capsule's lines, running as a ticker. It does the job a hero tagline
-// can't: shows the whole joke at a glance, so a first-time visitor learns the
-// brand's register in one pass rather than one product at a time.
-//
-// Which means it has to be the *right* capsule. Solkast was running Ångerköp's
-// Swedish punchlines — an English shop scrolling "UTBRÄND MEN MYSIG" past a
-// visitor in Toronto, in a voice that belongs to a different company.
+// Technical, aggressive capsule terminology for the Solkast AEON collection.
+// Reflects the Y2K Cyber Sigilism / Neo-Futurism aesthetic of the Matrix and Horizon prints.
+const AEON_SEQUENCE = [
+  "AEON CAPSULE",
+  "NO FUTURE ONLY THE INFINITE NOW",
+  "TRANSCEND",
+  "EVOLVE",
+  "ASCEND",
+  "CYBER SIGILISM INITIATIVE",
+]
+
 const ANGERKOP_PHRASES = [
   "ORKAR INTE",
   "VARNING: IMPULSKÖP",
@@ -16,22 +20,8 @@ const ANGERKOP_PHRASES = [
   "CAN'T EVEN",
 ]
 
-// Solkast's own designs, in its own register. Same trick, different joke:
-// these are the actual pieces in the shop, so the ticker doubles as a
-// contents page.
-// Kept in step with CURATED by hand, which is the cost of a ticker that
-// doubles as a contents page: Late Bloom was dropped from the shop and left
-// scrolling across the homepage advertising a product that 404s.
-const SOLKAST_PHRASES = [
-  "CHASE THE LIGHT",
-  "BUILT IN SUNLIGHT",
-  "FROM SHADOW",
-  "DRIVEN BY LIGHT",
-  "TOTAL ECLIPSE",
-  "GLOW DIFFERENT",
-  "STAY GOLDEN",
-  "SOLSTICE",
-]
+// Repeat sequence so each half-track is sufficiently wide for ultra-wide displays
+const SOLKAST_PHRASES = [...AEON_SEQUENCE, ...AEON_SEQUENCE]
 
 const PHRASES = isSolkast ? SOLKAST_PHRASES : ANGERKOP_PHRASES
 
@@ -39,19 +29,38 @@ export default function Marquee() {
   // Rendered twice back to back: the track is translated by exactly -50%, so
   // the second copy sits where the first started and the loop is seamless.
   const track = [...PHRASES, ...PHRASES]
+  const isDark = isSolkast
 
   return (
     <section
       aria-hidden="true"
-      className="bg-brand text-white border-y border-white/10 overflow-hidden"
+      className={
+        isDark
+          ? "bg-black text-[#00d4ff] border-y border-[#00d4ff]/20 overflow-hidden"
+          : "bg-brand text-white border-y border-white/10 overflow-hidden"
+      }
     >
       <div className="flex w-max animate-marquee motion-reduce:animate-none py-3.5">
         {track.map((phrase, i) => (
           <div key={i} className="flex items-center shrink-0">
-            <span className="text-xs small:text-sm font-semibold tracking-[0.2em] uppercase whitespace-nowrap">
+            <span
+              className={
+                isDark
+                  ? "text-xs small:text-sm font-mono font-medium tracking-[0.25em] uppercase whitespace-nowrap text-[#00d4ff]"
+                  : "text-xs small:text-sm font-semibold tracking-[0.2em] uppercase whitespace-nowrap"
+              }
+            >
               {phrase}
             </span>
-            <span className="mx-6 small:mx-9 text-white/40 select-none">•</span>
+            <span
+              className={
+                isDark
+                  ? "mx-6 small:mx-8 text-[#00d4ff]/40 select-none font-mono"
+                  : "mx-6 small:mx-9 text-white/40 select-none"
+              }
+            >
+              {isDark ? "//" : "•"}
+            </span>
           </div>
         ))}
       </div>
