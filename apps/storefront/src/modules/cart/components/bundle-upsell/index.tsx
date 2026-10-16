@@ -20,17 +20,18 @@ export default function BundleUpsell({
 
   const hasHoodie = cart.items.some(
     (i) =>
+      i.product_handle === "aeon-horizon-heavyweight-hoodie" ||
       i.product_handle === "aeon-beyond-the-horizon-heavyweight-hoodie" ||
       i.product_handle === "aeon-beyond-the-horizon-hoodie" ||
-      i.title?.toLowerCase().includes("beyond the horizon hoodie") ||
+      i.title?.toLowerCase().includes("horizon hoodie") ||
       i.title?.toLowerCase().includes("heavyweight hoodie")
   )
 
   const hasSweatpants = cart.items.some(
     (i) =>
+      i.product_handle === "aeon-heavyweight-sweatpants" ||
       i.product_handle === "aeon-beyond-the-horizon-heavyweight-sweatpants" ||
       i.product_handle === "aeon-beyond-the-horizon-sweatpants" ||
-      i.title?.toLowerCase().includes("beyond the horizon sweatpants") ||
       i.title?.toLowerCase().includes("heavyweight sweatpants")
   )
 
@@ -51,7 +52,7 @@ export default function BundleUpsell({
           <strong className="text-white uppercase tracking-wider mr-1">
             Bundle Unlocked:
           </strong>
-          {discountAmount} discount applied to your Beyond the Horizon set!
+          {discountAmount} discount applied to your coordinate set!
         </span>
       </div>
     )
@@ -59,8 +60,8 @@ export default function BundleUpsell({
 
   const counterpartKey =
     hasHoodie && !hasSweatpants
-      ? "aeon-beyond-the-horizon-heavyweight-hoodie"
-      : "aeon-beyond-the-horizon-heavyweight-sweatpants"
+      ? "aeon-horizon-heavyweight-hoodie"
+      : "aeon-heavyweight-sweatpants"
   const pair = BUNDLE_PAIRS[counterpartKey]
   if (!pair) return null
 

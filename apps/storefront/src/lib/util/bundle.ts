@@ -8,12 +8,30 @@ export const BUNDLE_PAIRS: Record<
     counterpartThumbnail: string
   }
 > = {
+  "aeon-horizon-heavyweight-hoodie": {
+    title: "Heavyweight Hoodie",
+    thumbnail:
+      "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791977832/aeon-hoodie.jpg",
+    counterpartTitle: "Heavyweight Sweatpants",
+    counterpartHandle: "aeon-heavyweight-sweatpants",
+    counterpartThumbnail:
+      "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791999431/Gemini_Generated_Image_i3upnzi3upnzi3up.jpg",
+  },
+  "aeon-heavyweight-sweatpants": {
+    title: "Heavyweight Sweatpants",
+    thumbnail:
+      "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791999431/Gemini_Generated_Image_i3upnzi3upnzi3up.jpg",
+    counterpartTitle: "Heavyweight Hoodie",
+    counterpartHandle: "aeon-horizon-heavyweight-hoodie",
+    counterpartThumbnail:
+      "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791977832/aeon-hoodie.jpg",
+  },
   "aeon-beyond-the-horizon-heavyweight-hoodie": {
     title: "Heavyweight Hoodie",
     thumbnail:
       "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791977832/aeon-hoodie.jpg",
     counterpartTitle: "Heavyweight Sweatpants",
-    counterpartHandle: "aeon-beyond-the-horizon-heavyweight-sweatpants",
+    counterpartHandle: "aeon-heavyweight-sweatpants",
     counterpartThumbnail:
       "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791999431/Gemini_Generated_Image_i3upnzi3upnzi3up.jpg",
   },
@@ -22,7 +40,7 @@ export const BUNDLE_PAIRS: Record<
     thumbnail:
       "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791999431/Gemini_Generated_Image_i3upnzi3upnzi3up.jpg",
     counterpartTitle: "Heavyweight Hoodie",
-    counterpartHandle: "aeon-beyond-the-horizon-heavyweight-hoodie",
+    counterpartHandle: "aeon-horizon-heavyweight-hoodie",
     counterpartThumbnail:
       "https://res.cloudinary.com/y2pmxwhp/image/upload/v1791977832/aeon-hoodie.jpg",
   },

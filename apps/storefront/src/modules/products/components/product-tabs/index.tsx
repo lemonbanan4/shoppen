@@ -234,7 +234,7 @@ const BundleSetTab = ({
           <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00d4ff]" />
         </span>
         <span className="text-xs uppercase tracking-widest text-[#00d4ff] font-bold">
-          Beyond the Horizon Coordinate Set
+          AEON Coordinate Set
         </span>
       </div>
 

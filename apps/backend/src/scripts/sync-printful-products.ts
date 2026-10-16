@@ -540,6 +540,20 @@ export default async function syncPrintfulProducts({
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
+  try {
+    const { Client } = require("pg");
+    if (process.env.DATABASE_URL) {
+      const client = new Client({ connectionString: process.env.DATABASE_URL });
+      await client.connect();
+      await client.query(
+        "UPDATE product SET handle = handle || '-del-' || substring(id, 6, 8) WHERE deleted_at IS NOT NULL AND handle NOT LIKE '%-del-%'"
+      );
+      await client.end();
+    }
+  } catch (err: any) {
+    logger.warn(`Could not prune deleted product handles in postgres: ${err.message}`);
+  }
+
   const client = PrintfulClient.fromEnv();
   if (!client) {
     logger.error(
@@ -786,10 +800,13 @@ export default async function syncPrintfulProducts({
   // Handles are needed for toMedusaProduct (for new products).
   const { data: handleRows } = await query.graph({
     entity: "product",
-    fields: ["handle"],
+    fields: ["handle", "deleted_at"],
   });
   const takenHandles = new Set<string>(
-    handleRows.map((r) => r.handle).filter(Boolean) as string[]
+    handleRows
+      .filter((r: any) => !r.deleted_at)
+      .map((r: any) => r.handle)
+      .filter(Boolean) as string[]
   );
 
   const ctx = {
@@ -821,14 +838,32 @@ export default async function syncPrintfulProducts({
         logger.info(`  + ${detail.sync_product.name}`);
       } else {
         const desired = toMedusaProduct(detail, ctx);
-        if (!sameOptions(existing, desired.options)) {
+        const nameChanged = existing.title !== desired.title;
+        const optionsChanged = !sameOptions(existing, desired.options);
+
+        if (nameChanged || optionsChanged) {
           logger.info(
-            `  ↻ ${detail.sync_product.name} — options changed, rebuilding`
+            `  ↻ ${detail.sync_product.name} — ${
+              nameChanged ? "name changed" : "options changed"
+            }, rebuilding`
           );
           if (existing.handle) takenHandles.delete(existing.handle as string);
           await deleteProductsWorkflow(container).run({
             input: { ids: [existing.id] },
           });
+          try {
+            const { Client } = require("pg");
+            if (process.env.DATABASE_URL) {
+              const client = new Client({ connectionString: process.env.DATABASE_URL });
+              await client.connect();
+              await client.query(
+                "UPDATE product SET handle = handle || '-del-' || substring(id, 6, 8) WHERE deleted_at IS NOT NULL AND handle NOT LIKE '%-del-%'"
+              );
+              await client.end();
+            }
+          } catch (e: any) {
+            logger.warn(`Could not rename deleted product handle: ${e.message}`);
+          }
           await createProductsWorkflow(container).run({
             input: { products: [desired] },
           });

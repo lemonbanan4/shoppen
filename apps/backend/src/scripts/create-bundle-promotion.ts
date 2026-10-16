@@ -14,10 +14,12 @@ import {
 } from "@medusajs/medusa/core-flows";
 
 const HOODIE_HANDLES = [
+  "aeon-horizon-heavyweight-hoodie",
   "aeon-beyond-the-horizon-heavyweight-hoodie",
   "aeon-beyond-the-horizon-hoodie",
 ];
 const SWEATPANTS_HANDLES = [
+  "aeon-heavyweight-sweatpants",
   "aeon-beyond-the-horizon-heavyweight-sweatpants",
   "aeon-beyond-the-horizon-sweatpants",
 ];
