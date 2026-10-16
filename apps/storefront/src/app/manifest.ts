@@ -24,6 +24,12 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0a0a0a",
     icons: [
       {
+        src: "/brand/white-cyber-sigilism-logo.png",
+        sizes: "1024x1024",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
         src: `/brand/icon-${BRAND.id}.svg`,
         sizes: "any",
         type: "image/svg+xml",

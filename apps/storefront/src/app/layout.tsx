@@ -18,11 +18,13 @@ export const metadata: Metadata = {
   description: BRAND.description,
   icons: {
     icon: [
+      { url: "/brand/white-cyber-sigilism-logo.png", type: "image/png" },
       { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico" },
       { url: `/brand/icon-${BRAND.id}.svg`, type: "image/svg+xml" },
     ],
     apple: [
+      { url: "/brand/white-cyber-sigilism-logo.png", type: "image/png" },
       { url: "/apple-icon.svg", type: "image/svg+xml" },
       { url: `/brand/icon-${BRAND.id}.svg`, type: "image/svg+xml" },
     ],

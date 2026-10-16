@@ -29,7 +29,7 @@ export default async function Footer({
               href="/"
               className="flex items-center gap-x-2.5 text-base font-semibold tracking-[0.25em] text-white uppercase"
             >
-              <LogoMark size="18" />
+              <LogoMark size="22" />
               <span>{BRAND.wordmark}</span>
             </LocalizedClientLink>
             <p className="mt-3.5 text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">

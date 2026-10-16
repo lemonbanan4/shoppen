@@ -36,33 +36,26 @@ const AngerkopMark: React.FC<IconProps> = ({ size, color, ...attributes }) => (
   </svg>
 )
 
-// Eight rays rather than twelve: at 16px, twelve rays close into a smudged
-// ring and the mark stops reading as a sun at all.
-const RAYS = Array.from({ length: 8 }, (_, i) => (i * 360) / 8)
-
-/** Solkast: a sun. "Sol" is the whole name, and the shop's palette is gold. */
-const SolkastMark: React.FC<IconProps> = ({ size, color, ...attributes }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 200 200"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...attributes}
-  >
-    <circle cx="100" cy="100" r="42" fill={color} />
-    {RAYS.map((deg) => (
-      <path
-        key={deg}
-        d="M 100 36 L 100 12"
-        stroke={color}
-        strokeWidth="20"
-        strokeLinecap="round"
-        transform={`rotate(${deg} 100 100)`}
-      />
-    ))}
-  </svg>
-)
+/** Solkast: White Cyber Sigilism logo mark. */
+const SolkastMark: React.FC<IconProps> = ({
+  size = "20",
+  color,
+  className,
+  ...attributes
+}) => {
+  const dim = typeof size === "number" ? size : parseInt(String(size), 10) || 20
+  return (
+    <img
+      src="/brand/white-cyber-sigilism-logo.png"
+      alt="SOLKAST"
+      width={dim}
+      height={dim}
+      className={`object-contain shrink-0 inline-block ${className || ""}`}
+      style={{ width: dim, height: dim }}
+      {...(attributes as any)}
+    />
+  )
+}
 
 const LogoMark: React.FC<IconProps> = ({
   size = "20",
