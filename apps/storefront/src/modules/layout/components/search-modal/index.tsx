@@ -197,9 +197,10 @@ export default function SearchModal({ regionMap }: SearchModalProps) {
                                 <Image
                                   src={product.thumbnail}
                                   alt={product.title}
-                                  fill
+                                  width={56}
+                                  height={56}
                                   sizes="56px"
-                                  className="object-cover object-center"
+                                  className="w-full h-full object-cover object-center"
                                 />
                               )}
                             </div>

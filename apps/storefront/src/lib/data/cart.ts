@@ -434,7 +434,7 @@ export async function placeOrder(cartId?: string) {
     })
     await posthog.flush()
 
-    removeCartId()
+    await removeCartId()
     redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
   }
 

@@ -77,9 +77,10 @@ export default function BundleUpsell({
           <Image
             src={pair.counterpartThumbnail}
             alt={pair.counterpartTitle}
-            fill
+            width={44}
+            height={56}
             sizes="44px"
-            className="object-cover group-hover:scale-105 transition-transform"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
           />
         </LocalizedClientLink>
 

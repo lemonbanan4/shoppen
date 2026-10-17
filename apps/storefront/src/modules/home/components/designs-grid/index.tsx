@@ -102,9 +102,10 @@ export default async function DesignsGrid({
               <Image
                 src={d.src}
                 alt={d.alt}
-                fill
+                width={600}
+                height={750}
                 sizes="(max-width: 1024px) 50vw, 33vw"
-                className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               />
             </div>
             <p className="mt-3.5 text-sm small:text-base font-mono font-bold text-white uppercase tracking-tight">
