@@ -13,28 +13,39 @@ type VariantWithPrice = HttpTypes.StoreProductVariant & {
   }
 }
 
-export const getPricesForVariant = (variant: VariantWithPrice) => {
-  if (!variant?.calculated_price?.calculated_amount) {
+export const getPricesForVariant = (variant: VariantWithPrice | undefined | null) => {
+  if (!variant || !variant.calculated_price) {
     return null
   }
 
+  const calcAmount = variant.calculated_price.calculated_amount
+  if (calcAmount === null || calcAmount === undefined || isNaN(Number(calcAmount))) {
+    return null
+  }
+
+  const origAmount =
+    variant.calculated_price.original_amount !== null &&
+    variant.calculated_price.original_amount !== undefined &&
+    !isNaN(Number(variant.calculated_price.original_amount))
+      ? Number(variant.calculated_price.original_amount)
+      : Number(calcAmount)
+
+  const currency = variant.calculated_price.currency_code || "EUR"
+
   return {
-    calculated_price_number: variant.calculated_price.calculated_amount,
+    calculated_price_number: Number(calcAmount),
     calculated_price: convertToLocale({
-      amount: variant.calculated_price.calculated_amount,
-      currency_code: variant.calculated_price.currency_code,
+      amount: Number(calcAmount),
+      currency_code: currency,
     }),
-    original_price_number: variant.calculated_price.original_amount,
+    original_price_number: origAmount,
     original_price: convertToLocale({
-      amount: variant.calculated_price.original_amount,
-      currency_code: variant.calculated_price.currency_code,
+      amount: origAmount,
+      currency_code: currency,
     }),
-    currency_code: variant.calculated_price.currency_code,
+    currency_code: currency,
     price_type: variant.calculated_price?.calculated_price?.price_list_type || "default",
-    percentage_diff: getPercentageDiff(
-      variant.calculated_price.original_amount,
-      variant.calculated_price.calculated_amount
-    ),
+    percentage_diff: getPercentageDiff(origAmount, Number(calcAmount)),
   }
 }
 
@@ -42,11 +53,15 @@ export function getProductPrice({
   product,
   variantId,
 }: {
-  product: HttpTypes.StoreProduct
+  product?: HttpTypes.StoreProduct | null
   variantId?: string
 }) {
   if (!product || !product.id) {
-    throw new Error("No product provided")
+    return {
+      product: product || ({} as HttpTypes.StoreProduct),
+      cheapestPrice: null,
+      variantPrice: null,
+    }
   }
 
   const cheapestPrice = () => {

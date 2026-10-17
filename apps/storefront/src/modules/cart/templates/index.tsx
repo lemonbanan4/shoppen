@@ -59,11 +59,16 @@ const CartTemplate = ({
         )
       }, 0)
 
+      const shipping = Number(currentCart.shipping_subtotal || currentCart.shipping_total || 0)
+      const discount = Number((currentCart as any).discount_subtotal || currentCart.discount_total || 0)
+      const tax = Number(currentCart.tax_total || 0)
+      const newTotal = Math.max(0, newSubtotal + shipping + tax - discount)
+
       return {
         ...currentCart,
         items: newItems,
         subtotal: newSubtotal,
-        total: newSubtotal,
+        total: newTotal,
         item_subtotal: newSubtotal,
         item_total: newSubtotal,
       }

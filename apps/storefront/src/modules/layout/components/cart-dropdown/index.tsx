@@ -151,87 +151,103 @@ const CartDropdown = ({
                         : 1
                     })
                     .map((item) => (
-                      <div
-                        className="grid grid-cols-[122px_1fr] gap-x-4"
+                      <ErrorBoundary
                         key={item.id}
-                        data-testid="cart-item"
+                        fallback={
+                          <div className="flex items-center justify-between p-2 text-xs text-neutral-400 font-mono border-b border-neutral-900">
+                            <span className="truncate max-w-[160px]">
+                              {item.product_title || item.title || "Item Data Sync Error"}
+                            </span>
+                            <DeleteButton
+                              id={item.id}
+                              onDelete={handleDeleteItem}
+                            >
+                              Remove
+                            </DeleteButton>
+                          </div>
+                        }
                       >
-                        <LocalizedClientLink
-                          href={`/products/${item.product_handle}`}
-                          className="w-24"
+                        <div
+                          className="grid grid-cols-[122px_1fr] gap-x-4"
+                          data-testid="cart-item"
                         >
-                          <Thumbnail
-                            thumbnail={item.thumbnail}
-                            images={item.variant?.product?.images}
-                            alt={item.product_title || item.title}
-                            size="square"
-                          />
-                        </LocalizedClientLink>
-                        <div className="flex flex-col justify-between flex-1">
-                          <div className="flex flex-col flex-1">
-                            <div className="flex items-start justify-between">
-                              <div className="flex flex-col overflow-ellipsis whitespace-nowrap mr-4 w-[180px]">
-                                <h3 className="text-base-regular overflow-hidden text-ellipsis">
-                                  <LocalizedClientLink
-                                    href={`/products/${item.product_handle}`}
-                                    data-testid="product-link"
+                          <LocalizedClientLink
+                            href={`/products/${item.product_handle}`}
+                            className="w-24"
+                          >
+                            <Thumbnail
+                              thumbnail={item.thumbnail}
+                              images={item.variant?.product?.images}
+                              alt={item.product_title || item.title}
+                              size="square"
+                            />
+                          </LocalizedClientLink>
+                          <div className="flex flex-col justify-between flex-1">
+                            <div className="flex flex-col flex-1">
+                              <div className="flex items-start justify-between">
+                                <div className="flex flex-col overflow-ellipsis whitespace-nowrap mr-4 w-[180px]">
+                                  <h3 className="text-base-regular overflow-hidden text-ellipsis">
+                                    <LocalizedClientLink
+                                      href={`/products/${item.product_handle}`}
+                                      data-testid="product-link"
+                                    >
+                                      {item.title}
+                                    </LocalizedClientLink>
+                                  </h3>
+                                  <LineItemOptions
+                                    variant={item.variant}
+                                    data-testid="cart-item-variant"
+                                    data-value={item.variant}
+                                  />
+                                  <span
+                                    data-testid="cart-item-quantity"
+                                    data-value={item.quantity}
                                   >
-                                    {item.title}
-                                  </LocalizedClientLink>
-                                </h3>
-                                <LineItemOptions
-                                  variant={item.variant}
-                                  data-testid="cart-item-variant"
-                                  data-value={item.variant}
-                                />
-                                <span
-                                  data-testid="cart-item-quantity"
-                                  data-value={item.quantity}
-                                >
-                                  {t.cartQuantity}: {item.quantity}
-                                </span>
-                                {item.adjustments && item.adjustments.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {item.adjustments.map((adjustment) => {
-                                      const isBundle =
-                                        adjustment.code?.includes("AEON-BUNDLE") ||
-                                        adjustment.code?.includes("BUNDLE")
-                                      return (
-                                        <span
-                                          key={adjustment.id}
-                                          className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#00d4ff] bg-[#00d4ff]/10 border border-[#00d4ff]/25 px-1.5 py-0.5 rounded"
-                                        >
-                                          <span className="h-1 w-1 rounded-full bg-[#00d4ff]" />
-                                          {isBundle ? "Bundle" : adjustment.code || "Discount"}{" "}
-                                          (-{convertToLocale({
-                                            amount: adjustment.amount,
-                                            currency_code: currencyCode,
-                                          })})
-                                        </span>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex justify-end">
-                                <LineItemPrice
-                                  item={item}
-                                  style="tight"
-                                  currencyCode={currencyCode}
-                                />
+                                    {t.cartQuantity}: {item.quantity}
+                                  </span>
+                                  {item.adjustments && item.adjustments.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {item.adjustments.map((adjustment) => {
+                                        const isBundle =
+                                          adjustment.code?.includes("AEON-BUNDLE") ||
+                                          adjustment.code?.includes("BUNDLE")
+                                        return (
+                                          <span
+                                            key={adjustment.id}
+                                            className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#00d4ff] bg-[#00d4ff]/10 border border-[#00d4ff]/25 px-1.5 py-0.5 rounded"
+                                          >
+                                            <span className="h-1 w-1 rounded-full bg-[#00d4ff]" />
+                                            {isBundle ? "Bundle" : adjustment.code || "Discount"}{" "}
+                                            (-{convertToLocale({
+                                              amount: adjustment.amount,
+                                              currency_code: currencyCode,
+                                            })})
+                                          </span>
+                                        )
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex justify-end">
+                                  <LineItemPrice
+                                    item={item}
+                                    style="tight"
+                                    currencyCode={currencyCode}
+                                  />
+                                </div>
                               </div>
                             </div>
+                            <DeleteButton
+                              id={item.id}
+                              className="mt-1"
+                              data-testid="cart-item-remove-button"
+                              onDelete={handleDeleteItem}
+                            >
+                              Remove
+                            </DeleteButton>
                           </div>
-                          <DeleteButton
-                            id={item.id}
-                            className="mt-1"
-                            data-testid="cart-item-remove-button"
-                            onDelete={handleDeleteItem}
-                          >
-                            Remove
-                          </DeleteButton>
                         </div>
-                      </div>
+                      </ErrorBoundary>
                     ))}
                 </div>
                 <div className="p-4 flex flex-col gap-y-4 text-small-regular">

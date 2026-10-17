@@ -28,9 +28,9 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   className,
   "data-testid": dataTestid,
 }) => {
-  const initialImage = thumbnail || images?.[0]?.url
-  const hoverImage = images?.find((img) => img.url && img.url !== initialImage)
-    ?.url
+  const imageList = Array.isArray(images) ? images : []
+  const initialImage = thumbnail || imageList[0]?.url
+  const hoverImage = imageList.find((img) => img?.url && img.url !== initialImage)?.url
 
   return (
     <div

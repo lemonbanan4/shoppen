@@ -22,7 +22,16 @@ export default function ProductPrice({
   const selectedPrice = variant ? variantPrice : cheapestPrice
 
   if (!selectedPrice) {
-    return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
+    if (variant) {
+      return (
+        <div className="flex flex-col text-neutral-500 font-mono text-sm py-1">
+          <span className="uppercase tracking-wider">
+            {t.outOfStock || "Out of Stock"}
+          </span>
+        </div>
+      )
+    }
+    return <div className="block w-32 h-9 bg-neutral-900 rounded animate-pulse" />
   }
 
   return (
