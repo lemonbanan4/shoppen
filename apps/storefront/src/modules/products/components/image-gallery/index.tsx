@@ -62,26 +62,21 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
                 <button
                   type="button"
                   aria-label={`Zoom product image ${index + 1}`}
-                  className="absolute inset-0"
+                  className="absolute inset-0 w-full h-full"
                   onClick={() => setOpenIndex(index)}
                 >
                   <Image
                     src={image.url}
-                    priority={index <= 2 ? true : false}
-                    className="absolute inset-0"
+                    width={870}
+                    height={1020}
+                    priority={index === 0}
+                    className="w-full h-full object-cover object-center"
                     alt={
                       title
                         ? `${title} — view ${index + 1} of ${images.length}`
                         : `Product image ${index + 1}`
                     }
-                    fill
-                    // Matches the layout: a carousel slide is 85vw until the
-                    // small breakpoint turns the gallery into a fixed-width
-                    // column. A stale hint here serves under-resolution images.
                     sizes="(max-width: 1023px) 85vw, 800px"
-                    style={{
-                      objectFit: "cover",
-                    }}
                   />
                 </button>
               )}

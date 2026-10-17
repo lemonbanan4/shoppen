@@ -77,12 +77,17 @@ export default async function ProductRail({
         </LocalizedClientLink>
       </div>
       <ul className="grid grid-flow-col auto-cols-[68%] xsmall:auto-cols-[42%] small:auto-cols-[calc(25%-9px)] gap-2 small:gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 small:mx-0 small:px-0">
-        {pricedProducts.slice(0, limit).map((product) => (
+        {pricedProducts.slice(0, limit).map((product, index) => (
           <li key={product.id} className="snap-start">
             <ErrorBoundary
               fallback={<ProductCardErrorFallback title={product.title} />}
             >
-              <ProductPreview product={product} region={region} isFeatured />
+              <ProductPreview
+                product={product}
+                region={region}
+                isFeatured
+                priority={index === 0}
+              />
             </ErrorBoundary>
           </li>
         ))}

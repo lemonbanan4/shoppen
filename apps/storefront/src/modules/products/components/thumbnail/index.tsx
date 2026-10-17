@@ -32,6 +32,9 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   const initialImage = thumbnail || imageList[0]?.url
   const hoverImage = imageList.find((img) => img?.url && img.url !== initialImage)?.url
 
+  const width = size === "square" ? 600 : 800
+  const height = size === "square" ? 600 : 1000
+
   return (
     <div
       className={clx(
@@ -53,8 +56,10 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
           <Image
             src={initialImage}
             alt={alt || "Product image"}
+            width={width}
+            height={height}
             className={clx(
-              "absolute inset-0 object-cover object-center transition duration-500 ease-out",
+              "absolute inset-0 w-full h-full object-cover object-center transition duration-500 ease-out",
               hoverImage
                 ? "group-hover:opacity-0"
                 : "group-hover:scale-[1.04]"
@@ -63,17 +68,17 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
             priority={priority}
             quality={70}
             sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-            fill
           />
           {hoverImage && (
             <Image
               src={hoverImage}
               alt={alt ? `${alt} — alternate view` : "Product image on hover"}
-              className="absolute inset-0 object-cover object-center opacity-0 transition duration-500 ease-out group-hover:opacity-100 group-hover:scale-[1.04]"
+              width={width}
+              height={height}
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-0 transition duration-500 ease-out group-hover:opacity-100 group-hover:scale-[1.04]"
               draggable={false}
               quality={70}
               sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-              fill
             />
           )}
         </>

@@ -5,7 +5,7 @@ import CheckoutForm from "@modules/checkout/templates/checkout-form"
 import CheckoutSummary from "@modules/checkout/templates/checkout-summary"
 import CheckoutTracker from "@modules/checkout/components/checkout-tracker"
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 import { copyFor } from "@lib/copy"
 
 export async function generateMetadata(props: {
@@ -14,11 +14,20 @@ export async function generateMetadata(props: {
   return { title: copyFor((await props.params).countryCode).checkoutTitle }
 }
 
-export default async function Checkout() {
-  const cart = await retrieveCart()
+export default async function Checkout(props: {
+  params: Promise<{ countryCode: string }>
+}) {
+  const { countryCode } = await props.params
+  let cart: any = null
 
-  if (!cart) {
-    return notFound()
+  try {
+    cart = await retrieveCart()
+  } catch {
+    redirect(`/${countryCode}/store`)
+  }
+
+  if (!cart || !cart.items || cart.items.length === 0) {
+    redirect(`/${countryCode}/store`)
   }
 
   const customer = await retrieveCustomer()

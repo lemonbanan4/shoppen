@@ -96,7 +96,7 @@ export default async function PaginatedProducts({
               <ErrorBoundary
                 fallback={<ProductCardErrorFallback title={p.title} />}
               >
-                <ProductPreview product={p} region={region} priority={index < 4} />
+                <ProductPreview product={p} region={region} priority={index === 0} />
               </ErrorBoundary>
             </li>
           )

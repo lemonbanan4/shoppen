@@ -57,15 +57,18 @@ const StripePaymentButton = ({
 }) => {
   const t = useCopy()
   const [submitting, setSubmitting] = useState(false)
+  const isSubmittingRef = React.useRef(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onPaymentCompleted = async () => {
     await placeOrder()
       .catch((err) => {
         setErrorMessage(err.message)
+        isSubmittingRef.current = false
       })
       .finally(() => {
         setSubmitting(false)
+        isSubmittingRef.current = false
       })
   }
 
@@ -80,71 +83,89 @@ const StripePaymentButton = ({
   const disabled = !stripe || !elements ? true : false
 
   const handlePayment = async () => {
+    if (isSubmittingRef.current || submitting) {
+      return
+    }
+    isSubmittingRef.current = true
     setSubmitting(true)
+    setErrorMessage(null)
 
     if (!stripe || !elements || !card || !cart) {
       setSubmitting(false)
+      isSubmittingRef.current = false
       return
     }
 
-    await stripe
-      .confirmCardPayment(session?.data.client_secret as string, {
-        payment_method: {
-          card: card,
-          billing_details: {
-            name:
-              cart.billing_address?.first_name +
-              " " +
-              cart.billing_address?.last_name,
-            address: {
-              city: cart.billing_address?.city ?? undefined,
-              country: cart.billing_address?.country_code ?? undefined,
-              line1: cart.billing_address?.address_1 ?? undefined,
-              line2: cart.billing_address?.address_2 ?? undefined,
-              postal_code: cart.billing_address?.postal_code ?? undefined,
-              state: cart.billing_address?.province ?? undefined,
+    try {
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        session?.data.client_secret as string,
+        {
+          payment_method: {
+            card: card,
+            billing_details: {
+              name:
+                cart.billing_address?.first_name +
+                " " +
+                cart.billing_address?.last_name,
+              address: {
+                city: cart.billing_address?.city ?? undefined,
+                country: cart.billing_address?.country_code ?? undefined,
+                line1: cart.billing_address?.address_1 ?? undefined,
+                line2: cart.billing_address?.address_2 ?? undefined,
+                postal_code: cart.billing_address?.postal_code ?? undefined,
+                state: cart.billing_address?.province ?? undefined,
+              },
+              email: cart.email,
+              phone: cart.billing_address?.phone ?? undefined,
             },
-            email: cart.email,
-            phone: cart.billing_address?.phone ?? undefined,
           },
-        },
-      })
-      .then(({ error, paymentIntent }) => {
-        if (error) {
-          const pi = error.payment_intent
+        }
+      )
 
-          if (
-            (pi && pi.status === "requires_capture") ||
-            (pi && pi.status === "succeeded")
-          ) {
-            onPaymentCompleted()
-          }
+      if (error) {
+        const pi = error.payment_intent
 
-          setErrorMessage(error.message || null)
+        if (
+          (pi && pi.status === "requires_capture") ||
+          (pi && pi.status === "succeeded")
+        ) {
+          await onPaymentCompleted()
           return
         }
 
-        if (
-          (paymentIntent && paymentIntent.status === "requires_capture") ||
-          paymentIntent.status === "succeeded"
-        ) {
-          return onPaymentCompleted()
-        }
-
+        setErrorMessage(error.message || null)
+        setSubmitting(false)
+        isSubmittingRef.current = false
         return
-      })
+      }
+
+      if (
+        (paymentIntent && paymentIntent.status === "requires_capture") ||
+        paymentIntent?.status === "succeeded"
+      ) {
+        await onPaymentCompleted()
+        return
+      }
+
+      setSubmitting(false)
+      isSubmittingRef.current = false
+    } catch (err: any) {
+      setErrorMessage(err?.message || "An unexpected error occurred.")
+      setSubmitting(false)
+      isSubmittingRef.current = false
+    }
   }
 
   return (
     <>
       <Button
-        disabled={disabled || notReady}
+        disabled={disabled || notReady || submitting}
         onClick={handlePayment}
         size="large"
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        {t.placeOrder}
+        {submitting ? "Processing..." : t.placeOrder}
       </Button>
       <ErrorMessage
         error={errorMessage}
@@ -157,20 +178,28 @@ const StripePaymentButton = ({
 const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   const t = useCopy()
   const [submitting, setSubmitting] = useState(false)
+  const isSubmittingRef = React.useRef(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onPaymentCompleted = async () => {
     await placeOrder()
       .catch((err) => {
         setErrorMessage(err.message)
+        isSubmittingRef.current = false
       })
       .finally(() => {
         setSubmitting(false)
+        isSubmittingRef.current = false
       })
   }
 
   const handlePayment = () => {
+    if (isSubmittingRef.current || submitting) {
+      return
+    }
+    isSubmittingRef.current = true
     setSubmitting(true)
+    setErrorMessage(null)
 
     onPaymentCompleted()
   }
@@ -178,13 +207,13 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   return (
     <>
       <Button
-        disabled={notReady}
+        disabled={notReady || submitting}
         isLoading={submitting}
         onClick={handlePayment}
         size="large"
         data-testid="submit-order-button"
       >
-        {t.placeOrder}
+        {submitting ? "Processing..." : t.placeOrder}
       </Button>
       <ErrorMessage
         error={errorMessage}
