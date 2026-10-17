@@ -25,7 +25,7 @@ const EmptyCartMessage = () => {
       </Text>
       <div className="flex flex-col gap-y-3">
         <InteractiveLink href="/store">{t.cartEmptyShop}</InteractiveLink>
-        <InteractiveLink href="/collections/new-arrivals">
+        <InteractiveLink href="/categories/new-arrivals">
           {t.cartEmptySee}
         </InteractiveLink>
       </div>

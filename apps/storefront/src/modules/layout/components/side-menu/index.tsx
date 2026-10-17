@@ -20,8 +20,8 @@ const sideMenuItems = (t: UiCopy) => [
   { key: "home", label: t.home, href: "/" },
   { key: "shop all", label: t.shopAll, href: "/store" },
   { key: "aeon", label: t.aeon, href: "/collections/aeon-capsule" },
-  { key: "new arrivals", label: t.newArrivals, href: "/collections/new-arrivals" },
-  { key: "bestsellers", label: t.bestsellers, href: "/collections/bestsellers" },
+  { key: "new arrivals", label: t.newArrivals, href: "/categories/new-arrivals" },
+  { key: "bestsellers", label: t.bestsellers, href: "/categories/bestsellers" },
   { key: "account", label: t.account, href: "/account" },
   { key: "cart", label: t.cart, href: "/cart" },
 ]

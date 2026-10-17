@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
 import { getCollectionByHandle, listCollections } from "@lib/data/collections"
 import { listRegions } from "@lib/data/regions"
@@ -56,6 +56,21 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
+
+  if (params.handle === "new-arrivals") {
+    return {
+      title: "New Arrivals",
+      description: "New arrivals category",
+    }
+  }
+
+  if (params.handle === "bestsellers") {
+    return {
+      title: "Bestsellers",
+      description: "Bestsellers category",
+    }
+  }
+
   const collection = await getCollectionByHandle(params.handle)
 
   if (!collection) {
@@ -75,6 +90,14 @@ export default async function CollectionPage(props: Props) {
   const params = await props.params
   const { sortBy, page } = searchParams
   const optionValueIds = parseOptionValueIds(searchParams)
+
+  if (params.handle === "new-arrivals") {
+    redirect(`/${params.countryCode}/categories/new-arrivals`)
+  }
+
+  if (params.handle === "bestsellers") {
+    redirect(`/${params.countryCode}/categories/bestsellers`)
+  }
 
   const collection = await getCollectionByHandle(params.handle).then(
     (collection) => collection

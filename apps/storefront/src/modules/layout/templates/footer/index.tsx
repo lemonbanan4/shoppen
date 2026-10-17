@@ -56,9 +56,10 @@ export default async function Footer({
                     {t.allProducts}
                   </LocalizedClientLink>
                 </li>
-                {productCategories?.slice(0, 4).map((c) => {
-                  if (c.parent_category) return null;
-                  return (
+                {productCategories
+                  ?.filter((c) => !c.parent_category)
+                  .slice(0, 5)
+                  .map((c) => (
                     <li key={c.id}>
                       <LocalizedClientLink
                         className="hover:text-white transition-colors duration-150"
@@ -68,18 +69,23 @@ export default async function Footer({
                         {c.name}
                       </LocalizedClientLink>
                     </li>
-                  );
-                })}
-                {collections?.slice(0, 3).map((c) => (
-                  <li key={c.id}>
-                    <LocalizedClientLink
-                      className="hover:text-white transition-colors duration-150"
-                      href={`/collections/${c.handle}`}
-                    >
-                      {c.title}
-                    </LocalizedClientLink>
-                  </li>
-                ))}
+                  ))}
+                {collections
+                  ?.filter(
+                    (c) =>
+                      c.handle !== "new-arrivals" && c.handle !== "bestsellers"
+                  )
+                  .slice(0, 3)
+                  .map((c) => (
+                    <li key={c.id}>
+                      <LocalizedClientLink
+                        className="hover:text-white transition-colors duration-150"
+                        href={`/collections/${c.handle}`}
+                      >
+                        {c.title}
+                      </LocalizedClientLink>
+                    </li>
+                  ))}
               </ul>
             </div>
 

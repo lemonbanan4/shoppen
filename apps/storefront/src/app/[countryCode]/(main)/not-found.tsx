@@ -21,7 +21,7 @@ export default function NotFound() {
           homepage. Lead with the store so the visit is still salvageable. */}
       <div className="flex flex-col gap-y-3 items-center">
         <InteractiveLink href="/store">Shop all products</InteractiveLink>
-        <InteractiveLink href="/collections/new-arrivals">
+        <InteractiveLink href="/categories/new-arrivals">
           See new arrivals
         </InteractiveLink>
         <InteractiveLink href="/">Go to frontpage</InteractiveLink>
