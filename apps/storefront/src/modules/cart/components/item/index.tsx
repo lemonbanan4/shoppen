@@ -19,14 +19,26 @@ type ItemProps = {
   item: HttpTypes.StoreCartLineItem
   type?: "full" | "preview"
   currencyCode: string
+  onDelete?: (id: string) => void
+  onUpdateQuantity?: (id: string, quantity: number) => void
 }
 
-const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
+const Item = ({
+  item,
+  type = "full",
+  currencyCode,
+  onDelete,
+  onUpdateQuantity,
+}: ItemProps) => {
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const changeQuantity = async (quantity: number) => {
     setError(null)
+    if (onUpdateQuantity) {
+      onUpdateQuantity(item.id, quantity)
+      return
+    }
     setUpdating(true)
 
     await updateLineItem({
@@ -99,7 +111,11 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       {type === "full" && (
         <Table.Cell>
           <div className="flex gap-2 items-center w-28">
-            <DeleteButton id={item.id} data-testid="product-delete-button" />
+            <DeleteButton
+              id={item.id}
+              data-testid="product-delete-button"
+              onDelete={onDelete}
+            />
             <CartItemSelect
               value={item.quantity}
               onChange={(value) => changeQuantity(parseInt(value.target.value))}

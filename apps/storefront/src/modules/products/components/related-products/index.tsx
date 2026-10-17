@@ -3,6 +3,9 @@ import { getRegion } from "@lib/data/regions"
 import { HttpTypes } from "@medusajs/types"
 import Product from "../product-preview"
 import { getBundlePair, getBundleDiscountAmount } from "@lib/util/bundle"
+import ErrorBoundary, {
+  ProductCardErrorFallback,
+} from "@modules/common/components/error-boundary"
 
 type RelatedProductsProps = {
   product: HttpTypes.StoreProduct
@@ -97,7 +100,11 @@ export default async function RelatedProducts({
       <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-2 small:gap-3 medium:gap-4">
         {products.map((product) => (
           <li key={product.id}>
-            <Product region={region} product={product} />
+            <ErrorBoundary
+              fallback={<ProductCardErrorFallback title={product.title} />}
+            >
+              <Product region={region} product={product} />
+            </ErrorBoundary>
           </li>
         ))}
       </ul>

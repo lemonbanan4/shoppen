@@ -11,6 +11,8 @@ type OptionSelectProps = {
   disabled: boolean
   /** Values that exist on at least one variant of this product. */
   availableValues?: string[]
+  /** Values whose variants have no price or no inventory */
+  outOfStockValues?: string[]
   "data-testid"?: string
 }
 
@@ -147,6 +149,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   "data-testid": dataTestId,
   disabled,
   availableValues,
+  outOfStockValues,
 }) => {
   const t = useCopy()
   const filteredOptions = bySize(
@@ -166,23 +169,46 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
       >
         {filteredOptions.map((v) => {
           const label = cleanOptionLabel(v)
+          const isOutOfStock = outOfStockValues?.includes(v)
+
           return (
             <button
-              onClick={() => updateOption(option.id, v)}
+              onClick={() => !isOutOfStock && updateOption(option.id, v)}
               key={v}
+              title={
+                isOutOfStock
+                  ? `${label} - ${t.outOfStock || "Out of Stock"}`
+                  : label
+              }
+              aria-label={
+                isOutOfStock
+                  ? `${label} - ${t.outOfStock || "Out of Stock"}`
+                  : label
+              }
               className={clx(
-                "border text-xs sm:text-sm font-mono font-bold h-11 min-w-[3.25rem] px-4 rounded-md transition-all ease-in-out duration-150 inline-flex items-center justify-center uppercase tracking-wider active:scale-95 select-none",
+                "border text-xs sm:text-sm font-mono font-bold h-11 min-w-[3.25rem] px-3.5 rounded-md transition-all ease-in-out duration-150 inline-flex items-center justify-center uppercase tracking-wider select-none",
                 {
-                  "border-white bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] ring-1 ring-white":
-                    v === current,
-                  "border-neutral-800 bg-neutral-900/80 text-[#EDEDED] hover:border-neutral-500 hover:text-white hover:bg-neutral-800/80":
-                    v !== current,
+                  "border-neutral-900 bg-neutral-950/60 text-neutral-600 cursor-not-allowed opacity-60":
+                    isOutOfStock,
+                  "border-white bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] ring-1 ring-white active:scale-95":
+                    !isOutOfStock && v === current,
+                  "border-neutral-800 bg-neutral-900/80 text-[#EDEDED] hover:border-neutral-500 hover:text-white hover:bg-neutral-800/80 active:scale-95":
+                    !isOutOfStock && v !== current,
                 }
               )}
-              disabled={disabled}
+              disabled={disabled || isOutOfStock}
               data-testid="option-button"
             >
-              {label}
+              {isOutOfStock ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="line-through text-neutral-500">{label}</span>
+                  <span className="text-[10px] text-neutral-600 font-normal tracking-tight lowercase">
+                    ({t.outOfStock || "Out of Stock"})
+                  </span>
+                </span>
+              ) : (
+                label
+              )}
             </button>
           )
         })}

@@ -3,6 +3,9 @@ import { HttpTypes } from "@medusajs/types"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ProductPreview from "@modules/products/components/product-preview"
+import ErrorBoundary, {
+  ProductCardErrorFallback,
+} from "@modules/common/components/error-boundary"
 
 export default async function ProductRail({
   collection,
@@ -76,7 +79,11 @@ export default async function ProductRail({
       <ul className="grid grid-flow-col auto-cols-[68%] xsmall:auto-cols-[42%] small:auto-cols-[calc(25%-9px)] gap-2 small:gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 small:mx-0 small:px-0">
         {pricedProducts.slice(0, limit).map((product) => (
           <li key={product.id} className="snap-start">
-            <ProductPreview product={product} region={region} isFeatured />
+            <ErrorBoundary
+              fallback={<ProductCardErrorFallback title={product.title} />}
+            >
+              <ProductPreview product={product} region={region} isFeatured />
+            </ErrorBoundary>
           </li>
         ))}
       </ul>

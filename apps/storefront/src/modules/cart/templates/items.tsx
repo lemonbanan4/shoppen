@@ -8,18 +8,30 @@ import Item from "@modules/cart/components/item"
 import BundleUpsell from "@modules/cart/components/bundle-upsell"
 import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
 import { useCopy } from "@lib/use-copy"
+import ErrorBoundary, {
+  LineItemErrorFallback,
+} from "@modules/common/components/error-boundary"
 
 type ItemsTemplateProps = {
   cart?: HttpTypes.StoreCart
+  onDelete?: (id: string) => void
+  onUpdateQuantity?: (id: string, quantity: number) => void
 }
 
-const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
+const ItemsTemplate = ({
+  cart,
+  onDelete,
+  onUpdateQuantity,
+}: ItemsTemplateProps) => {
   const t = useCopy()
   const items = cart?.items
+
   return (
     <div>
       <div className="pb-3 flex items-center">
-        <Heading className="text-[2rem] leading-[2.75rem]">{t.cartPageTitle}</Heading>
+        <Heading className="text-[2rem] leading-[2.75rem]">
+          {t.cartPageTitle}
+        </Heading>
       </div>
       <BundleUpsell cart={cart} className="mb-4" />
       <Table>
@@ -44,11 +56,22 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
                 })
                 .map((item) => {
                   return (
-                    <Item
+                    <ErrorBoundary
                       key={item.id}
-                      item={item}
-                      currencyCode={cart?.currency_code}
-                    />
+                      fallback={
+                        <LineItemErrorFallback
+                          item={item}
+                          onDelete={onDelete}
+                        />
+                      }
+                    >
+                      <Item
+                        item={item}
+                        currencyCode={cart?.currency_code || "eur"}
+                        onDelete={onDelete}
+                        onUpdateQuantity={onUpdateQuantity}
+                      />
+                    </ErrorBoundary>
                   )
                 })
             : repeat(5).map((i) => {

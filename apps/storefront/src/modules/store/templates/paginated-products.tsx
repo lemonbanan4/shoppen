@@ -4,6 +4,9 @@ import { OptionValueIds } from "@lib/util/product-option-filters"
 import ProductPreview from "@modules/products/components/product-preview"
 import { Pagination } from "@modules/store/components/pagination"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import ErrorBoundary, {
+  ProductCardErrorFallback,
+} from "@modules/common/components/error-boundary"
 
 const PRODUCT_LIMIT = 12
 
@@ -90,7 +93,11 @@ export default async function PaginatedProducts({
                   candidates for the Largest Contentful Paint element.
                   Lazy-loading them delays LCP on the page most traffic
                   lands on. */}
-              <ProductPreview product={p} region={region} priority={index < 4} />
+              <ErrorBoundary
+                fallback={<ProductCardErrorFallback title={p.title} />}
+              >
+                <ProductPreview product={p} region={region} priority={index < 4} />
+              </ErrorBoundary>
             </li>
           )
         })}

@@ -26,6 +26,18 @@ type MobileActionsProps = {
   region?: HttpTypes.StoreRegion
 }
 
+const optionsAsKeymap = (
+  variantOptions: HttpTypes.StoreProductVariant["options"]
+): Record<string, string> => {
+  return (
+    variantOptions?.reduce((acc: Record<string, string>, varopt) => {
+      const optId = varopt.option_id || (varopt as any).option?.id
+      if (optId && varopt.value) acc[optId] = varopt.value
+      return acc
+    }, {}) ?? {}
+  )
+}
+
 const MobileActions: React.FC<MobileActionsProps> = ({
   product,
   variant,
@@ -206,10 +218,36 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                             new Set(
                               (product.variants || [])
                                 .flatMap((v) => v.options || [])
-                                .filter((vo) => vo.option_id === option.id)
+                                .filter(
+                                  (vo) =>
+                                    (vo.option_id || (vo as any).option?.id) ===
+                                    option.id
+                                )
                                 .map((vo) => vo.value)
+                                .filter(Boolean)
                             )
                           )
+
+                          const outOfStockValues = availableValues.filter((val) => {
+                            const matchingVariants = (product.variants || []).filter((v) => {
+                              const vOpts = optionsAsKeymap(v.options)
+                              return vOpts[option.id] === val
+                            })
+                            if (!matchingVariants.length) return true
+                            return matchingVariants.every((v) => {
+                              const hasPrice =
+                                Boolean(v.calculated_price) &&
+                                v.calculated_price?.calculated_amount !== null &&
+                                v.calculated_price?.calculated_amount !== undefined &&
+                                Number(v.calculated_price?.calculated_amount) > 0
+                              const hasInventory =
+                                !v.manage_inventory ||
+                                Boolean(v.allow_backorder) ||
+                                (v.inventory_quantity ?? 0) > 0
+                              return !hasPrice || !hasInventory
+                            })
+                          })
+
                           return (
                             <div key={option.id}>
                               <OptionSelect
@@ -218,6 +256,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                                 updateOption={updateOptions}
                                 title={option.title ?? ""}
                                 availableValues={availableValues}
+                                outOfStockValues={outOfStockValues}
                                 disabled={optionsDisabled}
                               />
                             </div>

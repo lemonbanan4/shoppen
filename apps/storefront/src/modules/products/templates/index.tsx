@@ -11,6 +11,8 @@ import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-relat
 import { notFound } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 
+import ErrorBoundary from "@modules/common/components/error-boundary"
+
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
@@ -40,15 +42,21 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             The explicit order puts the garment first, then the buy controls,
             then the detail — desktop keeps its three-column arrangement. */}
         <div className="order-2 small:order-none flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
-          <ProductInfo product={product} />
-          <ProductTabs product={product} />
+          <ErrorBoundary>
+            <ProductInfo product={product} />
+            <ProductTabs product={product} />
+          </ErrorBoundary>
         </div>
         <div className="order-1 small:order-none block w-full relative">
-          <ImageGallery images={images} title={product.title} />
+          <ErrorBoundary>
+            <ImageGallery images={images} title={product.title} />
+          </ErrorBoundary>
         </div>
         <div className="order-3 small:order-none flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
           <ProductOnboardingCta />
-          <ProductActions product={product} region={region} />
+          <ErrorBoundary>
+            <ProductActions product={product} region={region} />
+          </ErrorBoundary>
         </div>
       </div>
       <div

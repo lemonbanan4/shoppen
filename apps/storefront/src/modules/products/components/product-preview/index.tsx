@@ -16,14 +16,28 @@ export default async function ProductPreview({
   priority?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  const { cheapestPrice } = getProductPrice({
-    product,
-  })
+  if (!product || !product.handle) {
+    return null
+  }
 
-  const isBundle = isBundleEligible(product.handle)
-  const bundleDiscount = isBundle
-    ? getBundleDiscountAmount(region?.currency_code)
-    : null
+  let cheapestPrice = null
+  try {
+    const priceRes = getProductPrice({ product })
+    cheapestPrice = priceRes?.cheapestPrice ?? null
+  } catch (error) {
+    console.error(`[ProductPreview] Failed to calculate price for ${product.id || product.handle}:`, error)
+  }
+
+  let isBundle = false
+  let bundleDiscount = null
+  try {
+    isBundle = isBundleEligible(product.handle)
+    bundleDiscount = isBundle
+      ? getBundleDiscountAmount(region?.currency_code)
+      : null
+  } catch (error) {
+    console.error(`[ProductPreview] Failed bundle check for ${product.handle}:`, error)
+  }
 
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">

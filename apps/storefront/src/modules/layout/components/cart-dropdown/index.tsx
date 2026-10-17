@@ -16,8 +16,11 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Thumbnail from "@modules/products/components/thumbnail"
 import BundleUpsell from "@modules/cart/components/bundle-upsell"
 import { usePathname } from "next/navigation"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useEffect, useRef, useState, useOptimistic, useTransition } from "react"
 import { useCopy } from "@lib/use-copy"
+import { deleteLineItem } from "@lib/data/cart"
+import { toast } from "sonner"
+import ErrorBoundary from "@modules/common/components/error-boundary"
 
 const CartDropdown = ({
   cart: cartState,
@@ -29,16 +32,46 @@ const CartDropdown = ({
     undefined
   )
   const [cartDropdownOpen, setCartDropdownOpen] = useState(false)
+  const [, startTransition] = useTransition()
+
+  const [optimisticItems, setOptimisticItems] = useOptimistic(
+    cartState?.items || [],
+    (state, lineId: string) => state.filter((item) => item.id !== lineId)
+  )
+
+  const handleDeleteItem = (lineId: string) => {
+    startTransition(async () => {
+      setOptimisticItems(lineId)
+      try {
+        await deleteLineItem(lineId)
+      } catch (err: any) {
+        toast.error("Failed to remove item", {
+          description: err?.message || "Please try again.",
+        })
+      }
+    })
+  }
 
   const open = () => setCartDropdownOpen(true)
   const close = () => setCartDropdownOpen(false)
 
+  const currencyCode = cartState?.currency_code || "eur"
+
   const totalItems =
-    cartState?.items?.reduce((acc, item) => {
+    optimisticItems.reduce((acc, item) => {
       return acc + item.quantity
     }, 0) || 0
 
-  const subtotal = cartState?.subtotal ?? 0
+  const subtotal = optimisticItems.reduce((acc, item) => {
+    return (
+      acc +
+      Number(
+        item.total ??
+          item.subtotal ??
+          Number(item.unit_price ?? 0) * item.quantity
+      )
+    )
+  }, 0)
   const itemRef = useRef<number>(totalItems || 0)
 
   const timedOpen = () => {
@@ -108,10 +141,10 @@ const CartDropdown = ({
             <div className="p-4 flex items-center justify-center">
               <h3 className="text-large-semi">Cart</h3>
             </div>
-            {cartState && cartState.items?.length ? (
+            {optimisticItems && optimisticItems.length ? (
               <>
                 <div className="overflow-y-scroll max-h-[402px] px-4 grid grid-cols-1 gap-y-8 no-scrollbar p-px">
-                  {cartState.items
+                  {optimisticItems
                     .sort((a, b) => {
                       return (a.created_at ?? "") > (b.created_at ?? "")
                         ? -1
@@ -172,7 +205,7 @@ const CartDropdown = ({
                                           {isBundle ? "Bundle" : adjustment.code || "Discount"}{" "}
                                           (-{convertToLocale({
                                             amount: adjustment.amount,
-                                            currency_code: cartState.currency_code,
+                                            currency_code: currencyCode,
                                           })})
                                         </span>
                                       )
@@ -184,7 +217,7 @@ const CartDropdown = ({
                                 <LineItemPrice
                                   item={item}
                                   style="tight"
-                                  currencyCode={cartState.currency_code}
+                                  currencyCode={currencyCode}
                                 />
                               </div>
                             </div>
@@ -193,6 +226,7 @@ const CartDropdown = ({
                             id={item.id}
                             className="mt-1"
                             data-testid="cart-item-remove-button"
+                            onDelete={handleDeleteItem}
                           >
                             Remove
                           </DeleteButton>
@@ -214,7 +248,7 @@ const CartDropdown = ({
                     >
                       {convertToLocale({
                         amount: subtotal,
-                        currency_code: cartState.currency_code,
+                        currency_code: currencyCode,
                       })}
                     </span>
                   </div>
