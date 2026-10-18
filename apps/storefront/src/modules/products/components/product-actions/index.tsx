@@ -241,6 +241,9 @@ export default function ProductActions({
     if (!selectedVariant?.id) return null
 
     setIsAdding(true)
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("cart-loading-start"))
+    }
 
     try {
       await addToCart({
@@ -259,12 +262,18 @@ export default function ProductActions({
       toast.success(`${product.title} added to cart`, {
         description: selectedVariant.title,
       })
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("open-cart-drawer"))
+      }
     } catch (err: any) {
       posthog.captureException(err)
       toast.error("Couldn't add this to your cart", {
         description: err?.message || "Please try again.",
       })
     } finally {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("cart-loading-end"))
+      }
       setIsAdding(false)
     }
   }
@@ -348,13 +357,19 @@ export default function ProductActions({
           data-testid="add-product-button"
         >
           {isAdding
-            ? "ADDING TO CART..."
+            ? "Adding..."
             : !selectedVariant || !isValidVariant
             ? t.selectSize
             : !inStock
             ? t.outOfStock
             : t.addToCart}
         </Button>
+        <div className="pt-1 flex items-start gap-2 text-[11px] font-mono text-neutral-400">
+          <span className="text-[#00d4ff] font-bold">◈</span>
+          <span>
+            On-demand crafted with zero waste. Delivery in 1–2 weeks (NA) / 3–4 weeks (EU &amp; Int).
+          </span>
+        </div>
         <MobileActions
           product={product}
           variant={selectedVariant}

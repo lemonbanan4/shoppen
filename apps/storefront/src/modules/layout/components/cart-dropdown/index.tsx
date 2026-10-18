@@ -22,6 +22,34 @@ import { deleteLineItem } from "@lib/data/cart"
 import { toast } from "sonner"
 import ErrorBoundary from "@modules/common/components/error-boundary"
 
+const CartLineItemSkeleton = () => (
+  <div className="overflow-y-hidden max-h-[402px] px-4 py-3 grid grid-cols-1 gap-y-6 no-scrollbar p-px">
+    {[1, 2].map((i) => (
+      <div key={i} className="grid grid-cols-[122px_1fr] gap-x-4 animate-pulse">
+        <div className="w-24 h-24 bg-neutral-200 rounded-md" />
+        <div className="flex flex-col justify-between py-1">
+          <div className="space-y-2.5">
+            <div className="h-4 bg-neutral-200 rounded w-3/4" />
+            <div className="h-3 bg-neutral-200 rounded w-1/2" />
+            <div className="h-3 bg-neutral-200 rounded w-1/3" />
+          </div>
+          <div className="flex items-center justify-between pt-2">
+            <div className="h-3 bg-neutral-200 rounded w-16" />
+            <div className="h-4 bg-neutral-200 rounded w-12" />
+          </div>
+        </div>
+      </div>
+    ))}
+    <div className="p-4 border-t border-gray-100 flex flex-col gap-y-3">
+      <div className="flex justify-between items-center">
+        <div className="h-4 bg-neutral-200 rounded w-20 animate-pulse" />
+        <div className="h-4 bg-neutral-200 rounded w-16 animate-pulse" />
+      </div>
+      <div className="h-10 bg-neutral-200 rounded w-full animate-pulse" />
+    </div>
+  </div>
+)
+
 const CartDropdown = ({
   cart: cartState,
 }: {
@@ -32,7 +60,8 @@ const CartDropdown = ({
     undefined
   )
   const [cartDropdownOpen, setCartDropdownOpen] = useState(false)
-  const [, startTransition] = useTransition()
+  const [isLoadingItems, setIsLoadingItems] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const [optimisticItems, setOptimisticItems] = useOptimistic(
     cartState?.items || [],
@@ -109,6 +138,29 @@ const CartDropdown = ({
     itemRef.current = totalItems
   }, [totalItems, pathname])
 
+  useEffect(() => {
+    const handleOpenDrawer = () => {
+      timedOpen()
+    }
+    const handleLoadingStart = () => {
+      setIsLoadingItems(true)
+      openAndCancel()
+    }
+    const handleLoadingEnd = () => {
+      setIsLoadingItems(false)
+    }
+
+    window.addEventListener("open-cart-drawer", handleOpenDrawer)
+    window.addEventListener("cart-loading-start", handleLoadingStart)
+    window.addEventListener("cart-loading-end", handleLoadingEnd)
+
+    return () => {
+      window.removeEventListener("open-cart-drawer", handleOpenDrawer)
+      window.removeEventListener("cart-loading-start", handleLoadingStart)
+      window.removeEventListener("cart-loading-end", handleLoadingEnd)
+    }
+  }, [])
+
   return (
     <div
       className="h-full z-50"
@@ -141,7 +193,9 @@ const CartDropdown = ({
             <div className="p-4 flex items-center justify-center">
               <h3 className="text-large-semi">Cart</h3>
             </div>
-            {optimisticItems && optimisticItems.length ? (
+            {isLoadingItems || (cartState === undefined && cartDropdownOpen) ? (
+              <CartLineItemSkeleton />
+            ) : optimisticItems && optimisticItems.length ? (
               <>
                 <div className="overflow-y-scroll max-h-[402px] px-4 grid grid-cols-1 gap-y-8 no-scrollbar p-px">
                   {optimisticItems

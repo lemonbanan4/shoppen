@@ -10,6 +10,7 @@ import { splitDescription } from "@lib/util/product-description"
 import { useCopy } from "@lib/use-copy"
 import { getBundlePair } from "@lib/util/bundle"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { BRAND } from "@lib/brand"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -43,6 +44,10 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     {
       label: t.tabDetails,
       component: <ProductInfoTab product={product} />,
+    },
+    {
+      label: "SUSTAINABLE / ON-DEMAND",
+      component: <ManufacturingTab />,
     },
     ...(bundlePair
       ? [
@@ -180,11 +185,48 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
   )
 }
 
+const ManufacturingTab = () => {
+  const brandName = BRAND.id === "angerkop" ? "Ångerköp" : "Solkast"
+  return (
+    <div className="text-small-regular py-6 font-mono text-[#EDEDED] flex flex-col gap-y-4">
+      <div className="flex items-center gap-2">
+        <span className="flex h-2 w-2 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00d4ff] opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00d4ff]" />
+        </span>
+        <span className="text-xs uppercase tracking-widest text-[#00d4ff] font-bold">
+          SUSTAINABLE / ON-DEMAND MANUFACTURING
+        </span>
+      </div>
+      <p className="leading-relaxed text-xs sm:text-sm font-sans text-[#EDEDED]/90">
+        To eliminate waste, every {brandName} garment is precision-crafted on demand. Please allow 1 to 2 weeks for delivery in North America, and 3 to 4 weeks for European and International orders.
+      </p>
+      <div className="p-3 rounded-lg border border-neutral-800 bg-neutral-900/60 text-xs">
+        <span className="text-neutral-400 font-mono">
+          <strong className="text-white">Note:</strong> Multi-item orders may ship separately as they complete production.
+        </span>
+      </div>
+    </div>
+  )
+}
+
 const ShippingInfoTab = () => {
   const t = useCopy()
+  const brandName = BRAND.id === "angerkop" ? "Ångerköp" : "Solkast"
   return (
     <div className="text-small-regular py-6 font-mono">
       <div className="grid grid-cols-1 gap-y-6">
+        <div className="p-3.5 rounded-lg border border-neutral-800 bg-neutral-900/60 flex flex-col gap-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[#00d4ff] font-bold text-xs">◈</span>
+            <span className="text-xs uppercase tracking-wider text-[#00d4ff] font-bold">
+              SUSTAINABLE / ON-DEMAND MANUFACTURING
+            </span>
+          </div>
+          <p className="text-[#EDEDED]/90 text-xs font-sans leading-relaxed">
+            To eliminate waste, every {brandName} garment is precision-crafted on demand. Please allow 1 to 2 weeks for delivery in North America, and 3 to 4 weeks for European and International orders. Note: Multi-item orders may ship separately as they complete production.
+          </p>
+        </div>
         <div className="flex items-start gap-x-3 text-white">
           <FastDelivery />
           <div>
