@@ -34,6 +34,8 @@ if (!POSTHOG_KEY) {
     capture_pageleave: true,
     capture_exceptions: true,
     person_profiles: "identified_only",
+    persistence: "memory",
+    disable_cookie: true,
     debug: process.env.NODE_ENV === "development",
   })
 }

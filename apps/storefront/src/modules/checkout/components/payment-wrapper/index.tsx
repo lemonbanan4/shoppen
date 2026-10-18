@@ -31,6 +31,7 @@ const PaymentWrapper: React.FC<PaymentWrapperProps> = ({ cart, children }) => {
   if (
     isStripeLike(paymentSession?.provider_id) &&
     paymentSession &&
+    paymentSession.data?.client_secret &&
     stripePromise
   ) {
     return (

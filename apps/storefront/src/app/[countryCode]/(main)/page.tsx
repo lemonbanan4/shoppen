@@ -14,7 +14,7 @@ import UspBar from "@modules/home/components/usp-bar"
 import { BRAND } from "@lib/brand"
 
 export const metadata: Metadata = {
-  title: { absolute: "SOLKAST | Premium Heavyweight Streetwear" },
+  title: { absolute: `${BRAND.name} | ${BRAND.tagline}` },
   description: BRAND.description,
 }
 
