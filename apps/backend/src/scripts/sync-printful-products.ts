@@ -51,10 +51,10 @@ const MAX_IMAGES = 6;
 // the first capsule plus the core brand line as "Bestsellers" (a launch-order
 // proxy — this store has no sales history yet to base it on for real).
 const NEW_ARRIVALS_TITLES = new Set([
-  // The svenska capsule is the whole Ångerköp catalogue at launch, so every
-  // tee is a new arrival. The Bestsellers rail carries the Printify hoodie
-  // (assigned by assign-printify-homepage-collection.ts) until real sales
-  // history exists to order it by.
+  "AEON // HEAVYWEIGHT BEANIE",
+  "AEON // MIND MATRIX HEAVYWEIGHT TEE",
+  "AEON // HORIZON HEAVYWEIGHT TEE",
+  "AEON // CHROMED HEAVYWEIGHT ZIP-UP",
   "ORKAR INTE Tee",
   "VARNING: Impulsköp Tee",
   "CAN'T EVEN Tee",
@@ -66,6 +66,10 @@ const NEW_ARRIVALS_TITLES = new Set([
 // Mugs are the sub-200 kr entry tier rather than part of the tee drop, so
 // they sit on the second homepage rail with the hoodie.
 const BESTSELLER_TITLES = new Set([
+  "AEON // HORIZON HEAVYWEIGHT HOODIE",
+  "AEON // HEAVYWEIGHT SWEATPANTS",
+  "AEON // DISTRESSED CAP",
+  "AEON // HEAVYWEIGHT CANVAS TOTE",
   "ORKAR INTE Mugg",
   "UTBRÄND MEN MYSIG Mugg",
   "VARNING: Impulsköp Mugg",
@@ -169,6 +173,7 @@ const deriveVariantOptions = (v: PrintfulSyncVariant): Record<string, string> =>
 const classifyDepartment = (name: string): string => {
   const n = name.toLowerCase();
   if (/\b(cap|hat|beanie)\b/.test(n)) return "accessories";
+  if (/\b(tote|bag|backpack)\b/.test(n)) return "accessories";
   // "mugg" is the Swedish spelling used by the svenska capsule.
   if (/\b(mug|mugg|cup|poster|bottle|blanket)\b/.test(n)) return "home-goods";
   return "apparel";
@@ -229,6 +234,22 @@ const FIT_CATEGORIES: { handle: string; name: string; description: string }[] = 
  * product still syncs sensibly before someone writes copy for it.
  */
 const PRODUCT_LEADS: Record<string, string> = {
+  "AEON // HEAVYWEIGHT BEANIE":
+    "Heavyweight ribbed knit beanie engineered for cold-weather insulation. Finished with precision high-density cyber-sigilism embroidery.",
+  "AEON // DISTRESSED CAP":
+    "Heavyweight vintage-washed cotton twill cap featuring distressed brim detailing and precision tonal embroidery.",
+  "AEON // HORIZON HEAVYWEIGHT HOODIE":
+    "Heavyweight 400 GSM organic cotton fleece hoodie engineered with an oversized architectural drape and high-definition DTG artwork.",
+  "AEON // CHROMED HEAVYWEIGHT ZIP-UP":
+    "Heavyweight brushed fleece zip-up hoodie featuring double-layer hood construction, custom chrome hardware, and high-definition DTG cyber-sigilism graphics.",
+  "AEON // HEAVYWEIGHT SWEATPANTS":
+    "Oversized 400 GSM organic cotton sweatpants featuring deep welt pockets, elasticated cuffs, and relaxed streetwear fit.",
+  "AEON // HORIZON HEAVYWEIGHT TEE":
+    "Ultra-heavyweight 240 GSM organic cotton oversized high-neck tee featuring front and back high-density DTG graphics.",
+  "AEON // MIND MATRIX HEAVYWEIGHT TEE":
+    "Ultra-heavyweight 240 GSM organic cotton oversized tee with precision high-definition cyber-sigilism DTG artwork.",
+  "AEON // HEAVYWEIGHT CANVAS TOTE":
+    "Heavyweight 100% organic cotton canvas tote engineered with reinforced stress points and durable shoulder straps.",
   "ORKAR INTE Tee":
     "För dagar då duschen är ett projekt. Tung ekologisk bomull som tål att bäras tre dagar i rad — vilket är ungefär vad som kommer att hända.",
   "VARNING: Impulsköp Tee":
@@ -329,6 +350,7 @@ const toMedusaProduct = (
     catalogInfoById: Map<number, { title: string; description: string } | null>;
     newArrivalsCollectionId: string;
     bestsellersCollectionId: string;
+    aeonCollectionId?: string;
     salesChannelId: string;
     shippingProfileId: string;
     exchangeRatesByCurrency: Map<string, Record<string, number>>;
@@ -343,14 +365,17 @@ const toMedusaProduct = (
   // the garment) over `product.image`, which is just the blank catalog photo.
   // API-created products expose it as a "preview" file; dashboard-created
   // ones only carry a (non-visible) "mockup" file, which is equally usable.
-  const images = variants
-    .map(
+  const candidateImages = [
+    (p as any).thumbnail_url,
+    ...variants.map(
       (v) =>
         v.files?.find((f) => f.type === "preview")?.preview_url ||
         v.files?.find((f) => f.type === "mockup")?.preview_url ||
         v.product?.image
-    )
-    .filter((url): url is string => Boolean(url))
+    ),
+  ].filter((url): url is string => Boolean(url));
+
+  const images = candidateImages
     .filter((url, idx, arr) => arr.indexOf(url) === idx)
     .slice(0, MAX_IMAGES);
 
@@ -383,6 +408,12 @@ const toMedusaProduct = (
       ...(ctx.categoryIdByHandle.has(classifyDepartment(name))
         ? [ctx.categoryIdByHandle.get(classifyDepartment(name))!]
         : []),
+      ...(NEW_ARRIVALS_TITLES.has(name) && ctx.categoryIdByHandle.has("new-arrivals")
+        ? [ctx.categoryIdByHandle.get("new-arrivals")!]
+        : []),
+      ...(BESTSELLER_TITLES.has(name) && ctx.categoryIdByHandle.has("bestsellers")
+        ? [ctx.categoryIdByHandle.get("bestsellers")!]
+        : []),
       ...(() => {
         // Fit categories describe how a garment is cut; a mug or a poster
         // has no fit, and filing one under "Unisex" makes that page lie.
@@ -398,10 +429,12 @@ const toMedusaProduct = (
       })(),
     ],
     collection_id:
-      BESTSELLER_TITLES.has(name) || !NEW_ARRIVALS_TITLES.has(name)
+      ctx.aeonCollectionId ||
+      (BESTSELLER_TITLES.has(name) || !NEW_ARRIVALS_TITLES.has(name)
         ? ctx.bestsellersCollectionId
-        : ctx.newArrivalsCollectionId,
+        : ctx.newArrivalsCollectionId),
     shipping_profile_id: ctx.shippingProfileId,
+    thumbnail: images[0] || (p as any).thumbnail_url || null,
     images: images.map((url) => ({ url })),
     options,
     metadata: {
@@ -715,7 +748,14 @@ export default async function syncPrintfulProducts({
     entity: "product_category",
     fields: ["id", "handle"],
     filters: {
-      handle: ["apparel", "accessories", "home-goods", ...fitHandles],
+      handle: [
+        "apparel",
+        "accessories",
+        "home-goods",
+        "new-arrivals",
+        "bestsellers",
+        ...fitHandles,
+      ],
     },
   });
   const categoryIdByHandle = new Map(
@@ -725,13 +765,16 @@ export default async function syncPrintfulProducts({
   const { data: existingCollections } = await query.graph({
     entity: "product_collection",
     fields: ["id", "handle"],
-    filters: { handle: ["new-arrivals", "bestsellers"] },
+    filters: { handle: ["new-arrivals", "bestsellers", "aeon-capsule"] },
   });
   let newArrivalsCollectionId = existingCollections.find(
     (c) => c.handle === "new-arrivals"
   )?.id;
   let bestsellersCollectionId = existingCollections.find(
     (c) => c.handle === "bestsellers"
+  )?.id;
+  const aeonCollectionId = existingCollections.find(
+    (c) => c.handle === "aeon-capsule"
   )?.id;
   if (!newArrivalsCollectionId || !bestsellersCollectionId) {
     const { result } = await createCollectionsWorkflow(container).run({
@@ -816,6 +859,7 @@ export default async function syncPrintfulProducts({
     categoryIdByHandle,
     newArrivalsCollectionId: newArrivalsCollectionId!,
     bestsellersCollectionId: bestsellersCollectionId!,
+    aeonCollectionId,
     salesChannelId: salesChannels[0].id,
     shippingProfileId: shippingProfiles[0].id,
     exchangeRatesByCurrency,
@@ -873,6 +917,34 @@ export default async function syncPrintfulProducts({
 
         const variantsBefore = (existing.variants || []).length;
         await addMissingVariants(container, existing, desired.variants, logger);
+
+        await updateProductsWorkflow(container).run({
+          input: {
+            selector: { id: existing.id },
+            update: {
+              collection_id: desired.collection_id,
+              thumbnail: desired.thumbnail,
+            },
+          },
+        });
+
+        if (process.env.DATABASE_URL && desired.category_ids?.length) {
+          try {
+            const { Client } = require("pg");
+            const client = new Client({ connectionString: process.env.DATABASE_URL });
+            await client.connect();
+            for (const catId of desired.category_ids) {
+              await client.query(
+                "INSERT INTO product_category_product (product_id, product_category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+                [existing.id, catId]
+              );
+            }
+            await client.end();
+          } catch (e: any) {
+            logger.warn(`Could not update category links: ${e.message}`);
+          }
+        }
+
         const hadChanges =
           (existing.variants || []).length !== variantsBefore;
         if (hadChanges) {
@@ -880,7 +952,7 @@ export default async function syncPrintfulProducts({
           logger.info(`  ~ ${detail.sync_product.name} (variants patched)`);
         } else {
           skipped++;
-          logger.info(`  = ${detail.sync_product.name} (no changes)`);
+          logger.info(`  = ${detail.sync_product.name} (updated metadata/categories)`);
         }
       }
     } catch (e: any) {
