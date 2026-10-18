@@ -57,13 +57,38 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
   return (
     <div className="sticky top-0 inset-x-0 z-50 group">
       {/* ── Minimal Black Announcement Ticker ── */}
-      <div className="bg-black/90 border-b border-neutral-900 text-silver/80 text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-center py-2 px-4 font-mono backdrop-blur-md">
-        <span className="inline-flex items-center gap-x-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
-          <span>
-            SOLKAST // BUNDLE &amp; SAVE {bundleDiscount} ON SETS // FREE WORLDWIDE SHIPPING OVER $85 // 30-DAY RETURNS
+      <div className="bg-black/90 border-b border-neutral-900 text-silver/80 text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase py-2 font-mono backdrop-blur-md overflow-hidden relative select-none">
+        {/* Edge fade gradients for mobile ticker */}
+        <div className="sm:hidden pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black to-transparent z-10" />
+        <div className="sm:hidden pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black to-transparent z-10" />
+
+        {/* Mobile: Seamless Running Ticker */}
+        <div className="flex sm:hidden w-max animate-marquee motion-reduce:animate-none items-center hover:[animation-play-state:paused]">
+          {[0, 1].map((copyIndex) => (
+            <div key={copyIndex} className="flex items-center shrink-0 pr-12">
+              <span className="relative flex h-2 w-2 shrink-0 items-center justify-center mr-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00d4ff] opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00d4ff]" />
+              </span>
+              <span className="whitespace-nowrap">
+                {BRAND.name} // BUNDLE &amp; SAVE {bundleDiscount} ON SETS // FREE WORLDWIDE SHIPPING OVER $85 // 30-DAY RETURNS
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Centered Ticker with Live Dot */}
+        <div className="hidden sm:flex items-center justify-center px-4">
+          <span className="inline-flex items-center gap-x-2.5">
+            <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00d4ff] opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00d4ff]" />
+            </span>
+            <span className="whitespace-nowrap">
+              {BRAND.name} // BUNDLE &amp; SAVE {bundleDiscount} ON SETS // FREE WORLDWIDE SHIPPING OVER $85 // 30-DAY RETURNS
+            </span>
           </span>
-        </span>
+        </div>
       </div>
 
       {/* ── Frosted Glass Blurred Header ── */}
