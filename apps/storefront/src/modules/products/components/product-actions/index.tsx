@@ -238,7 +238,7 @@ export default function ProductActions({
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
-    if (!selectedVariant?.id) return null
+    if (!selectedVariant?.id || isAdding) return null
 
     setIsAdding(true)
     if (typeof window !== "undefined") {
@@ -265,6 +265,8 @@ export default function ProductActions({
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("open-cart-drawer"))
       }
+      // Hold disabled 'Adding...' state until cart drawer successfully opens
+      await new Promise((resolve) => setTimeout(resolve, 500))
     } catch (err: any) {
       posthog.captureException(err)
       toast.error("Couldn't add this to your cart", {

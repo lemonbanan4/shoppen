@@ -110,7 +110,10 @@ const Payment = ({
 
   useEffect(() => {
     setError(null)
-  }, [isOpen])
+    if (isOpen && (!cart.shipping_methods || cart.shipping_methods.length === 0)) {
+      router.replace(pathname + "?step=delivery", { scroll: false })
+    }
+  }, [isOpen, cart.shipping_methods, pathname, router])
 
   return (
     <div className="bg-white text-neutral-950 brand-card px-6 py-6 sm:px-8">

@@ -102,7 +102,11 @@ const Shipping: React.FC<ShippingProps> = ({
           setCalculatedPricesMap(pricesMap)
           setIsLoadingPrices(false)
         })
+      } else {
+        setIsLoadingPrices(false)
       }
+    } else {
+      setIsLoadingPrices(false)
     }
 
     if (_pickupMethods?.find((m) => m.id === shippingMethodId)) {
@@ -114,7 +118,26 @@ const Shipping: React.FC<ShippingProps> = ({
     router.push(pathname + "?step=delivery", { scroll: false })
   }
 
+  const hasShippingMethods =
+    Array.isArray(availableShippingMethods) &&
+    availableShippingMethods.length > 0
+
+  const hasActiveValidSelection =
+    Boolean(shippingMethodId) &&
+    Boolean(
+      cart.shipping_methods?.some(
+        (sm) => sm.shipping_option_id === shippingMethodId
+      )
+    )
+
+  const isContinueDisabled =
+    isLoading ||
+    isLoadingPrices ||
+    !hasShippingMethods ||
+    !hasActiveValidSelection
+
   const handleSubmit = () => {
+    if (isContinueDisabled) return
     router.push(pathname + "?step=payment", { scroll: false })
   }
 
@@ -151,16 +174,6 @@ const Shipping: React.FC<ShippingProps> = ({
   useEffect(() => {
     setError(null)
   }, [isOpen])
-
-  const isContinueDisabled =
-    isLoading ||
-    isLoadingPrices ||
-    !availableShippingMethods ||
-    availableShippingMethods.length === 0 ||
-    !shippingMethodId ||
-    !cart.shipping_methods?.some(
-      (sm) => sm.shipping_option_id === shippingMethodId
-    )
 
   return (
     <div className="bg-white text-neutral-950 brand-card px-6 py-6 sm:px-8">
@@ -391,7 +404,7 @@ const Shipping: React.FC<ShippingProps> = ({
             />
             <Button
               size="large"
-              className="mt"
+              className="mt-4 w-full"
               onClick={handleSubmit}
               isLoading={isLoading || isLoadingPrices}
               disabled={isContinueDisabled}
@@ -401,6 +414,10 @@ const Shipping: React.FC<ShippingProps> = ({
                 ? "Calculating shipping..."
                 : isLoading
                 ? "Updating delivery..."
+                : !hasShippingMethods
+                ? "Loading shipping options..."
+                : !hasActiveValidSelection
+                ? "Select a shipping method"
                 : t.continueToPayment}
             </Button>
           </div>

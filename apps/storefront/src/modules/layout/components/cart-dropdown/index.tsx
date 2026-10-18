@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  Dialog,
   Popover,
   PopoverButton,
   PopoverPanel,
@@ -161,6 +162,12 @@ const CartDropdown = ({
     }
   }, [])
 
+  const isCartLoading =
+    isLoadingItems ||
+    isPending ||
+    cartState === undefined ||
+    (cartState === null && totalItems > 0)
+
   return (
     <div
       className="h-full z-50"
@@ -193,7 +200,7 @@ const CartDropdown = ({
             <div className="p-4 flex items-center justify-center">
               <h3 className="text-large-semi">Cart</h3>
             </div>
-            {isLoadingItems || (cartState === undefined && cartDropdownOpen) ? (
+            {isCartLoading ? (
               <CartLineItemSkeleton />
             ) : optimisticItems && optimisticItems.length ? (
               <>
@@ -354,6 +361,107 @@ const CartDropdown = ({
           </PopoverPanel>
         </Transition>
       </Popover>
+
+      {/* Mobile Slide-Out Cart Drawer */}
+      <Transition appear show={cartDropdownOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-[100] small:hidden" onClose={close}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+          </Transition.Child>
+
+          <div className="fixed inset-y-0 right-0 max-w-full flex">
+            <Transition.Child
+              as={Fragment}
+              enter="transform transition ease-out duration-300"
+              enterFrom="translate-x-full"
+              enterTo="translate-x-0"
+              leave="transform transition ease-in duration-200"
+              leaveFrom="translate-x-0"
+              leaveTo="translate-x-full"
+            >
+              <Dialog.Panel className="w-screen max-w-[360px] bg-white text-neutral-950 flex flex-col justify-between shadow-2xl h-full font-sans">
+                <div className="p-4 flex items-center justify-between border-b border-gray-100">
+                  <h3 className="text-large-semi font-header uppercase tracking-wider">Cart</h3>
+                  <button
+                    onClick={close}
+                    className="p-2 text-neutral-500 hover:text-black font-mono text-sm"
+                    aria-label="Close cart"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto">
+                  {isCartLoading ? (
+                    <CartLineItemSkeleton />
+                  ) : optimisticItems && optimisticItems.length ? (
+                    <div className="px-4 py-4 grid grid-cols-1 gap-y-6">
+                      {optimisticItems
+                        .sort((a, b) => ((a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1))
+                        .map((item) => (
+                          <div key={item.id} className="grid grid-cols-[80px_1fr] gap-x-3 text-xs">
+                            <Thumbnail
+                              thumbnail={item.thumbnail}
+                              images={item.variant?.product?.images}
+                              alt={item.product_title || item.title}
+                              size="square"
+                            />
+                            <div className="flex flex-col justify-between">
+                              <div>
+                                <p className="font-bold truncate">{item.title}</p>
+                                <LineItemOptions variant={item.variant} />
+                                <p className="text-neutral-500 font-mono mt-0.5">Qty: {item.quantity}</p>
+                              </div>
+                              <div className="flex items-center justify-between mt-2">
+                                <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
+                                <DeleteButton id={item.id} onDelete={handleDeleteItem}>
+                                  Remove
+                                </DeleteButton>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="flex py-16 flex-col gap-y-4 items-center justify-center">
+                      <div className="bg-gray-900 text-small-regular flex items-center justify-center w-6 h-6 rounded-full text-white">
+                        <span>0</span>
+                      </div>
+                      <span>{t.cartEmpty}</span>
+                      <LocalizedClientLink href="/store">
+                        <Button onClick={close}>{t.cartExplore}</Button>
+                      </LocalizedClientLink>
+                    </div>
+                  )}
+                </div>
+
+                {optimisticItems && optimisticItems.length > 0 && !isCartLoading && (
+                  <div className="p-4 border-t border-gray-100 flex flex-col gap-y-3 bg-neutral-50">
+                    <BundleUpsell cart={cartState} />
+                    <div className="flex items-center justify-between text-sm font-semibold">
+                      <span>{t.cartSubtotal}</span>
+                      <span>{convertToLocale({ amount: subtotal, currency_code: currencyCode })}</span>
+                    </div>
+                    <LocalizedClientLink href="/cart" passHref onClick={close}>
+                      <Button className="w-full" size="large">
+                        {t.cartGoTo}
+                      </Button>
+                    </LocalizedClientLink>
+                  </div>
+                )}
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   )
 }
