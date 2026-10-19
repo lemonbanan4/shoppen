@@ -1,4 +1,5 @@
 import { listProducts } from "@lib/data/products"
+import { HttpTypes } from "@medusajs/types"
 
 export type FeaturedTile = {
   href: string
@@ -10,23 +11,54 @@ export type FeaturedTile = {
 }
 
 /**
- * The homepage tiles for a brand whose lines are not hand-curated.
+ * Curated priority lineup order requested for the Archive lineup:
+ * 1. Hoodie
+ * 2. Beanie
+ * 3. Zip-Up
+ * 4. Sweatpants
+ * 5. Matrix Tee
+ * 6. Tote
+ */
+const CURATED_LINEUP_MATCHERS = [
+  (p: HttpTypes.StoreProduct) =>
+    Boolean(
+      p.handle?.includes("hoodie") ||
+      p.title?.toLowerCase().includes("hoodie")
+    ),
+  (p: HttpTypes.StoreProduct) =>
+    Boolean(
+      p.handle?.includes("beanie") ||
+      p.title?.toLowerCase().includes("beanie")
+    ),
+  (p: HttpTypes.StoreProduct) =>
+    Boolean(
+      p.handle?.includes("zip-up") ||
+      p.title?.toLowerCase().includes("zip-up")
+    ),
+  (p: HttpTypes.StoreProduct) =>
+    Boolean(
+      p.handle?.includes("sweatpants") ||
+      p.title?.toLowerCase().includes("sweatpants")
+    ),
+  (p: HttpTypes.StoreProduct) =>
+    Boolean(
+      p.handle?.includes("mind-matrix") ||
+      (p.title?.toLowerCase().includes("matrix") &&
+        p.title?.toLowerCase().includes("tee"))
+    ),
+  (p: HttpTypes.StoreProduct) =>
+    Boolean(
+      p.handle?.includes("tote") ||
+      p.title?.toLowerCase().includes("tote")
+    ),
+]
+
+/**
+ * The homepage tiles for the curated ARCHIVE // LINEUP.
  *
- * Ångerköp's hero strip and designs grid are written by hand, one gloss per
- * design, because the joke is the product and the copy carries it. Solkast has
- * no such per-piece writing, and hardcoding its tiles has already gone wrong
- * once: the hero shipped pointing at Solkast-era product ids that outlived the
- * products themselves, and again pointing at Ångerköp's, so solkast.com opened
- * showing another brand's shirts linking to handles that 404 on its own
- * channel.
- *
- * Reading the catalogue instead means the homepage cannot drift from what is
- * actually for sale. The publishable key already scopes the request to this
- * brand's sales channel, so no filtering is needed here.
- *
- * Returns [] on any failure. The homepage is the worst place to throw — a
- * missing strip is a gap, an exception is a blank site — and each caller has
- * a sensible empty state.
+ * Reads live catalogue products scoped to the current brand sales channel,
+ * orders them according to the curated lineup sequence, and preserves complete
+ * product titles without stripping garment types (like "TEE").
  */
 export async function featuredTiles(
   countryCode: string,
@@ -35,13 +67,33 @@ export async function featuredTiles(
   try {
     const { response } = await listProducts({
       countryCode,
-      queryParams: { limit, fields: "handle,title,thumbnail,*images" },
+      queryParams: { limit: 50, fields: "handle,title,thumbnail,*images" },
     })
 
-    return response.products
+    const rawProducts = response.products || []
+    const sortedProducts: HttpTypes.StoreProduct[] = []
+    const seenIds = new Set<string>()
+
+    // Place products matching curated priority lineup first
+    for (const matcher of CURATED_LINEUP_MATCHERS) {
+      const match = rawProducts.find((p) => !seenIds.has(p.id) && matcher(p))
+      if (match) {
+        sortedProducts.push(match)
+        seenIds.add(match.id)
+      }
+    }
+
+    // Append any remaining products
+    for (const p of rawProducts) {
+      if (!seenIds.has(p.id)) {
+        sortedProducts.push(p)
+        seenIds.add(p.id)
+      }
+    }
+
+    return sortedProducts
+      .slice(0, limit)
       .map((p) => {
-        // thumbnail is the first synced mockup; images[0] covers products
-        // synced before thumbnail was being set.
         const src = p.thumbnail || p.images?.[0]?.url
         if (!src || !p.handle || !p.title) {
           return null
@@ -50,7 +102,7 @@ export async function featuredTiles(
           href: `/products/${p.handle}`,
           src,
           alt: p.title,
-          label: p.title.replace(/\s+Tee$/i, ""),
+          label: p.title,
         }
       })
       .filter(Boolean) as FeaturedTile[]
