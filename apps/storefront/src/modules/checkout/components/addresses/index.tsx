@@ -85,7 +85,15 @@ const Addresses = ({
               </div>
             )}
             <SubmitButton className="mt-6 w-full" data-testid="submit-address-button">
-              {t.continueToDelivery}
+              {cart?.items?.length &&
+              cart.items.every(
+                (i) =>
+                  i.product_handle === "test-order-product" ||
+                  i.title?.toLowerCase().includes("test purchase") ||
+                  i.product_title?.toLowerCase().includes("test purchase")
+              )
+                ? "Continue to Payment (Skip Shipping)"
+                : t.continueToDelivery}
             </SubmitButton>
             <ErrorMessage error={message} data-testid="address-error-message" />
           </div>

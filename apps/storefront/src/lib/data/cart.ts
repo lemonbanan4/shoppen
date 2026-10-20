@@ -16,6 +16,7 @@ import {
 import { getRegion } from "./regions"
 import { getLocale } from "./locale-actions"
 import { getPostHogClient } from "@lib/posthog-server"
+import { listCartShippingMethods } from "./fulfillment"
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -334,16 +335,22 @@ export async function submitPromotionForm(
   }
 }
 
-// TODO: Pass a POJO instead of a form entity here
 export async function setAddresses(currentState: unknown, formData: FormData) {
+  let countryCode = "se"
+  let shouldSkipToPayment = false
+
   try {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
     }
-    const cartId = getCartId()
+    const cartId = await getCartId()
     if (!cartId) {
       throw new Error("No existing cart found when setting addresses")
     }
+
+    countryCode =
+      (formData.get("shipping_address.country_code") as string)?.toLowerCase() ||
+      "se"
 
     const data = {
       shipping_address: {
@@ -354,7 +361,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         company: formData.get("shipping_address.company"),
         postal_code: formData.get("shipping_address.postal_code"),
         city: formData.get("shipping_address.city"),
-        country_code: formData.get("shipping_address.country_code"),
+        country_code: countryCode,
         province: formData.get("shipping_address.province"),
         phone: formData.get("shipping_address.phone"),
       },
@@ -377,14 +384,44 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         province: formData.get("billing_address.province"),
         phone: formData.get("billing_address.phone"),
       }
-    await updateCart(data)
+
+    const updatedCart = await updateCart(data)
+
+    // Check if cart only contains test product or items where shipping can be skipped
+    const isTestCart = Boolean(
+      updatedCart?.items?.length &&
+        updatedCart.items.every(
+          (item) =>
+            item.product_handle === "test-order-product" ||
+            item.title?.toLowerCase().includes("test purchase") ||
+            item.product_title?.toLowerCase().includes("test purchase")
+        )
+    )
+
+    if (isTestCart && cartId) {
+      const shippingOptions = await listCartShippingMethods(cartId)
+      const freeOption =
+        shippingOptions?.find((o) =>
+          o.name?.toLowerCase().includes("free")
+        ) || shippingOptions?.[0]
+
+      if (freeOption) {
+        await setShippingMethod({
+          cartId,
+          shippingMethodId: freeOption.id,
+        })
+        shouldSkipToPayment = true
+      }
+    }
   } catch (e: any) {
     return e.message
   }
 
-  redirect(
-    `/${formData.get("shipping_address.country_code")}/checkout?step=delivery`
-  )
+  if (shouldSkipToPayment) {
+    redirect(`/${countryCode}/checkout?step=payment`)
+  }
+
+  redirect(`/${countryCode}/checkout?step=delivery`)
 }
 
 /**

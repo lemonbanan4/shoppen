@@ -112,6 +112,25 @@ const Shipping: React.FC<ShippingProps> = ({
     if (_pickupMethods?.find((m) => m.id === shippingMethodId)) {
       setShowPickupOptions(PICKUP_OPTION_ON)
     }
+
+    const isTestCart = Boolean(
+      cart?.items?.length &&
+        cart.items.every(
+          (item) =>
+            item.product_handle === "test-order-product" ||
+            item.title?.toLowerCase().includes("test purchase") ||
+            item.product_title?.toLowerCase().includes("test purchase")
+        )
+    )
+
+    if ((!shippingMethodId || isTestCart) && _shippingMethods?.length) {
+      const freeOption = _shippingMethods.find((sm) =>
+        sm.name?.toLowerCase().includes("free")
+      )
+      if (freeOption && shippingMethodId !== freeOption.id) {
+        handleSetShippingMethod(freeOption.id, "shipping")
+      }
+    }
   }, [availableShippingMethods])
 
   const handleEdit = () => {
