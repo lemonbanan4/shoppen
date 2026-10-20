@@ -96,7 +96,7 @@ export default async function DesignsGrid({
       </div>
 
       <div className="grid grid-cols-2 small:grid-cols-3 gap-x-3 gap-y-8 small:gap-x-6 small:gap-y-10">
-        {tiles.map((d) => (
+        {tiles.map((d, index) => (
           <LocalizedClientLink key={d.href} href={d.href} className="group">
             <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800/80">
               <Image
@@ -104,6 +104,7 @@ export default async function DesignsGrid({
                 alt={d.alt}
                 width={600}
                 height={750}
+                priority={index < 2}
                 sizes="(max-width: 1024px) 50vw, 33vw"
                 className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               />

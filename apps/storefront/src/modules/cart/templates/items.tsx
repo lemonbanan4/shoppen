@@ -34,51 +34,53 @@ const ItemsTemplate = ({
         </Heading>
       </div>
       <BundleUpsell cart={cart} className="mb-4" />
-      <Table>
-        <Table.Header className="border-t-0">
-          <Table.Row className="text-ui-fg-subtle txt-medium-plus">
-            <Table.HeaderCell className="!pl-0">{t.colItem}</Table.HeaderCell>
-            <Table.HeaderCell></Table.HeaderCell>
-            <Table.HeaderCell>{t.colQuantity}</Table.HeaderCell>
-            <Table.HeaderCell className="hidden small:table-cell">
-              Price
-            </Table.HeaderCell>
-            <Table.HeaderCell className="!pr-0 text-right">
-              Total
-            </Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {items
-            ? items
-                .sort((a, b) => {
-                  return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
-                })
-                .map((item) => {
-                  return (
-                    <ErrorBoundary
-                      key={item.id}
-                      fallback={
-                        <LineItemErrorFallback
+      <div className="overflow-x-auto w-full -mx-2 sm:mx-0 px-2 sm:px-0">
+        <Table>
+          <Table.Header className="border-t-0">
+            <Table.Row className="text-ui-fg-subtle txt-medium-plus">
+              <Table.HeaderCell className="!pl-0">{t.colItem}</Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
+              <Table.HeaderCell>{t.colQuantity}</Table.HeaderCell>
+              <Table.HeaderCell className="hidden small:table-cell">
+                Price
+              </Table.HeaderCell>
+              <Table.HeaderCell className="!pr-0 text-right">
+                Total
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {items
+              ? items
+                  .sort((a, b) => {
+                    return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
+                  })
+                  .map((item) => {
+                    return (
+                      <ErrorBoundary
+                        key={item.id}
+                        fallback={
+                          <LineItemErrorFallback
+                            item={item}
+                            onDelete={onDelete}
+                          />
+                        }
+                      >
+                        <Item
                           item={item}
+                          currencyCode={cart?.currency_code || "eur"}
                           onDelete={onDelete}
+                          onUpdateQuantity={onUpdateQuantity}
                         />
-                      }
-                    >
-                      <Item
-                        item={item}
-                        currencyCode={cart?.currency_code || "eur"}
-                        onDelete={onDelete}
-                        onUpdateQuantity={onUpdateQuantity}
-                      />
-                    </ErrorBoundary>
-                  )
-                })
-            : repeat(5).map((i) => {
-                return <SkeletonLineItem key={i} />
-              })}
-        </Table.Body>
-      </Table>
+                      </ErrorBoundary>
+                    )
+                  })
+              : repeat(5).map((i) => {
+                  return <SkeletonLineItem key={i} />
+                })}
+          </Table.Body>
+        </Table>
+      </div>
     </div>
   )
 }

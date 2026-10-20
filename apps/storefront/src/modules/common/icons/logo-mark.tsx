@@ -1,4 +1,5 @@
 import React from "react"
+import Image from "next/image"
 
 import { IconProps } from "types/icon"
 import { isSolkast } from "@lib/brand"
@@ -45,7 +46,7 @@ const SolkastMark: React.FC<IconProps> = ({
 }) => {
   const dim = typeof size === "number" ? size : parseInt(String(size), 10) || 20
   return (
-    <img
+    <Image
       src="/brand/white-cyber-sigilism-logo.png"
       alt="SOLKAST"
       width={dim}

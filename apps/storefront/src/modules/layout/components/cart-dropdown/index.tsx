@@ -444,7 +444,7 @@ const CartDropdown = ({
                 </div>
 
                 {optimisticItems && optimisticItems.length > 0 && !isCartLoading && (
-                  <div className="p-4 border-t border-gray-100 flex flex-col gap-y-3 bg-neutral-50">
+                  <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 flex flex-col gap-y-3 bg-neutral-50">
                     <BundleUpsell cart={cartState} />
                     <div className="flex items-center justify-between text-sm font-semibold">
                       <span>{t.cartSubtotal}</span>

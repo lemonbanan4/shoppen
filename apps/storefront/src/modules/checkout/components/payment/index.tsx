@@ -116,7 +116,7 @@ const Payment = ({
   }, [isOpen, cart.shipping_methods, pathname, router])
 
   return (
-    <div className="bg-white text-neutral-950 brand-card px-6 py-6 sm:px-8">
+    <div className="bg-white text-neutral-950 brand-card px-4 py-6 sm:px-8">
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
@@ -196,7 +196,7 @@ const Payment = ({
 
           <Button
             size="large"
-            className="mt-6"
+            className="mt-6 w-full"
             onClick={handleSubmit}
             isLoading={isLoading}
             disabled={
@@ -213,8 +213,8 @@ const Payment = ({
 
         <div className={isOpen ? "hidden" : "block"}>
           {cart && paymentReady && activeSession ? (
-            <div className="flex items-start gap-x-1 w-full">
-              <div className="flex flex-col w-1/3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+              <div className="flex flex-col w-full">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
                   {t.paymentMethod}
                 </Text>
@@ -229,7 +229,7 @@ const Payment = ({
                   )}
                 </Text>
               </div>
-              <div className="flex flex-col w-1/3">
+              <div className="flex flex-col w-full">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
                   {t.paymentDetails}
                 </Text>
@@ -251,7 +251,7 @@ const Payment = ({
               </div>
             </div>
           ) : paidByGiftcard ? (
-            <div className="flex flex-col w-1/3">
+            <div className="flex flex-col w-full">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
                 {t.paymentMethod}
               </Text>

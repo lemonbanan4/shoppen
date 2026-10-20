@@ -33,7 +33,7 @@ export default async function Checkout(props: {
   const customer = await retrieveCustomer()
 
   return (
-    <div className="grid grid-cols-1 small:grid-cols-[1fr_416px] content-container gap-x-40 py-12">
+    <div className="grid grid-cols-1 small:grid-cols-[1fr_416px] content-container gap-y-8 small:gap-y-0 gap-x-40 py-12">
       <CheckoutTracker
         cartId={cart.id}
         itemCount={cart.items?.length ?? 0}

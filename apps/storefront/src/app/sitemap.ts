@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next"
 
 const BASE_URL = (
-  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"
+  process.env.NEXT_PUBLIC_BASE_URL || "https://solkast.com"
 ).replace(/\/$/, "")
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://shoppen-production.up.railway.app"
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 const STATIC_PATHS = [

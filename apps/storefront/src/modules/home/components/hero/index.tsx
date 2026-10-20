@@ -14,7 +14,8 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 const Hero = ({ countryCode }: { countryCode: string }) => {
   const videoSrc =
     process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/video/solkast-hero.mp4"
-  const videoPoster = process.env.NEXT_PUBLIC_HERO_VIDEO_POSTER
+  const videoPoster =
+    process.env.NEXT_PUBLIC_HERO_VIDEO_POSTER || "/video/solkast-hero-poster.jpg"
 
   return (
     <section
