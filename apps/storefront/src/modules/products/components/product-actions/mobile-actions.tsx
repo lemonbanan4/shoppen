@@ -74,6 +74,33 @@ const MobileActions: React.FC<MobileActionsProps> = ({
 
   const isSimple = isSimpleProduct(product)
 
+  // Automatically dismiss the bottom sheet back to the product page
+  // after a size/option is tapped once all options are satisfied
+  const handleSelectOption = (optionId: string, value: string) => {
+    updateOptions(optionId, value)
+
+    const nextOptions = { ...options, [optionId]: value }
+    const allOptionsSet = (product.options || []).every(
+      (opt) => Boolean(nextOptions[opt.id])
+    )
+
+    if (allOptionsSet) {
+      setTimeout(() => {
+        close()
+      }, 180)
+    }
+  }
+
+  const selectedOptionsLabel = useMemo(() => {
+    if (!variant) {
+      return t.selectSize || t.selectVariant || t.selectOptions || "Select Size"
+    }
+    const values = Object.values(options)
+      .map((o) => (o ? cleanOptionLabel(o) : ""))
+      .filter(Boolean)
+    return values.length > 0 ? values.join(" / ") : t.selectSize || "Select Size"
+  }, [variant, options, t])
+
   return (
     <>
       <div
@@ -92,7 +119,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
           leaveTo="opacity-0"
         >
           <div
-            className="bg-neutral-950/95 backdrop-blur-md text-white flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 pb-[max(1rem,env(safe-area-inset-bottom))] h-full w-full border-t border-neutral-800 font-mono"
+            className="bg-neutral-950/95 backdrop-blur-md text-white flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 pb-[max(1rem,env(safe-area-inset-bottom))] h-full w-full border-t border-neutral-800 font-mono shadow-2xl"
             data-testid="mobile-actions"
           >
             <div className="flex items-center gap-x-2 text-sm">
@@ -136,37 +163,30 @@ const MobileActions: React.FC<MobileActionsProps> = ({
               })}
             >
               {!isSimple && (
-                <Button
+                <button
+                  type="button"
                   onClick={open}
-                  variant="secondary"
-                  className="w-full h-11 bg-neutral-900 border border-neutral-800 text-white font-mono hover:bg-neutral-800 rounded-lg text-xs uppercase"
+                  className="w-full h-11 flex items-center justify-between px-3.5 bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-800 text-white border border-neutral-800 rounded-lg font-mono text-xs uppercase transition-colors select-none focus:outline-none"
                   data-testid="mobile-actions-button"
                 >
-                  <div className="flex items-center justify-between w-full px-1">
-                    <span className="truncate">
-                      {variant
-                        ? Object.values(options)
-                            .map((o) => (o ? cleanOptionLabel(o) : ""))
-                            .filter(Boolean)
-                            .join(" / ")
-                        : t.selectOptions}
-                    </span>
-                    <ChevronDown />
-                  </div>
-                </Button>
+                  <span className="truncate pr-1">
+                    {selectedOptionsLabel}
+                  </span>
+                  <ChevronDown className="shrink-0 text-neutral-400" />
+                </button>
               )}
               <Button
-                onClick={handleAddToCart}
-                disabled={!inStock || !variant || isAdding}
+                onClick={!variant ? open : handleAddToCart}
+                disabled={Boolean(isAdding || (variant && !inStock))}
                 variant="transparent"
-                className="w-full h-11 !bg-white !text-black hover:!bg-neutral-200 font-mono font-bold uppercase tracking-wider disabled:!bg-neutral-800 disabled:!text-neutral-500 rounded-lg text-xs"
+                className="w-full h-11 !bg-white !text-black hover:!bg-neutral-200 active:scale-[0.98] font-mono font-bold uppercase tracking-wider disabled:!bg-neutral-800 disabled:!text-neutral-500 rounded-lg text-xs transition-all"
                 isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
                 {isAdding
                   ? "Adding..."
                   : !variant
-                  ? t.selectVariant
+                  ? t.addToCart
                   : !inStock
                   ? t.outOfStock
                   : t.addToCart}
@@ -175,6 +195,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
           </div>
         </Transition>
       </div>
+
       <Transition appear show={state} as={Fragment}>
         <Dialog as="div" className="relative z-[75]" onClose={close}>
           <Transition.Child
@@ -194,11 +215,11 @@ const MobileActions: React.FC<MobileActionsProps> = ({
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
+                enterFrom="opacity-0 translate-y-6"
+                enterTo="opacity-100 translate-y-0"
                 leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
+                leaveFrom="opacity-100 translate-y-0"
+                leaveTo="opacity-0 translate-y-6"
               >
                 <Dialog.Panel
                   className="w-full h-full transform overflow-hidden text-left flex flex-col gap-y-3"
@@ -206,14 +227,33 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 >
                   <div className="w-full flex justify-end pr-6">
                     <button
+                      type="button"
                       onClick={close}
-                      className="bg-neutral-900 border border-neutral-800 w-12 h-12 rounded-full text-white flex justify-center items-center hover:bg-neutral-800 transition-colors"
+                      className="bg-neutral-900 border border-neutral-800 w-11 h-11 rounded-full text-white flex justify-center items-center hover:bg-neutral-800 transition-colors shadow-lg"
                       data-testid="close-modal-button"
                     >
                       <X />
                     </button>
                   </div>
-                  <div className="bg-neutral-950 text-white border-t border-neutral-800 px-6 py-10">
+                  <div className="bg-neutral-950 text-white border-t border-neutral-800 rounded-t-2xl px-6 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl">
+                    <div className="flex items-center justify-between pb-3 mb-5 border-b border-neutral-900">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">
+                          {t.selectSize || "Select Size"}
+                        </span>
+                        <h3 className="text-sm font-bold text-white truncate max-w-[220px]">
+                          {product.title}
+                        </h3>
+                      </div>
+                      {selectedPrice && (
+                        <div className="text-right">
+                          <span className="text-sm font-mono font-bold text-white">
+                            {selectedPrice.calculated_price}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
                     {(product.variants?.length ?? 0) > 1 && (
                       <div className="flex flex-col gap-y-6">
                         {(product.options || []).map((option) => {
@@ -256,7 +296,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                               <OptionSelect
                                 option={option}
                                 current={options[option.id]}
-                                updateOption={updateOptions}
+                                updateOption={handleSelectOption}
                                 title={option.title ?? ""}
                                 availableValues={availableValues}
                                 outOfStockValues={outOfStockValues}
@@ -267,6 +307,30 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                         })}
                       </div>
                     )}
+
+                    <div className="pt-6 mt-6 border-t border-neutral-900">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (variant && inStock && !isAdding) {
+                            handleAddToCart()
+                            close()
+                          } else {
+                            close()
+                          }
+                        }}
+                        disabled={isAdding || (Boolean(variant) && !inStock)}
+                        className="w-full h-11 flex items-center justify-center bg-white text-black hover:bg-neutral-200 active:scale-[0.98] font-mono font-bold text-xs uppercase tracking-wider rounded-lg transition-all disabled:bg-neutral-800 disabled:text-neutral-500 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                      >
+                        {isAdding
+                          ? "Adding..."
+                          : !variant
+                          ? (t.selectSize || "Select a Size")
+                          : !inStock
+                          ? (t.outOfStock || "Out of Stock")
+                          : `${t.addToCart || "Add to Cart"}${selectedPrice?.calculated_price ? ` — ${selectedPrice.calculated_price}` : ""}`}
+                      </button>
+                    </div>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
