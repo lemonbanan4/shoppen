@@ -440,14 +440,36 @@ export async function placeOrder(cartId?: string) {
     ...(await getAuthHeaders()),
   }
 
-  const cartRes = await sdk.store.cart
-    .complete(id, {}, headers)
-    .then(async (cartRes) => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
-      return cartRes
-    })
-    .catch(medusaError)
+  let cartRes: any = null
+  let completeError: any = null
+
+  // Attempt cart completion with retries to account for Stripe payment sync lag
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      cartRes = await sdk.store.cart.complete(id, {}, headers)
+      if (cartRes?.type === "order") {
+        break
+      }
+    } catch (err: any) {
+      completeError = err
+      const msg = err?.message?.toLowerCase() || ""
+      // If the cart was already completed (e.g. by Stripe webhook or a concurrent request),
+      // break out and look up the existing order
+      if (
+        msg.includes("already completed") ||
+        msg.includes("already been completed")
+      ) {
+        break
+      }
+    }
+
+    if (attempt < 2) {
+      await new Promise((res) => setTimeout(res, 1000 * (attempt + 1)))
+    }
+  }
+
+  const cartCacheTag = await getCacheTag("carts")
+  revalidateTag(cartCacheTag)
 
   if (cartRes?.type === "order") {
     const countryCode =
@@ -456,26 +478,64 @@ export async function placeOrder(cartId?: string) {
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)
 
-    const posthog = getPostHogClient()
-    const distinctId = cartRes.order.customer_id ?? cartRes.order.email ?? "anonymous"
-    posthog.capture({
-      distinctId,
-      event: "order_placed",
-      properties: {
-        order_id: cartRes.order.id,
-        currency_code: cartRes.order.currency_code,
-        total: cartRes.order.total,
-        item_count: cartRes.order.items?.length ?? 0,
-        country_code: countryCode,
-      },
-    })
-    await posthog.flush()
+    try {
+      const posthog = getPostHogClient()
+      const distinctId =
+        cartRes.order.customer_id ?? cartRes.order.email ?? "anonymous"
+      posthog.capture({
+        distinctId,
+        event: "order_placed",
+        properties: {
+          order_id: cartRes.order.id,
+          currency_code: cartRes.order.currency_code,
+          total: cartRes.order.total,
+          item_count: cartRes.order.items?.length ?? 0,
+          country_code: countryCode,
+        },
+      })
+      await posthog.flush()
+    } catch {
+      // Analytics error should not block user from reaching order confirmation
+    }
 
     await removeCartId()
-    redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
+    redirect(`/${countryCode}/order/${cartRes.order.id}/confirmed`)
   }
 
-  return cartRes.cart
+  // If cart was already converted to an order (e.g. via Stripe webhook)
+  try {
+    const existingOrders = await sdk.client
+      .fetch<HttpTypes.StoreOrderListResponse>(`/store/orders`, {
+        method: "GET",
+        query: { cart_id: id },
+        headers,
+      })
+      .then(({ orders }) => orders)
+      .catch(() => null)
+
+    if (existingOrders && existingOrders.length > 0) {
+      const order = existingOrders[0]
+      const countryCode =
+        order.shipping_address?.country_code?.toLowerCase() || "se"
+      await removeCartId()
+      redirect(`/${countryCode}/order/${order.id}/confirmed`)
+    }
+  } catch (err: any) {
+    if (
+      err?.message === "NEXT_REDIRECT" ||
+      err?.digest?.includes?.("NEXT_REDIRECT")
+    ) {
+      throw err
+    }
+  }
+
+  if (completeError) {
+    medusaError(completeError)
+  }
+
+  throw new Error(
+    "Order confirmation is finalizing. Please check your email or refresh your page."
+  )
 }
 
 /**

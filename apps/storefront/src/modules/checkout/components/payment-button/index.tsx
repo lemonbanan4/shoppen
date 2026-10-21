@@ -99,17 +99,23 @@ const StripePaymentButton = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onPaymentCompleted = async () => {
-    await placeOrder()
-      .catch((err) => {
-        const msg = err?.message || "Failed to finalize order. Please try again."
-        setErrorMessage(msg)
-        toast.error("Order Completion Failed", { description: msg })
-        isSubmittingRef.current = false
-      })
-      .finally(() => {
-        setSubmitting(false)
-        isSubmittingRef.current = false
-      })
+    try {
+      await placeOrder()
+    } catch (err: any) {
+      if (
+        err?.message === "NEXT_REDIRECT" ||
+        (typeof err?.digest === "string" && err.digest.includes("NEXT_REDIRECT"))
+      ) {
+        // Next.js redirection in progress — keep submitting state active
+        return
+      }
+
+      const msg = err?.message || "Failed to finalize order. Please try again."
+      setErrorMessage(msg)
+      toast.error("Order Completion Failed", { description: msg })
+      isSubmittingRef.current = false
+      setSubmitting(false)
+    }
   }
 
   const stripe = useStripe()
@@ -210,6 +216,13 @@ const StripePaymentButton = ({
       setSubmitting(false)
       isSubmittingRef.current = false
     } catch (err: any) {
+      if (
+        err?.message === "NEXT_REDIRECT" ||
+        (typeof err?.digest === "string" && err.digest.includes("NEXT_REDIRECT"))
+      ) {
+        return
+      }
+
       const unexpectedMsg =
         err?.message || "An unexpected error occurred while processing payment."
       setErrorMessage(unexpectedMsg)
@@ -269,17 +282,22 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onPaymentCompleted = async () => {
-    await placeOrder()
-      .catch((err) => {
-        const msg = err?.message || "Failed to finalize order. Please try again."
-        setErrorMessage(msg)
-        toast.error("Order Completion Failed", { description: msg })
-        isSubmittingRef.current = false
-      })
-      .finally(() => {
-        setSubmitting(false)
-        isSubmittingRef.current = false
-      })
+    try {
+      await placeOrder()
+    } catch (err: any) {
+      if (
+        err?.message === "NEXT_REDIRECT" ||
+        (typeof err?.digest === "string" && err.digest.includes("NEXT_REDIRECT"))
+      ) {
+        return
+      }
+
+      const msg = err?.message || "Failed to finalize order. Please try again."
+      setErrorMessage(msg)
+      toast.error("Order Completion Failed", { description: msg })
+      isSubmittingRef.current = false
+      setSubmitting(false)
+    }
   }
 
   const handlePayment = () => {
