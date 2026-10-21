@@ -99,7 +99,8 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                     <div className="flex flex-col gap-y-6">
                       {!!locales?.length && (
                         <div
-                          className="flex justify-between"
+                          className="flex justify-between cursor-pointer"
+                          onClick={languageToggleState.toggle}
                           onMouseEnter={languageToggleState.open}
                           onMouseLeave={languageToggleState.close}
                         >
@@ -117,7 +118,8 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                         </div>
                       )}
                       <div
-                        className="flex justify-between"
+                        className="flex justify-between cursor-pointer"
+                        onClick={countryToggleState.toggle}
                         onMouseEnter={countryToggleState.open}
                         onMouseLeave={countryToggleState.close}
                       >

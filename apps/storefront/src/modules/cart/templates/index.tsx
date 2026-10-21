@@ -105,7 +105,7 @@ const CartTemplate = ({
     <div className="py-12">
       <div className="content-container" data-testid="cart-container">
         {optimisticCart?.items?.length ? (
-          <div className="grid grid-cols-1 small:grid-cols-[1fr_360px] gap-y-6 small:gap-y-0 gap-x-40">
+          <div className="grid grid-cols-1 small:grid-cols-[1fr_360px] gap-y-6 small:gap-y-0 gap-x-8 medium:gap-x-12 large:gap-x-20">
             <div className="flex flex-col bg-white text-neutral-950 py-6 px-4 sm:px-8 gap-y-6 rounded-2xl border border-brand/60 shadow-[0_0_35px_-2px_rgba(217,162,27,0.45)]">
               {!customer && (
                 <>

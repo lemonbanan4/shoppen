@@ -107,7 +107,7 @@ export default async function Nav({ countryCode }: { countryCode?: string }) {
               className="flex items-center text-white text-base tracking-[0.3em] font-header font-bold uppercase hover:text-silver transition-colors"
               data-testid="nav-store-link"
             >
-              SOLKAST
+              {BRAND.wordmark || BRAND.name}
             </LocalizedClientLink>
             <div className="hidden small:flex items-center gap-x-8 h-full ml-8">
               {navLinksFor(countryCode).map((link) => (

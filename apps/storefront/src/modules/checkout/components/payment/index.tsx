@@ -115,6 +115,17 @@ const Payment = ({
     }
   }, [isOpen, cart.shipping_methods, pathname, router])
 
+  useEffect(() => {
+    if (isOpen && !selectedPaymentMethod && availablePaymentMethods?.length) {
+      const defaultMethod =
+        availablePaymentMethods.find((p) => isStripeLike(p.id))?.id ||
+        availablePaymentMethods[0].id
+      if (defaultMethod) {
+        setPaymentMethod(defaultMethod)
+      }
+    }
+  }, [isOpen, selectedPaymentMethod, availablePaymentMethods])
+
   return (
     <div className="bg-white text-neutral-950 brand-card px-4 py-6 sm:px-8">
       <div className="flex flex-row items-center justify-between mb-6">

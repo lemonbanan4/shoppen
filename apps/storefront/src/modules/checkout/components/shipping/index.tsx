@@ -123,12 +123,14 @@ const Shipping: React.FC<ShippingProps> = ({
         )
     )
 
-    if ((!shippingMethodId || isTestCart) && _shippingMethods?.length) {
+    if (!shippingMethodId && _shippingMethods?.length) {
       const freeOption = _shippingMethods.find((sm) =>
         sm.name?.toLowerCase().includes("free")
       )
-      if (freeOption && shippingMethodId !== freeOption.id) {
-        handleSetShippingMethod(freeOption.id, "shipping")
+      const targetOption =
+        freeOption || (_shippingMethods.length === 1 ? _shippingMethods[0] : null)
+      if (targetOption && shippingMethodId !== targetOption.id) {
+        handleSetShippingMethod(targetOption.id, "shipping")
       }
     }
   }, [availableShippingMethods])
