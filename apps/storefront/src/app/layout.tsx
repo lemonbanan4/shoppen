@@ -1,7 +1,9 @@
+import { Suspense } from "react"
 import { getBaseURL } from "@lib/util/env"
 import { Metadata, Viewport } from "next"
 import { Toaster } from "sonner"
 import PostHogProvider from "@modules/common/components/analytics/posthog-provider"
+import MetaPixel from "@modules/common/components/analytics/meta-pixel"
 import { Analytics } from "@vercel/analytics/next"
 import "styles/globals.css"
 import { BRAND, isSolkast } from "@lib/brand"
@@ -82,6 +84,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           <main className="relative">{props.children}</main>
           <Toaster position="bottom-right" richColors closeButton />
           <Analytics />
+          <Suspense fallback={null}>
+            <MetaPixel />
+          </Suspense>
         </PostHogProvider>
       </body>
     </html>

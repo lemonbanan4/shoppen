@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import posthog from "posthog-js"
+import { trackInitiateCheckout } from "@lib/meta-pixel"
 
 type CheckoutTrackerProps = {
   cartId: string
@@ -17,7 +18,12 @@ export default function CheckoutTracker({
       cart_id: cartId,
       item_count: itemCount,
     })
-  }, [cartId])
+
+    trackInitiateCheckout({
+      cartId,
+      itemCount,
+    })
+  }, [cartId, itemCount])
 
   return null
 }

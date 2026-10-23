@@ -16,6 +16,7 @@ import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
 import posthog from "posthog-js"
 import { useCopy } from "@lib/use-copy"
+import { trackAddToCart, trackViewContent } from "@lib/meta-pixel"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -234,7 +235,13 @@ export default function ProductActions({
       product_handle: product.handle,
       product_title: product.title,
     })
-  }, [product.id])
+    trackViewContent({
+      title: product.title,
+      id: product.id,
+      price: selectedVariant?.calculated_price?.calculated_amount ?? undefined,
+      currency: selectedVariant?.calculated_price?.currency_code,
+    })
+  }, [product.id, product.title, selectedVariant])
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
@@ -257,6 +264,13 @@ export default function ProductActions({
         product_title: product.title,
         variant_id: selectedVariant.id,
         variant_title: selectedVariant.title,
+        quantity: 1,
+      })
+      trackAddToCart({
+        title: product.title,
+        variantId: selectedVariant.id,
+        price: selectedVariant.calculated_price?.calculated_amount ?? undefined,
+        currency: selectedVariant.calculated_price?.currency_code,
         quantity: 1,
       })
       toast.success(`${product.title} added to cart`, {
