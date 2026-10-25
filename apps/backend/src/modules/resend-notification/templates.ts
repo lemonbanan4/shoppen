@@ -226,60 +226,65 @@ const orderShipped = (data: OrderShippedData) => {
 };
 
 export type CartRecoveryData = {
-  items: { title: string; quantity: number }[]
+  items?: { title: string; quantity?: number }[]
   recovery_url: string
 }
 
 const cartRecovery = (data: CartRecoveryData) => {
-  const rows = data.items
-    .map(
-      (item) => `
-        <tr>
-          <td style="padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:14px;">
-            ${item.title}
-            <span style="color:#737373;"> × ${item.quantity}</span>
-          </td>
-        </tr>`
-    )
-    .join("");
+  const text = `Your cart remains open. Secure your items before the capsule closes.
+
+${data.recovery_url}`
 
   return {
-    subject: "You left something behind",
-    html: layout(`
-      <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;">Still thinking it over?</h1>
-      <p style="margin:0 0 24px;font-size:14px;color:#525252;line-height:1.7;">
-        Your cart is saved and ready whenever you are.
+    subject: "Your cart remains open",
+    text,
+    html: `<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+  <body style="margin:0;padding:48px 24px;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0a0a0a;line-height:1.6;">
+    <div style="max-width:520px;margin:0 auto;">
+      <p style="font-size:15px;margin:0 0 24px 0;letter-spacing:-0.01em;color:#171717;">
+        Your cart remains open. Secure your items before the capsule closes.
       </p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${rows}
-      </table>
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:28px;"><tr><td style="background-color:#0a0a0a;border-radius:9999px;">
-        <a href="${data.recovery_url}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:500;color:#ffffff;text-decoration:none;">
-          Return to your cart
+      <p style="margin:0;">
+        <a href="${data.recovery_url}" style="font-size:14px;color:#0a0a0a;text-decoration:underline;text-underline-offset:4px;">
+          ${data.recovery_url}
         </a>
-      </td></tr></table>
-    `),
-  };
-};
+      </p>
+    </div>
+  </body>
+</html>`,
+  }
+}
+
+export type RenderedTemplate = {
+  subject: string
+  html?: string
+  text?: string
+}
 
 const TEMPLATES: Record<
   string,
-  (data: any) => { subject: string; html: string }
+  (data: any) => RenderedTemplate
 > = {
   "order-placed": orderPlaced,
   "order-shipped": orderShipped,
   "customer-welcome": customerWelcome,
   "order-transfer-requested": orderTransferRequested,
   "cart-recovery": cartRecovery,
-};
+}
 
 export const renderEmailTemplate = (
   template: string,
   data: unknown
-): { subject: string; html: string } => {
-  const renderer = TEMPLATES[template];
+): RenderedTemplate => {
+  const renderer = TEMPLATES[template]
   if (!renderer) {
-    throw new Error(`Unknown email template: ${template}`);
+    throw new Error(`Unknown email template: ${template}`)
   }
-  return renderer(data);
-};
+  return renderer(data)
+}
+

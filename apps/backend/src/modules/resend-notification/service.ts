@@ -39,10 +39,11 @@ export default class ResendNotificationProviderService extends AbstractNotificat
   async send(
     notification: ProviderSendNotificationDTO
   ): Promise<ProviderSendNotificationResultsDTO> {
-    const { subject, html } = renderEmailTemplate(
+    const templateResult = renderEmailTemplate(
       notification.template,
       notification.data
     );
+    const { subject, html, text } = templateResult;
 
     const apiKey =
       this.options_.api_key ||
@@ -52,15 +53,34 @@ export default class ResendNotificationProviderService extends AbstractNotificat
     if (!apiKey) {
       const dir = path.join(process.cwd(), ".medusa", "emails");
       fs.mkdirSync(dir, { recursive: true });
+      const ext = html ? "html" : "txt";
       const file = path.join(
         dir,
-        `${Date.now()}-${notification.template}.html`
+        `${Date.now()}-${notification.template}.${ext}`
       );
-      fs.writeFileSync(file, html);
+      fs.writeFileSync(file, (html || text) || "");
       this.logger_.info(
         `[email:dev] "${subject}" to ${notification.to} (no EMAIL_API_KEY / RESEND_API_KEY — written to ${file})`
       );
       return { id: `local-${Date.now()}` };
+    }
+
+    const payload: Record<string, any> = {
+      from:
+        notification.from ||
+        this.options_.from ||
+        process.env.FROM_EMAIL_ADDRESS ||
+        process.env.RESEND_FROM_EMAIL ||
+        "SOLKAST <hello@solkast.com>",
+      to: [notification.to],
+      subject,
+    };
+
+    if (html) {
+      payload.html = html;
+    }
+    if (text) {
+      payload.text = text;
     }
 
     const response = await fetch("https://api.resend.com/emails", {
@@ -69,21 +89,7 @@ export default class ResendNotificationProviderService extends AbstractNotificat
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        // Per-notification `from` first: one backend serves two brands, and
-        // the configured default can only name one of them. Subscribers that
-        // know which storefront an order came from set it; anything that
-        // cannot tell falls back here rather than guessing.
-        from:
-          notification.from ||
-          this.options_.from ||
-          process.env.FROM_EMAIL_ADDRESS ||
-          process.env.RESEND_FROM_EMAIL ||
-          "SOLKAST <hello@solkast.com>",
-        to: [notification.to],
-        subject,
-        html,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {

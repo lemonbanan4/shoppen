@@ -157,9 +157,11 @@ export async function middleware(request: NextRequest) {
   const urlHasCountry = firstPathSegment === country.toLowerCase()
 
   if (urlHasCountry) {
-    const recoveryCartId = request.nextUrl.pathname.endsWith("/cart")
-      ? request.nextUrl.searchParams.get("cart_id")
-      : null
+    const recoveryCartId =
+      request.nextUrl.pathname.endsWith("/cart") ||
+      request.nextUrl.pathname.endsWith("/checkout")
+        ? request.nextUrl.searchParams.get("cart_id")
+        : null
 
     if (recoveryCartId) {
       const adoptedCartId = await resolveRecoveryCartId(recoveryCartId)
