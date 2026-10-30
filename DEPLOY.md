@@ -108,6 +108,8 @@ Root directory: `apps/storefront`. Variables:
 | `NEXT_PUBLIC_BASE_URL` | storefront public URL |
 | `NEXT_PUBLIC_DEFAULT_REGION` | `dk` |
 | `NEXT_PUBLIC_STRIPE_KEY` | when you have it |
+| `NEXT_PUBLIC_POSTHOG_KEY` | `phc_...` (from PostHog project settings) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | `https://eu.i.posthog.com` |
 
 Deploy: `railway up --service storefront` (from `apps/storefront`), generate a
 domain. Note: the storefront build calls the backend, so deploy it **after**

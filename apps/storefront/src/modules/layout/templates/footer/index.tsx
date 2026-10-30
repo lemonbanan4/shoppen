@@ -6,6 +6,7 @@ import LogoMark from "@modules/common/icons/logo-mark";
 import NewsletterForm from "./newsletter-form";
 import { BRAND } from "@lib/brand"
 import { copyFor } from "@lib/copy"
+import { PaymentMethodBadges } from "@modules/common/components/payment-badges"
 
 export default async function Footer({
   countryCode,
@@ -111,6 +112,14 @@ export default async function Footer({
                     Customer Care
                   </LocalizedClientLink>
                 </li>
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors duration-150"
+                    href="/shipping"
+                  >
+                    Shipping &amp; Delivery
+                  </LocalizedClientLink>
+                </li>
               </ul>
             </div>
 
@@ -142,9 +151,25 @@ export default async function Footer({
             {/* Legal Column */}
             <div className="flex flex-col gap-y-3">
               <span className="text-[11px] font-mono tracking-[0.2em] text-white uppercase font-semibold">
-                Legal
+                Legal &amp; Policy
               </span>
               <ul className="flex flex-col gap-y-2.5">
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors duration-150"
+                    href="/shipping"
+                  >
+                    Shipping Policy
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-white transition-colors duration-150"
+                    href="/returns"
+                  >
+                    Returns &amp; Exchanges
+                  </LocalizedClientLink>
+                </li>
                 <li>
                   <LocalizedClientLink
                     className="hover:text-white transition-colors duration-150"
@@ -161,14 +186,6 @@ export default async function Footer({
                     Privacy Policy
                   </LocalizedClientLink>
                 </li>
-                <li>
-                  <LocalizedClientLink
-                    className="hover:text-white transition-colors duration-150"
-                    href="/returns"
-                  >
-                    Returns & Exchanges
-                  </LocalizedClientLink>
-                </li>
               </ul>
             </div>
           </div>
@@ -180,16 +197,20 @@ export default async function Footer({
             <p>© {new Date().getFullYear()} {BRAND.name}. {t.rightsReserved}</p>
             {/* Quick Clean Minimal Legal & About Links */}
             <nav className="flex items-center gap-x-4 text-neutral-400">
+              <LocalizedClientLink href="/shipping" className="hover:text-white transition-colors duration-150">
+                Shipping
+              </LocalizedClientLink>
+              <span className="text-neutral-700">·</span>
+              <LocalizedClientLink href="/returns" className="hover:text-white transition-colors duration-150">
+                Returns
+              </LocalizedClientLink>
+              <span className="text-neutral-700">·</span>
               <LocalizedClientLink href="/terms-of-service" className="hover:text-white transition-colors duration-150">
                 Terms
               </LocalizedClientLink>
               <span className="text-neutral-700">·</span>
               <LocalizedClientLink href="/privacy-policy" className="hover:text-white transition-colors duration-150">
                 Privacy
-              </LocalizedClientLink>
-              <span className="text-neutral-700">·</span>
-              <LocalizedClientLink href="/returns" className="hover:text-white transition-colors duration-150">
-                Returns
               </LocalizedClientLink>
               <span className="text-neutral-700">·</span>
               <LocalizedClientLink href="/about" className="hover:text-white transition-colors duration-150">
@@ -200,21 +221,9 @@ export default async function Footer({
 
           <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
             <p className="text-[11px] text-neutral-400 font-mono">{t.shippingNote}</p>
-            <ul
-              aria-label={t.paymentMethods}
-              className="flex items-center gap-1.5"
-            >
-              {["Visa", "Mastercard", "Amex", "Apple Pay", "Klarna"].map(
-                (method) => (
-                  <li
-                    key={method}
-                    className="rounded border border-neutral-800 bg-neutral-950 px-2 py-0.5 text-[10px] tracking-wider text-neutral-400 font-mono"
-                  >
-                    {method}
-                  </li>
-                )
-              )}
-            </ul>
+            <div className="flex items-center">
+              <PaymentMethodBadges size="small" />
+            </div>
           </div>
         </div>
       </div>

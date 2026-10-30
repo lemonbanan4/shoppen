@@ -186,7 +186,7 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
 }
 
 const ManufacturingTab = () => {
-  const brandName = BRAND.id === "angerkop" ? "Ångerköp" : "Solkast"
+  const brandName = BRAND.name
   return (
     <div className="text-small-regular py-6 font-mono text-[#EDEDED] flex flex-col gap-y-4">
       <div className="flex items-center gap-2">
@@ -199,11 +199,11 @@ const ManufacturingTab = () => {
         </span>
       </div>
       <p className="leading-relaxed text-xs sm:text-sm font-sans text-[#EDEDED]/90">
-        To eliminate waste, every {brandName} garment is precision-crafted on demand. Please allow 1 to 2 weeks for delivery in North America, and 3 to 4 weeks for European and International orders.
+        To eliminate deadstock and fast-fashion waste, every {brandName} garment is precision-crafted on demand. Production requires 2–4 business days, followed by tracked courier delivery (US: 3–7 business days · UK: 3–7 business days · Canada: 5–10 business days · EU: 2–5 business days).
       </p>
       <div className="p-3 rounded-lg border border-neutral-800 bg-neutral-900/60 text-xs">
         <span className="text-neutral-400 font-mono">
-          <strong className="text-white">Note:</strong> Multi-item orders may ship separately as they complete production.
+          <strong className="text-white">Note:</strong> Multi-item orders may ship separately as individual pieces complete production and pass inspection.
         </span>
       </div>
     </div>
@@ -212,21 +212,40 @@ const ManufacturingTab = () => {
 
 const ShippingInfoTab = () => {
   const t = useCopy()
-  const brandName = BRAND.id === "angerkop" ? "Ångerköp" : "Solkast"
+  const brandName = BRAND.name
   return (
     <div className="text-small-regular py-6 font-mono">
       <div className="grid grid-cols-1 gap-y-6">
-        <div className="p-3.5 rounded-lg border border-neutral-800 bg-neutral-900/60 flex flex-col gap-y-2">
+        <div className="p-3.5 rounded-lg border border-neutral-800 bg-neutral-900/60 flex flex-col gap-y-2.5">
           <div className="flex items-center gap-2">
             <span className="text-[#00d4ff] font-bold text-xs">◈</span>
             <span className="text-xs uppercase tracking-wider text-[#00d4ff] font-bold">
-              SUSTAINABLE / ON-DEMAND MANUFACTURING
+              SUSTAINABLE ON-DEMAND LOGISTICS
             </span>
           </div>
           <p className="text-[#EDEDED]/90 text-xs font-sans leading-relaxed">
-            To eliminate waste, every {brandName} garment is precision-crafted on demand. Please allow 1 to 2 weeks for delivery in North America, and 3 to 4 weeks for European and International orders. Note: Multi-item orders may ship separately as they complete production.
+            Every {brandName} garment is individually crafted on demand to eliminate waste. Production requires 2–4 business days before tracked dispatch.
           </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px] font-mono text-neutral-300">
+            <div className="bg-neutral-950/80 p-2 rounded border border-neutral-800">
+              <span className="text-white block font-bold">US</span>
+              <span className="text-emerald-400">3–7 days</span>
+            </div>
+            <div className="bg-neutral-950/80 p-2 rounded border border-neutral-800">
+              <span className="text-white block font-bold">UK</span>
+              <span className="text-emerald-400">3–7 days</span>
+            </div>
+            <div className="bg-neutral-950/80 p-2 rounded border border-neutral-800">
+              <span className="text-white block font-bold">Canada</span>
+              <span className="text-emerald-400">5–10 days</span>
+            </div>
+            <div className="bg-neutral-950/80 p-2 rounded border border-neutral-800">
+              <span className="text-white block font-bold">EU</span>
+              <span className="text-emerald-400">2–5 days</span>
+            </div>
+          </div>
         </div>
+
         <div className="flex items-start gap-x-3 text-white">
           <FastDelivery />
           <div>
@@ -253,6 +272,21 @@ const ShippingInfoTab = () => {
               {t.shipReturnBody}
             </p>
           </div>
+        </div>
+
+        <div className="pt-2 border-t border-neutral-800/80 flex items-center gap-x-4 text-xs font-mono text-neutral-400">
+          <LocalizedClientLink
+            href="/shipping"
+            className="underline hover:text-white transition-colors"
+          >
+            Full Shipping Rates &amp; Times →
+          </LocalizedClientLink>
+          <LocalizedClientLink
+            href="/returns"
+            className="underline hover:text-white transition-colors"
+          >
+            30-Day Return Details →
+          </LocalizedClientLink>
         </div>
       </div>
     </div>

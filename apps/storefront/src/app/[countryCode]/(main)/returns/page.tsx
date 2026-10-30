@@ -3,9 +3,11 @@ import ContentPage from "@modules/common/components/content-page"
 import { BRAND } from "@lib/brand"
 import { SHIPPING_RATES, shippingRegionFor } from "@lib/copy"
 
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+
 export const metadata: Metadata = {
-  title: "Returns & Shipping",
-  description: `30-day return policy and shipping rates for ${BRAND.name}.`,
+  title: "Returns & Exchanges Policy",
+  description: `30-day hassle-free return policy and exchange instructions for ${BRAND.name}.`,
 }
 
 const LAST_UPDATED = "October 2026"
@@ -18,19 +20,25 @@ export default async function ReturnsPage(props: {
 
   return (
     <ContentPage
-      eyebrow="CUSTOMER CARE // LOGISTICS"
-      title="SHIPPING & RETURNS"
+      eyebrow="CUSTOMER CARE // GUARANTEE"
+      title="RETURNS & EXCHANGES"
       intro={rates.intro}
     >
       <section>
-        <h2>1. Shipping Rates & Delivery Times</h2>
-        <ul>
-          {rates.lines.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-          <li>All garments are printed on demand to eliminate waste. Production requires 2–4 business days before dispatch.</li>
-          <li>You will receive automated end-to-end tracking by email the moment your parcel ships.</li>
-        </ul>
+        <h2>1. 30-Day Money-Back Guarantee</h2>
+        <p>
+          We stand firmly behind the quality, weight, and print precision of every piece we engineer. You have <strong>30 days</strong> from the delivery date to return any item for a full refund or size exchange, no questions asked.
+        </p>
+        <p>
+          Looking for shipping rates, production timelines, or regional delivery times (US, UK, Canada, EU)? Visit our dedicated{" "}
+          <LocalizedClientLink
+            href="/shipping"
+            className="underline font-semibold hover:text-white transition-colors"
+          >
+            Shipping &amp; Delivery Policy
+          </LocalizedClientLink>
+          .
+        </p>
       </section>
 
       <section>

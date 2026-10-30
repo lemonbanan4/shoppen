@@ -35,28 +35,31 @@ export default async function CustomerServicePage(props: {
       </section>
       <section>
         <h2>How long does shipping take?</h2>
-        {/* Quoted from the same table as the shipping page, so the two cannot
-            state different prices — and so no region is told about a
-            free-shipping threshold its cart does not offer. */}
         <ul>
           {rates.lines.map((line) => (
             <li key={line}>{line}</li>
           ))}
-          <li>Made-to-order items can add 2–4 days of production time.</li>
+          <li>Production requires 2–4 business days before dispatch.</li>
         </ul>
+        <p className="mt-2 text-xs">
+          View our full transit breakdown for the US, UK, Canada, and EU on the{" "}
+          <LocalizedClientLink href="/shipping" className="underline font-medium hover:text-white transition-colors">
+            Shipping &amp; Delivery Policy
+          </LocalizedClientLink>
+          .
+        </p>
       </section>
       <section>
         <h2>What is your return policy?</h2>
         <p>
-          30 days, no questions asked. Items should be unworn and in their
-          original packaging. See{" "}
+          30 days, no questions asked. Items must be in original unworn condition with tags attached. See our full{" "}
           <LocalizedClientLink
             href="/returns"
-            className="underline"
+            className="underline font-medium hover:text-white transition-colors"
           >
-            Shipping &amp; returns
+            Returns &amp; Exchanges Policy
           </LocalizedClientLink>{" "}
-          for the full details.
+          for instructions.
         </p>
       </section>
       <section>
@@ -67,10 +70,12 @@ export default async function CustomerServicePage(props: {
         </p>
       </section>
       <section>
-        <h2>Contact</h2>
+        <h2>Contact &amp; Business Inquiries</h2>
         <p>
-          Email us at <strong>{BRAND.email}</strong> and we'll get back
-          to you within one business day.
+          Email us at <strong>{BRAND.email}</strong>. Our customer care team responds to all inquiries within one business day (Monday to Friday, 9:00 AM – 5:00 PM EST).
+        </p>
+        <p className="mt-2 text-xs text-neutral-400 font-mono">
+          {BRAND.name} is operated by <strong>CogCore LLC</strong>, 30 N Gould St Ste R, Sheridan, WY 82801, United States.
         </p>
       </section>
     </ContentPage>

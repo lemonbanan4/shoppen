@@ -338,6 +338,11 @@ const CartDropdown = ({
                       {t.cartGoTo}
                     </Button>
                   </LocalizedClientLink>
+                  <div className="flex items-center justify-center gap-x-2 text-[10px] text-neutral-500 font-mono">
+                    <span>✓ Tracked Delivery</span>
+                    <span>·</span>
+                    <span>✓ 30-Day Returns</span>
+                  </div>
                 </div>
               </>
             ) : (
@@ -455,6 +460,11 @@ const CartDropdown = ({
                         {t.cartGoTo}
                       </Button>
                     </LocalizedClientLink>
+                    <div className="flex items-center justify-center gap-x-2 text-[10px] text-neutral-500 font-mono">
+                      <span>✓ Tracked Delivery</span>
+                      <span>·</span>
+                      <span>✓ 30-Day Returns</span>
+                    </div>
                   </div>
                 )}
               </Dialog.Panel>

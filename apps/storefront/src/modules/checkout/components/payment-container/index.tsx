@@ -11,6 +11,7 @@ import { StripeCardElementOptions } from "@stripe/stripe-js"
 import PaymentTest from "../payment-test"
 import { StripeContext } from "../payment-wrapper/stripe-wrapper"
 import { useCopy } from "@lib/use-copy"
+import { CheckoutTrustBadge } from "@modules/common/components/payment-badges"
 
 type PaymentContainerProps = {
   paymentProviderId: string
@@ -126,6 +127,9 @@ export const StripeCardContainer = ({
                 setCardComplete(e.complete)
               }}
             />
+            <div className="mt-3">
+              <CheckoutTrustBadge />
+            </div>
           </div>
         ) : (
           <SkeletonCardDetails />

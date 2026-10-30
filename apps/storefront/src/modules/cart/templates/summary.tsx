@@ -8,6 +8,7 @@ import DiscountCode from "@modules/checkout/components/discount-code"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 import { useCopy } from "@lib/use-copy"
+import { PaymentMethodBadges } from "@modules/common/components/payment-badges"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart
@@ -42,6 +43,18 @@ const Summary = ({ cart }: SummaryProps) => {
       >
         <Button size="large" className="w-full h-12 text-base font-medium">{t.goToCheckout}</Button>
       </LocalizedClientLink>
+
+      <div className="pt-3 border-t border-neutral-100 flex flex-col gap-y-2 text-xs text-neutral-500 font-sans">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-600">Guaranteed Safe Checkout</span>
+          <PaymentMethodBadges size="small" />
+        </div>
+        <div className="flex items-center gap-x-3 text-[11px] text-neutral-500 font-mono">
+          <span>✓ Tracked Delivery</span>
+          <span>✓ 30-Day Returns</span>
+          <span>✓ 256-Bit SSL</span>
+        </div>
+      </div>
     </div>
   )
 }
