@@ -46,6 +46,7 @@ module.exports = defineConfig({
                     // be recalled, so there is no window in which holding the
                     // funds uncaptured protects anything.
                     capture: true,
+                    automaticPaymentMethods: true,
                   },
                 },
               ],
