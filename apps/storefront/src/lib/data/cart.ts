@@ -336,7 +336,8 @@ export async function submitPromotionForm(
 }
 
 export async function setAddresses(currentState: unknown, formData: FormData) {
-  let countryCode = "se"
+  const defaultCountry = process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"
+  let countryCode = defaultCountry
   let shouldSkipToPayment = false
 
   try {
@@ -350,7 +351,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
 
     countryCode =
       (formData.get("shipping_address.country_code") as string)?.toLowerCase() ||
-      "se"
+      defaultCountry
 
     const data = {
       shipping_address: {
@@ -473,7 +474,9 @@ export async function placeOrder(cartId?: string) {
 
   if (cartRes?.type === "order") {
     const countryCode =
-      cartRes.order.shipping_address?.country_code?.toLowerCase() || "se"
+      cartRes.order.shipping_address?.country_code?.toLowerCase() ||
+      process.env.NEXT_PUBLIC_DEFAULT_REGION ||
+      "us"
 
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)
@@ -516,7 +519,9 @@ export async function placeOrder(cartId?: string) {
     if (existingOrders && existingOrders.length > 0) {
       const order = existingOrders[0]
       const countryCode =
-        order.shipping_address?.country_code?.toLowerCase() || "se"
+        order.shipping_address?.country_code?.toLowerCase() ||
+        process.env.NEXT_PUBLIC_DEFAULT_REGION ||
+        "us"
       await removeCartId()
       redirect(`/${countryCode}/order/${order.id}/confirmed`)
     }

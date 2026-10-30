@@ -4,8 +4,8 @@ import { servesRegion } from "@lib/serves-region"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-// Sweden-first brand: an unmatched visitor lands on the SEK storefront.
-const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "se"
+// Default fallback for unmatched traffic: US storefront (English / USD).
+const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"
 
 const regionMapCache = {
   regionMap: new Map<string, HttpTypes.StoreRegion>(),
