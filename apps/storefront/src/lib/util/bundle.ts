@@ -74,7 +74,7 @@ export function isBundleEligible(handle?: string | null) {
 }
 
 export function getBundleDiscountAmount(currencyCode?: string | null) {
-  const currency = currencyCode?.toLowerCase() || "eur"
+  const currency = currencyCode?.toLowerCase() || "usd"
   if (currency === "sek") return "100 kr"
   if (currency === "usd") return "$10"
   return "10 €"

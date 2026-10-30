@@ -68,7 +68,7 @@ const ItemsTemplate = ({
                       >
                         <Item
                           item={item}
-                          currencyCode={cart?.currency_code || "eur"}
+                          currencyCode={cart?.currency_code || "usd"}
                           onDelete={onDelete}
                           onUpdateQuantity={onUpdateQuantity}
                         />

@@ -85,7 +85,7 @@ const CartDropdown = ({
   const open = () => setCartDropdownOpen(true)
   const close = () => setCartDropdownOpen(false)
 
-  const currencyCode = cartState?.currency_code || "eur"
+  const currencyCode = cartState?.currency_code || "usd"
 
   const totalItems =
     optimisticItems.reduce((acc, item) => {

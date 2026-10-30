@@ -451,6 +451,9 @@ export async function placeOrder(cartId?: string) {
       if (cartRes?.type === "order") {
         break
       }
+      if (cartRes?.type === "cart" && cartRes?.error) {
+        completeError = cartRes.error
+      }
     } catch (err: any) {
       completeError = err
       const msg = err?.message?.toLowerCase() || ""
@@ -568,7 +571,7 @@ export async function updateRegion(countryCode: string, currentPath: string) {
   const productsCacheTag = await getCacheTag("products")
   revalidateTag(productsCacheTag)
 
-  redirect(`/${countryCode}${currentPath}`)
+  redirect(`/${countryCode}${currentPath || ""}`)
 }
 
 export async function listCartOptions() {
