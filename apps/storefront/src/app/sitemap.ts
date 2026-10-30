@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   "/store",
   "/about",
   "/customer-service",
+  "/shipping",
   "/returns",
   "/privacy-policy",
   "/terms-of-service",
@@ -30,7 +31,7 @@ const backendFetch = async <T>(path: string): Promise<T> => {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let countryCodes: string[] = [process.env.NEXT_PUBLIC_DEFAULT_REGION || "dk"]
+  let countryCodes: string[] = [process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"]
   let productEntries: { handle: string; updated_at?: string }[] = []
   let categoryHandles: string[] = []
   let collectionHandles: string[] = []
