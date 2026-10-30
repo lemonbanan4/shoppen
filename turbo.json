@@ -8,6 +8,8 @@
       "outputs": [
         "dist/**",
         ".next/**",
+        ".medusa/**",
+        "public/**",
         "!**/.turbo/**",
         "!**/node_modules/**",
         "!**/.git/**",
@@ -45,6 +47,9 @@
         "NEXT_PUBLIC_MEDUSA_BACKEND_URL",
         "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"
       ]
+    },
+    "@dtc/backend#build": {
+      "cache": false
     },
     "dev": {
       "cache": false,
