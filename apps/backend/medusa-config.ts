@@ -94,5 +94,24 @@ module.exports = defineConfig({
         ]
       : []),
   ],
+  admin: {
+    disable: process.env.ADMIN_DISABLED === 'true',
+    backendUrl: process.env.MEDUSA_BACKEND_URL,
+    vite: (config: any) => ({
+      ...config,
+      resolve: {
+        ...config.resolve,
+        dedupe: [
+          ...(config.resolve?.dedupe || []),
+          'react',
+          'react-dom',
+          'react-router-dom',
+          '@tanstack/react-query',
+          '@medusajs/ui',
+          '@medusajs/icons',
+        ],
+      },
+    }),
+  },
   plugins: [],
 })
