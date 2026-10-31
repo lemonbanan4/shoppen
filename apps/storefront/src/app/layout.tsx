@@ -53,6 +53,11 @@ export const metadata: Metadata = {
     description: BRAND.description,
     images: [`/brand/og-${BRAND.id}.jpg`],
   },
+  verification: {
+    other: {
+      "facebook-domain-verification": "ioreuball9isuufxsa853cdv019oh4",
+    },
+  },
 }
 
 export const viewport: Viewport = {
