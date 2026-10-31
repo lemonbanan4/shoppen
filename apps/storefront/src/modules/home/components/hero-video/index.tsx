@@ -1,50 +1,88 @@
+"use client"
+
+import { useEffect, useRef } from "react"
+
+type HeroVideoProps = {
+  src: string
+  poster?: string
+  className?: string
+}
+
 /**
- * Full-bleed looping video behind the hero copy.
+ * Bulletproof background video player engineered specifically for Safari (macOS & iOS WebKit).
  *
- * Renders only when NEXT_PUBLIC_HERO_VIDEO_URL is set, so the hero falls back
- * to its current typographic treatment rather than to a black rectangle if the
- * file is missing. That matters because the homepage is the one page where a
- * broken asset costs the whole visit.
- *
- * Deliberately silent, autoplaying and loop-only:
- *
- *   muted + playsInline are the conditions every mobile browser requires for
- *   autoplay. Without both, iOS refuses to start and the poster is all anyone
- *   ever sees — which looks like a bug rather than a decision.
- *
- *   poster carries the first frame, so the layout paints immediately and the
- *   video fades in. Without it the hero is empty until enough of the file has
- *   buffered, which on a phone on mobile data is the entire first impression.
- *
- *   No controls, no audio. A shop hero that starts making noise is a reason to
- *   close the tab.
- *
- * preload="metadata" rather than "auto": the hero should not spend a visitor's
- * data downloading the whole clip before they have decided to stay.
+ * Safari Quirks Resolved:
+ * 1. React WebKit Muted Bug: In React, `muted` in JSX does not consistently set the DOM property
+ *    `element.muted = true` before WebKit evaluates the autoplay policy. We set `defaultMuted = true`
+ *    and `muted = true` directly on the DOM element ref in an effect.
+ * 2. Preload Buffering: `preload="metadata"` causes Safari to stall without buffering initial frames,
+ *    preventing autoplay. `preload="auto"` ensures enough data is cached to start immediately.
+ * 3. Mobile PlaysInline: Uses both `playsInline` and `webkit-playsinline="true"` to prevent iOS Safari
+ *    from treating the video as needing full-screen permission.
+ * 4. Explicit Source Child: Uses `<source src={src} type="video/mp4" />` so QuickTime's media pipeline
+ *    identifies the codec immediately.
+ * 5. Low Power Mode / Autoplay Restriction Fallback: Listens for the first passive touch/scroll/click
+ *    or tab visibility change to resume playback immediately if the browser throttled it on load.
  */
 export default function HeroVideo({
   src,
   poster,
-}: {
-  src: string
-  poster?: string
-}) {
+  className = "h-full w-full object-cover opacity-60",
+}: HeroVideoProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    // Explicitly enforce muted properties on the raw DOM element for WebKit
+    video.defaultMuted = true
+    video.muted = true
+
+    const attemptPlay = () => {
+      if (!video) return
+      const playPromise = video.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay restricted by user agent (e.g. Low Power Mode).
+          // Passive interaction listeners below will resume on first touch or scroll.
+        })
+      }
+    }
+
+    attemptPlay()
+
+    // Resume immediately upon first touch, scroll, or click if Safari paused it
+    const handleInteraction = () => {
+      attemptPlay()
+    }
+
+    window.addEventListener("touchstart", handleInteraction, { once: true, passive: true })
+    window.addEventListener("scroll", handleInteraction, { once: true, passive: true })
+    window.addEventListener("click", handleInteraction, { once: true, passive: true })
+    document.addEventListener("visibilitychange", attemptPlay)
+
+    return () => {
+      window.removeEventListener("touchstart", handleInteraction)
+      window.removeEventListener("scroll", handleInteraction)
+      window.removeEventListener("click", handleInteraction)
+      document.removeEventListener("visibilitychange", attemptPlay)
+    }
+  }, [])
+
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      <video
-        className="h-full w-full object-cover"
-        src={src}
-        poster={poster}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-      />
-      {/* The copy sits on top, so the video needs holding back rather than
-          showing off. A single flat scrim greys the whole frame; a gradient
-          keeps the image readable where there is no text. */}
-      <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/85 via-neutral-950/60 to-neutral-950/30" />
-    </div>
+    <video
+      ref={videoRef}
+      className={className}
+      poster={poster}
+      autoPlay
+      muted
+      loop
+      playsInline
+      webkit-playsinline="true"
+      preload="auto"
+    >
+      <source src={src} type="video/mp4" />
+    </video>
   )
 }

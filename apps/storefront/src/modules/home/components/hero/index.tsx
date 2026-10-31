@@ -1,4 +1,5 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import HeroVideo from "@modules/home/components/hero-video"
 
 /**
  * Full-screen cinematic hero — Y2K Cyber Sigilism / Neo-Futurism.
@@ -24,15 +25,10 @@ const Hero = ({ countryCode }: { countryCode: string }) => {
     >
       {/* ── Background video ─────────────────────────────────────────── */}
       <div className="absolute inset-0" aria-hidden="true">
-        <video
-          className="h-full w-full object-cover opacity-60"
+        <HeroVideo
           src={videoSrc}
           poster={videoPoster}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
+          className="h-full w-full object-cover opacity-60"
         />
         {/* Layered gradient overlay: radial vignette + bottom fade for text */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
