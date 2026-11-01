@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import Script from "next/script"
 import { getBaseURL } from "@lib/util/env"
 import { Metadata, Viewport } from "next"
 import { Toaster } from "sonner"
@@ -82,9 +81,8 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     >
       <head>
         {META_PIXEL_ID ? (
-          <Script
+          <script
             id="meta-pixel-base"
-            strategy="beforeInteractive"
             dangerouslySetInnerHTML={{
               __html: `!function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
