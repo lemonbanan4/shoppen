@@ -1,9 +1,11 @@
 import { Suspense } from "react"
+import Script from "next/script"
 import { getBaseURL } from "@lib/util/env"
 import { Metadata, Viewport } from "next"
 import { Toaster } from "sonner"
 import PostHogProvider from "@modules/common/components/analytics/posthog-provider"
 import MetaPixel from "@modules/common/components/analytics/meta-pixel"
+import { META_PIXEL_ID } from "@lib/meta-pixel"
 import { Analytics } from "@vercel/analytics/next"
 import "styles/globals.css"
 import { BRAND, isSolkast } from "@lib/brand"
@@ -78,6 +80,26 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       data-mode={dark ? "dark" : "light"}
       style={{ colorScheme: dark ? "dark" : "light" }}
     >
+      <head>
+        {META_PIXEL_ID ? (
+          <Script
+            id="meta-pixel-base"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');`,
+            }}
+          />
+        ) : null}
+      </head>
       <body
         className={`font-sans antialiased ${
           dark
@@ -85,6 +107,17 @@ export default function RootLayout(props: { children: React.ReactNode }) {
             : "bg-white text-neutral-950"
         }`}
       >
+        {META_PIXEL_ID && (
+          <noscript>
+            <img
+              height="1"
+              width="1"
+              style={{ display: "none" }}
+              src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+              alt=""
+            />
+          </noscript>
+        )}
         <PostHogProvider>
           <main className="relative">{props.children}</main>
           <Toaster position="bottom-right" richColors closeButton />
